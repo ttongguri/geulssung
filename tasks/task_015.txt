@@ -1,45 +1,250 @@
-# Task ID: 15
-# Title: Deployment and Integration Testing
-# Status: pending
-# Dependencies: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-# Priority: high
-# Description: Prepare the application for deployment, set up CI/CD pipeline, and conduct comprehensive integration testing.
-# Details:
-1. Set up deployment environments:
-   - Development
-   - Staging
-   - Production
+# 태스크 ID: 15
+# 제목: 테스트 및 배포
+# 상태: 대기중 (pending)
+# 선행 태스크: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+# 우선순위: 높음 (high)
+# 설명: 전체 애플리케이션에 대한 종합 테스트를 구현하고, 배포 파이프라인을 구축합니다.
+# 상세 내용:
+1. 백엔드 테스트 구현:
+   - 모델/서비스 단위 테스트
+   - API 엔드포인트 통합 테스트
+   - DB 마이그레이션 테스트
 
-2. Configure CI/CD pipeline:
-   - Automated testing
-   - Build process
-   - Deployment scripts
+2. 프론트엔드 테스트 구현:
+   - 컴포넌트 단위 테스트
+   - 주요 사용자 플로우 통합 테스트
+   - 핵심 경로 E2E(엔드투엔드) 테스트
 
-3. Implement environment-specific configurations:
-   - API endpoints
-   - Feature flags
-   - Error logging
+3. CI/CD 파이프라인 구축:
+   - GitHub Actions 등 CI 서비스 설정
+   - PR 시 자동 테스트 실행
+   - 스테이징/운영 환경 분리
 
-4. Conduct integration testing:
-   - End-to-end user flows
-   - Performance testing
-   - Security testing
+4. 배포 프로세스 구현:
+   - 백엔드 배포(Heroku, AWS, GCP 등)
+   - 프론트엔드 배포(Vercel, Netlify 등)
+   - DB 마이그레이션 전략 수립
 
-5. Create deployment documentation:
-   - Setup instructions
-   - Environment variables
-   - Backup procedures
+5. 모니터링 및 로깅 설정:
+   - 에러 트래킹(Sentry 등)
+   - 성능 모니터링
+   - 사용량 분석
 
-6. Implement monitoring and analytics:
-   - Error tracking
-   - Usage analytics
-   - Performance monitoring
+예시 백엔드 테스트:
+```javascript
+const request = require('supertest');
+const app = require('../app');
+const db = require('../models');
 
-# Test Strategy:
-1. Test complete user flows from registration to post creation and interaction
-2. Verify all components work together correctly
-3. Test deployment to each environment
-4. Validate CI/CD pipeline functionality
-5. Conduct load testing to ensure performance
-6. Perform security audit and penetration testing
-7. Verify monitoring and analytics implementation
+describe('Post API', () => {
+  let authToken;
+  let userId;
+  beforeAll(async () => {
+    // 테스트용 사용자 생성 및 토큰 발급
+    const response = await request(app)
+      .post('/api/auth/register')
+      .send({
+        email: 'test@example.com',
+        nickname: 'tester',
+        password: 'password123'
+      });
+    authToken = response.body.token;
+    userId = response.body.user.id;
+  });
+  afterAll(async () => {
+    // 테스트 데이터 정리
+    await db.User.destroy({ where: { id: userId } });
+    await db.sequelize.close();
+  });
+  describe('POST /api/posts', () => {
+    it('새 글을 생성할 수 있다', async () => {
+      const response = await request(app)
+        .post('/api/posts')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          topic: '테스트 주제',
+          content: '테스트 글 내용입니다.'
+        });
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body.author_id).toBe(userId);
+      expect(response.body.topic).toBe('테스트 주제');
+      expect(response.body.content).toBe('테스트 글 내용입니다.');
+      expect(response.body.depth).toBe(0);
+      // 생성된 글 정리
+      await db.Post.destroy({ where: { id: response.body.id } });
+    });
+    it('인증 없이 글을 생성할 수 없다', async () => {
+      const response = await request(app)
+        .post('/api/posts')
+        .send({
+          topic: '테스트 주제',
+          content: '테스트 글 내용입니다.'
+        });
+      expect(response.status).toBe(401);
+    });
+  });
+});
+```
+
+예시 프론트엔드 테스트:
+```javascript
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../contexts/AuthContext';
+import PostEditor from '../components/PostEditor';
+import api from '../services/api';
+// API 모킹
+jest.mock('../services/api');
+describe('PostEditor', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  it('주제가 표시된 에디터가 렌더링된다', () => {
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <PostEditor topic="테스트 주제" />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+    expect(screen.getByText(/테스트 주제/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /글 작성/i })).toBeDisabled();
+  });
+  it('내용 입력 시 제출 버튼이 활성화된다', async () => {
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <PostEditor topic="테스트 주제" />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+    const editorInput = screen.getByRole('textbox');
+    fireEvent.change(editorInput, { target: { value: '테스트 내용' } });
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /글 작성/i })).not.toBeDisabled();
+    });
+  });
+  it('버튼 클릭 시 글이 제출된다', async () => {
+    // API 성공 응답 모킹
+    api.post.mockResolvedValueOnce({
+      data: {
+        id: 1,
+        topic: '테스트 주제',
+        content: '테스트 내용',
+        author_id: 1,
+        depth: 0,
+        created_at: new Date().toISOString()
+      }
+    });
+    const onPostCreated = jest.fn();
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <PostEditor topic="테스트 주제" onPostCreated={onPostCreated} />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+    const editorInput = screen.getByRole('textbox');
+    fireEvent.change(editorInput, { target: { value: '테스트 내용' } });
+    const submitButton = await waitFor(() => screen.getByRole('button', { name: /글 작성/i }));
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/api/posts', {
+        topic: '테스트 주제',
+        content: '테스트 내용'
+      });
+      expect(onPostCreated).toHaveBeenCalled();
+    });
+  });
+});
+```
+
+예시 CI/CD 워크플로우(GitHub Actions):
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+    - name: Run migrations
+      working-directory: ./backend
+      run: npm run migrate:test
+      env:
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+    - name: Run backend tests
+      working-directory: ./backend
+      run: npm test
+      env:
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+        JWT_SECRET: test_secret
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Run frontend tests
+      working-directory: ./frontend
+      run: npm test
+  deploy:
+    needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deploy backend to Heroku
+      uses: akhileshns/heroku-deploy@v3.12.12
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: "geulsseong-api"
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        appdir: "backend"
+    - name: Deploy frontend to Vercel
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./frontend
+```
+
+# 테스트 전략:
+1. 백엔드 모델/서비스 단위 테스트 커버리지 검증
+2. 다양한 입력 시나리오로 API 엔드포인트 테스트
+3. 주요 UI 요소 프론트엔드 컴포넌트 테스트
+4. 핵심 사용자 여정 E2E(엔드투엔드) 플로우 테스트
+5. CI/CD 파이프라인 트리거 및 배포 검증
+6. DB 마이그레이션 및 롤백 절차 테스트
+7. 모니터링/로깅 시스템이 주요 데이터를 정상적으로 수집하는지 확인

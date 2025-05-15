@@ -1,41 +1,31 @@
-# Task ID: 2
-# Title: Backend Project Setup
-# Status: pending
-# Dependencies: 1
-# Priority: high
-# Description: Set up the backend project structure with Node.js/Express (or preferred framework), configure environment, and establish database connection.
-# Details:
-1. Initialize a new Node.js project
-2. Install dependencies:
-   - Express.js (or preferred framework)
-   - Database ORM (Sequelize/TypeORM/Prisma)
-   - Authentication packages (passport.js, jsonwebtoken)
-   - Validation (joi/zod)
-   - OpenAI SDK for GPT integration
-   - Other utilities (cors, helmet, etc.)
+# 태스크 ID: 2
+# 제목: 백엔드 API 프레임워크 세팅
+# 상태: 대기중 (pending)
+# 선행 태스크: 1
+# 우선순위: 높음 (high)
+# 설명: 인증 미들웨어, 라우팅, 데이터베이스 연결이 포함된 백엔드 API 프레임워크를 세팅합니다.
+# 상세 내용:
+1. Node.js/Express.js(또는 NestJS 등 대안 프레임워크) 프로젝트 초기화
+2. 데이터베이스 연결, API 키 등 환경변수 설정
+3. Sequelize, TypeORM 등 ORM을 활용한 DB 연결 구성
+4. 미들웨어 구현:
+   - 인증/인가
+   - 에러 처리
+   - 요청 검증
+   - CORS
+5. 기본 폴더 구조 생성:
+   - controllers/
+   - models/
+   - routes/
+   - middleware/
+   - services/
+   - utils/
+6. 로깅 및 에러 트래킹 설정
+7. 개발/운영 환경 분리 및 설정
 
-3. Create project structure:
-```
-/src
-  /config
-  /controllers
-  /middlewares
-  /models
-  /routes
-  /services
-  /utils
-  app.js
-  server.js
-```
-
-4. Configure environment variables (.env)
-5. Set up database connection
-6. Implement basic error handling middleware
-7. Configure CORS and security headers
-
-# Test Strategy:
-1. Verify project structure is correctly set up
-2. Test database connection
-3. Ensure environment variables are properly loaded
-4. Validate basic server startup and shutdown
-5. Test error handling middleware with sample errors
+# 테스트 전략:
+1. DB 연결 테스트
+2. 미들웨어 동작 확인
+3. 환경변수 설정 테스트
+4. API 응답 포맷 표준 준수 확인
+5. 잘못된 요청에 대한 에러 처리 테스트

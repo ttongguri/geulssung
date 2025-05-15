@@ -1,47 +1,100 @@
-# Task ID: 9
-# Title: Frontend Project Setup
-# Status: pending
-# Dependencies: None
-# Priority: high
-# Description: Set up the frontend project with React (or preferred framework), configure routing, state management, and API integration.
-# Details:
-1. Initialize a new React project (or Next.js/Vue.js)
-2. Install dependencies:
-   - Routing (react-router-dom)
-   - State management (Redux/Context API/Zustand)
-   - API client (axios/fetch)
-   - UI components (Material-UI/Chakra UI/Tailwind)
-   - Form handling (react-hook-form/formik)
-   - Validation (yup/zod)
+# 태스크 ID: 9
+# 제목: 프론트엔드 세팅 및 인증 UI
+# 상태: 대기중 (pending)
+# 선행 태스크: 2, 3
+# 우선순위: 높음 (high)
+# 설명: 프론트엔드 프로젝트를 세팅하고, 회원가입/로그인 등 인증 UI 컴포넌트를 구현합니다.
+# 상세 내용:
+1. React.js 프로젝트 초기화(SSR이 필요하다면 Next.js)
+2. react-router 또는 Next.js 라우팅 설정
+3. 상태 관리(Redux, Context API 등) 구성
+4. 인증 UI 구현:
+   - 회원가입 폼
+   - 로그인 폼
+   - 비밀번호 재설정 폼(MVP 선택)
+   - 인증 상태 관리
+   - 보호 라우트 처리
 
-3. Create project structure:
+5. 기본 레이아웃 컴포넌트 구현:
+   - 인증 상태가 표시되는 헤더
+   - 네비게이션 메뉴
+   - 푸터
+
+6. 폼 검증 및 에러 처리 구현
+
+예시 인증 컨텍스트:
+```javascript
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import api from '../services/api';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // 마운트 시 저장된 토큰 확인
+    const token = localStorage.getItem('token');
+    if (token) {
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+      api.get('/api/users/me')
+        .then(response => {
+          setUser(response.data);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, []);
+  
+  const login = async (email, password) => {
+    const response = await api.post('/api/auth/login', { email, password });
+    const { token, user } = response.data;
+    
+    localStorage.setItem('token', token);
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+    setUser(user);
+    
+    return user;
+  };
+  
+  const register = async (email, nickname, password) => {
+    const response = await api.post('/api/auth/register', { email, nickname, password });
+    const { token, user } = response.data;
+    
+    localStorage.setItem('token', token);
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+    setUser(user);
+    
+    return user;
+  };
+  
+  const logout = () => {
+    localStorage.removeItem('token');
+    api.defaults.headers.Authorization = null;
+    setUser(null);
+  };
+  
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
 ```
-/src
-  /assets
-    /images
-    /styles
-  /components
-    /common
-    /layout
-    /characters
-  /contexts
-  /hooks
-  /pages
-  /services
-  /utils
-  App.js
-  index.js
-```
 
-4. Set up routing
-5. Configure API client
-6. Implement authentication context/store
-7. Create basic layout components
-
-# Test Strategy:
-1. Verify project structure is correctly set up
-2. Test routing configuration
-3. Validate API client setup
-4. Test authentication state management
-5. Verify component rendering
-6. Test responsive layout
+# 테스트 전략:
+1. 회원가입 폼 검증 테스트
+2. 로그인 기능 테스트
+3. 토큰 저장 및 불러오기 검증
+4. 보호 라우트 리다이렉션 테스트
+5. 폼 에러 처리 검증
+6. 다양한 화면 크기에서 반응형 디자인 테스트

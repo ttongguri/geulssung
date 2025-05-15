@@ -1,38 +1,77 @@
-# Task ID: 5
-# Title: Post Creation and Tree Structure
-# Status: pending
-# Dependencies: 1, 2, 3
-# Priority: high
-# Description: Implement the post creation system with tree structure for original posts, rebuttals, and counter-rebuttals.
-# Details:
-1. Create Post model with Sequelize/TypeORM/Prisma
-2. Implement post creation endpoint:
-   - Validate user authentication
-   - Store post content, topic, author
-   - Handle parent_post_id for rebuttals
-   - Enforce depth limit (max 2 levels deep)
-   - Validate that counter-rebuttals can only be made by original post author
+# 태스크 ID: 5
+# 제목: 글 작성 및 트리 구조 구현
+# 상태: 대기중 (pending)
+# 선행 태스크: 1, 2, 3
+# 우선순위: 높음 (high)
+# 설명: 원글, 반론, 반론에 대한 반론 등 트리 구조를 지원하는 글쓰기 핵심 기능을 구현합니다.
+# 상세 내용:
+1. 글 작성 엔드포인트 구현:
+   - 사용자 인증 검증
+   - 글의 depth(단계) 저장
+   - 반론일 경우 parent_post_id 처리
+   - 최대 3단계(원글, 반론, 반론에 대한 반론) 제한
+   - 반론에 대한 반론(depth=2)은 반드시 원글 작성자만 가능하도록 검증
 
-3. Implement post retrieval endpoints:
-   - Get post by ID
-   - Get posts by topic
-   - Get posts by user
-   - Get post tree (original + rebuttals + counter-rebuttals)
+2. 글 조회 엔드포인트 구현:
+   - ID로 글 조회
+   - 전체 스레드(원글+반론+반론에 대한 반론) 조회
+   - 다양한 필터(최신, 주제별, 사용자별)로 글 목록 조회
 
-4. Add pagination and sorting options
+3. 트리 구조 시각화 로직 구현:
+   - 글의 부모-자식 관계 데이터 조회
+   - 프론트엔드 트리 렌더링용 데이터 구조화
 
-API Endpoints:
-- POST /api/posts
-- GET /api/posts
-- GET /api/posts/:id
-- GET /api/posts/topic/:topicId
-- GET /api/posts/user/:userId
-- GET /api/posts/:id/tree
+예시 글 작성 엔드포인트:
+```javascript
+app.post('/api/posts', authenticate, async (req, res) => {
+  try {
+    const { topic, content, parent_post_id } = req.body;
+    const userId = req.user.id;
+    // 입력값 검증
+    if (!content || (!topic && !parent_post_id)) {
+      return res.status(400).json({ error: '내용과 주제 또는 parent_post_id가 필요합니다.' });
+    }
+    let depth = 0;
+    let parentPost = null;
+    // 반론 처리
+    if (parent_post_id) {
+      parentPost = await Post.findByPk(parent_post_id);
+      if (!parentPost) {
+        return res.status(404).json({ error: '부모 글을 찾을 수 없습니다.' });
+      }
+      depth = parentPost.depth + 1;
+      // 최대 깊이 제한
+      if (depth > 2) {
+        return res.status(400).json({ error: '최대 스레드 깊이를 초과했습니다.' });
+      }
+      // 반론에 대한 반론(depth=2)은 원글 작성자만 가능
+      if (depth === 2) {
+        const originalPost = await Post.findByPk(parentPost.parent_post_id || parentPost.id);
+        if (originalPost.author_id !== userId) {
+          return res.status(403).json({ error: '원글 작성자만 반론에 대한 반론을 작성할 수 있습니다.' });
+        }
+      }
+    }
+    // 글 생성
+    const post = await Post.create({
+      author_id: userId,
+      topic: topic || parentPost.topic,
+      content,
+      parent_post_id,
+      depth,
+      created_at: new Date()
+    });
+    res.status(201).json(post);
+  } catch (error) {
+    res.status(500).json({ error: '서버 오류' });
+  }
+});
+```
 
-# Test Strategy:
-1. Test post creation with valid and invalid inputs
-2. Verify depth constraints (max 2 levels)
-3. Test that counter-rebuttals can only be made by original author
-4. Validate post retrieval by different criteria
-5. Test tree structure retrieval
-6. Verify pagination and sorting functionality
+# 테스트 전략:
+1. parent_post_id 유무에 따른 글 작성 테스트
+2. depth 계산 및 제한 검증
+3. 원글 작성자만 반론에 대한 반론 작성 가능 여부 테스트
+4. 스레드 구조로 글 조회 테스트
+5. 부모 글의 주제가 자식 글에 올바르게 전달되는지 확인
+6. 다양한 목록 필터 및 페이지네이션 테스트

@@ -1,43 +1,131 @@
-# Task ID: 11
-# Title: Authentication and User Interface
-# Status: pending
-# Dependencies: 3, 9
-# Priority: high
-# Description: Implement the frontend authentication flow and user interface for registration, login, and profile management.
-# Details:
-1. Create authentication pages:
-   - Registration form
-   - Login form
-   - Password reset (optional)
+# 태스크 ID: 11
+# 제목: AI 피드백 UI
+# 상태: 대기중 (pending)
+# 선행 태스크: 6, 9
+# 우선순위: 보통 (medium)
+# 설명: 글에 대한 AI 피드백(정치/젠더/중립성 점수 등)을 시각적으로 보여주는 UI를 구현합니다.
+# 상세 내용:
+1. 피드백 시각화 컴포넌트 구현:
+   - 점수 시각화(게이지, 바 등)
+   - 해석 문구 표시
+   - 캐릭터 기반 피드백 연출
 
-2. Implement authentication state management:
-   - Store user token
-   - Handle authentication status
-   - Implement protected routes
+2. 피드백 로딩 상태 처리:
+   - 초기 로딩
+   - 새로고침/업데이트
 
-3. Create user profile components:
-   - Profile display
-   - Profile edit form
-   - Password change form
+3. 상세 피드백 뷰 구현:
+   - 상세 분석 확장 뷰
+   - 과거 이력 비교(가능하다면)
 
-4. Implement form validation
-5. Add error handling and user feedback
+예시 피드백 컴포넌트:
+```jsx
+import React from 'react';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
-Components:
-- RegisterForm
-- LoginForm
-- PasswordResetForm
-- ProfileDisplay
-- ProfileEditForm
-- PasswordChangeForm
-- AuthContext/Provider
-- ProtectedRoute
+const FeedbackDisplay = ({ feedback, loading }) => {
+  if (loading) {
+    return <div className="feedback-loading">AI가 글을 분석 중입니다...</div>;
+  }
+  if (!feedback) {
+    return null;
+  }
+  const { political_score, gender_score, neutrality, feedback_json } = feedback;
+  const feedbackText = feedback_json ? JSON.parse(feedback_json).feedback : '';
+  // 점수에 따라 색상 결정
+  const getScoreColor = (score, type) => {
+    if (type === 'neutrality') {
+      return score > 70 ? '#4CAF50' : score > 40 ? '#FF9800' : '#F44336';
+    } else {
+      const distance = Math.abs(score - 50);
+      return distance < 15 ? '#4CAF50' : distance < 30 ? '#FF9800' : '#F44336';
+    }
+  };
+  return (
+    <div className="feedback-container">
+      <h3>AI 피드백</h3>
+      <div className="score-container">
+        <div className="score-item">
+          <h4>정치 성향</h4>
+          <div className="score-gauge">
+            <CircularProgressbar
+              value={political_score}
+              maxValue={100}
+              text={`${Math.round(political_score)}`}
+              styles={buildStyles({
+                textSize: '2rem',
+                pathColor: getScoreColor(political_score, 'political'),
+                textColor: getScoreColor(political_score, 'political'),
+              })}
+            />
+          </div>
+          <div className="score-scale">
+            <span>진보</span>
+            <span>중립</span>
+            <span>보수</span>
+          </div>
+        </div>
+        <div className="score-item">
+          <h4>젠더 성향</h4>
+          <div className="score-gauge">
+            <CircularProgressbar
+              value={gender_score}
+              maxValue={100}
+              text={`${Math.round(gender_score)}`}
+              styles={buildStyles({
+                textSize: '2rem',
+                pathColor: getScoreColor(gender_score, 'gender'),
+                textColor: getScoreColor(gender_score, 'gender'),
+              })}
+            />
+          </div>
+          <div className="score-scale">
+            <span>여성 편향</span>
+            <span>중립</span>
+            <span>남성 편향</span>
+          </div>
+        </div>
+        <div className="score-item">
+          <h4>중립성</h4>
+          <div className="score-gauge">
+            <CircularProgressbar
+              value={neutrality}
+              maxValue={100}
+              text={`${Math.round(neutrality)}`}
+              styles={buildStyles({
+                textSize: '2rem',
+                pathColor: getScoreColor(neutrality, 'neutrality'),
+                textColor: getScoreColor(neutrality, 'neutrality'),
+              })}
+            />
+          </div>
+          <div className="score-scale">
+            <span>편향</span>
+            <span>중립</span>
+            <span>객관</span>
+          </div>
+        </div>
+      </div>
+      <div className="feedback-text">
+        <div className="character-container">
+          <img src="/images/geulsseong-thinking.png" alt="글썽이 생각중" />
+        </div>
+        <div className="text-bubble">
+          {feedbackText}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-# Test Strategy:
-1. Test registration with valid and invalid inputs
-2. Verify login functionality
-3. Test protected routes
-4. Validate form validation
-5. Test error handling and user feedback
-6. Verify profile display and edit functionality
-7. Test responsive behavior on different screen sizes
+export default FeedbackDisplay;
+```
+
+# 테스트 전략:
+1. 다양한 점수 조합으로 피드백 표시 테스트
+2. 로딩 상태 및 에러 처리 검증
+3. 피드백 컴포넌트 반응형 디자인 테스트
+4. 캐릭터 애니메이션/상호작용 확인
+5. 피드백 시각화 접근성 테스트
+6. 피드백 문구 정상 표시 및 포맷 검증

@@ -1,55 +1,56 @@
-# Task ID: 1
-# Title: Database Schema Design
-# Status: pending
-# Dependencies: None
-# Priority: high
-# Description: Design and implement the database schema based on the PRD specifications for users, posts, feedbacks, reactions, and topics tables.
-# Details:
-Create the following tables with PostgreSQL or MySQL:
+# 태스크 ID: 1
+# 제목: 데이터베이스 스키마 설계 및 구현
+# 상태: 대기중 (pending)
+# 선행 태스크: 없음
+# 우선순위: 높음 (high)
+# 설명: PRD 명세에 따라 users, posts, feedbacks, reactions, topics 테이블의 데이터베이스 스키마를 설계하고 구현합니다.
+# 상세 내용:
+PostgreSQL 또는 MySQL을 사용하여 다음과 같은 테이블을 생성합니다:
 
-1. users:
-   - id (PK, auto-increment)
-   - email (unique)
-   - nickname (unique)
+1. users(사용자):
+   - id (기본키, 자동 증가)
+   - email (고유값)
+   - nickname (고유값)
    - password_hash
-   - created_at (timestamp)
+   - created_at (생성일시)
 
-2. posts:
-   - id (PK, auto-increment)
-   - author_id (FK to users.id)
-   - topic (text)
-   - content (text)
-   - parent_post_id (FK to posts.id, nullable)
-   - depth (integer, 0-2 for original-rebuttal-counter)
-   - created_at (timestamp)
+2. posts(글):
+   - id (기본키, 자동 증가)
+   - author_id (users.id 외래키)
+   - topic (텍스트)
+   - content (텍스트)
+   - parent_post_id (posts.id 외래키, null 허용)
+   - depth (정수, 0~2: 원글, 반론, 반론에 대한 반론)
+   - created_at (생성일시)
 
-3. feedbacks:
-   - post_id (PK, FK to posts.id)
-   - political_score (float)
-   - gender_score (float)
-   - neutrality (float)
-   - feedback_json (json/text)
-   - created_at (timestamp)
+3. feedbacks(피드백):
+   - post_id (posts.id 외래키)
+   - political_score (실수)
+   - gender_score (실수)
+   - neutrality (실수)
+   - feedback_json (AI 피드백 상세 json/텍스트)
+   - created_at (생성일시)
 
-4. reactions:
-   - id (PK, auto-increment)
-   - user_id (FK to users.id)
-   - post_id (FK to posts.id)
-   - author_id (FK to users.id)
+4. reactions(반응):
+   - id (기본키, 자동 증가)
+   - user_id (users.id 외래키)
+   - post_id (posts.id 외래키, null 허용)
+   - author_id (users.id 외래키, null 허용)
    - type (enum: 'like', 'follow')
-   - created_at (timestamp)
+   - created_at (생성일시)
 
-5. topics:
-   - id (PK, auto-increment)
-   - keyword (text)
-   - description (text)
-   - created_at (timestamp)
+5. topics(주제):
+   - id (기본키, 자동 증가)
+   - keyword (텍스트)
+   - description (텍스트)
+   - created_at (생성일시)
 
-Add appropriate indexes for foreign keys and frequently queried fields.
+적절한 인덱스와 제약조건(외래키, 고유값 등)을 구현합니다.
 
-# Test Strategy:
-1. Create unit tests to verify table creation scripts
-2. Test foreign key constraints with sample data
-3. Verify unique constraints on email and nickname
-4. Test the depth constraint for posts (0-2)
-5. Validate data types and constraints with sample inserts
+# 테스트 전략:
+1. 테이블 생성 스크립트 단위 테스트 작성
+2. 샘플 데이터로 외래키 제약조건 테스트
+3. 이메일/닉네임 고유값 제약 테스트
+4. posts 테이블의 depth(0~2) 제약 테스트
+5. 생성일시 필드 자동 생성 확인
+6. 샘플 데이터 대량 입력 시 DB 성능 테스트
