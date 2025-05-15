@@ -1,0 +1,37 @@
+# Task ID: 13
+# Title: AI Feedback Display
+# Status: pending
+# Dependencies: 6, 9, 12
+# Priority: medium
+# Description: Implement the frontend interface for displaying AI feedback on posts, including political, gender, and neutrality scores.
+# Details:
+1. Create feedback display components:
+   - Score visualization (charts/gauges)
+   - Feedback explanation display
+   - Historical feedback comparison
+
+2. Implement score visualization:
+   - Political score (left-center-right scale)
+   - Gender score (female-neutral-male scale)
+   - Neutrality score (biased-neutral scale)
+
+3. Add character integration:
+   - Character reactions to feedback
+   - Character speech bubbles with feedback insights
+
+4. Implement feedback history view for user profile
+
+Components:
+- FeedbackDisplay
+- ScoreChart
+- FeedbackExplanation
+- FeedbackHistory
+- CharacterFeedbackReaction
+
+# Test Strategy:
+1. Test feedback display with various score combinations
+2. Verify chart/gauge visualization accuracy
+3. Test character integration with feedback
+4. Validate feedback history display
+5. Test responsive behavior on different screen sizes
+6. Verify accessibility of feedback components

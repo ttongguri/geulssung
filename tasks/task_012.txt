@@ -1,0 +1,47 @@
+# Task ID: 12
+# Title: Post Creation and Display Interface
+# Status: pending
+# Dependencies: 5, 9, 10
+# Priority: high
+# Description: Implement the frontend interface for creating, viewing, and interacting with posts, including the tree structure visualization.
+# Details:
+1. Create post components:
+   - Post creation form with topic selection
+   - Post display card
+   - Post detail view
+   - Rebuttal form
+   - Counter-rebuttal form
+
+2. Implement tree structure visualization:
+   - Original post
+   - Connected rebuttals
+   - Connected counter-rebuttals
+   - Visual indicators for depth
+
+3. Add character integration:
+   - 글썽이 for original posts
+   - 말썽이 for rebuttals
+   - Character animations on interaction
+
+4. Implement post filtering and sorting:
+   - By topic
+   - By recency
+   - By popularity
+
+Components:
+- PostForm
+- PostCard
+- PostDetail
+- RebuttalForm
+- PostTree
+- PostFilter
+- PostList
+
+# Test Strategy:
+1. Test post creation with valid and invalid inputs
+2. Verify rebuttal and counter-rebuttal creation
+3. Test tree structure visualization
+4. Validate character integration
+5. Test filtering and sorting functionality
+6. Verify responsive behavior on different screen sizes
+7. Test accessibility of post components

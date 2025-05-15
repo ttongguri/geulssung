@@ -1,0 +1,49 @@
+# Task ID: 6
+# Title: AI Feedback Integration
+# Status: pending
+# Dependencies: 2, 5
+# Priority: high
+# Description: Integrate with OpenAI GPT API to analyze posts and provide feedback on political leaning, gender bias, and neutrality.
+# Details:
+1. Create Feedback model with Sequelize/TypeORM/Prisma
+2. Implement OpenAI GPT integration service:
+   - Configure API key and model selection
+   - Create prompt template for analyzing posts
+   - Parse response to extract scores and feedback
+
+3. Create feedback generation endpoint:
+   - Trigger on post creation
+   - Send post content to GPT API
+   - Parse response and store feedback
+   - Calculate political_score, gender_score, and neutrality
+
+4. Implement feedback retrieval endpoints:
+   - Get feedback by post ID
+   - Include feedback in post details
+
+Prompt template example:
+```
+Analyze the following text for political leaning (0-100, where 0 is far-left, 50 is neutral, 100 is far-right), gender bias (0-100, where 0 is strongly female-biased, 50 is neutral, 100 is strongly male-biased), and overall neutrality (0-100, where 0 is highly biased, 100 is completely neutral).
+
+Text: "{{post_content}}"
+
+Provide scores and brief explanation in JSON format:
+{
+  "political_score": number,
+  "gender_score": number,
+  "neutrality": number,
+  "explanation": string
+}
+```
+
+API Endpoints:
+- POST /api/posts/:id/feedback (internal use)
+- GET /api/posts/:id/feedback
+
+# Test Strategy:
+1. Test GPT API integration with sample posts
+2. Verify score calculation and normalization
+3. Test feedback storage and retrieval
+4. Validate error handling for API failures
+5. Test performance and response times
+6. Verify feedback is generated automatically on post creation

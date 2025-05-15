@@ -1,0 +1,38 @@
+# Task ID: 5
+# Title: Post Creation and Tree Structure
+# Status: pending
+# Dependencies: 1, 2, 3
+# Priority: high
+# Description: Implement the post creation system with tree structure for original posts, rebuttals, and counter-rebuttals.
+# Details:
+1. Create Post model with Sequelize/TypeORM/Prisma
+2. Implement post creation endpoint:
+   - Validate user authentication
+   - Store post content, topic, author
+   - Handle parent_post_id for rebuttals
+   - Enforce depth limit (max 2 levels deep)
+   - Validate that counter-rebuttals can only be made by original post author
+
+3. Implement post retrieval endpoints:
+   - Get post by ID
+   - Get posts by topic
+   - Get posts by user
+   - Get post tree (original + rebuttals + counter-rebuttals)
+
+4. Add pagination and sorting options
+
+API Endpoints:
+- POST /api/posts
+- GET /api/posts
+- GET /api/posts/:id
+- GET /api/posts/topic/:topicId
+- GET /api/posts/user/:userId
+- GET /api/posts/:id/tree
+
+# Test Strategy:
+1. Test post creation with valid and invalid inputs
+2. Verify depth constraints (max 2 levels)
+3. Test that counter-rebuttals can only be made by original author
+4. Validate post retrieval by different criteria
+5. Test tree structure retrieval
+6. Verify pagination and sorting functionality

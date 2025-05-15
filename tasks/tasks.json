@@ -1,0 +1,226 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Database Schema Design",
+      "description": "Design and implement the database schema based on the PRD specifications for users, posts, feedbacks, reactions, and topics tables.",
+      "details": "Create the following tables with PostgreSQL or MySQL:\n\n1. users:\n   - id (PK, auto-increment)\n   - email (unique)\n   - nickname (unique)\n   - password_hash\n   - created_at (timestamp)\n\n2. posts:\n   - id (PK, auto-increment)\n   - author_id (FK to users.id)\n   - topic (text)\n   - content (text)\n   - parent_post_id (FK to posts.id, nullable)\n   - depth (integer, 0-2 for original-rebuttal-counter)\n   - created_at (timestamp)\n\n3. feedbacks:\n   - post_id (PK, FK to posts.id)\n   - political_score (float)\n   - gender_score (float)\n   - neutrality (float)\n   - feedback_json (json/text)\n   - created_at (timestamp)\n\n4. reactions:\n   - id (PK, auto-increment)\n   - user_id (FK to users.id)\n   - post_id (FK to posts.id)\n   - author_id (FK to users.id)\n   - type (enum: 'like', 'follow')\n   - created_at (timestamp)\n\n5. topics:\n   - id (PK, auto-increment)\n   - keyword (text)\n   - description (text)\n   - created_at (timestamp)\n\nAdd appropriate indexes for foreign keys and frequently queried fields.",
+      "testStrategy": "1. Create unit tests to verify table creation scripts\n2. Test foreign key constraints with sample data\n3. Verify unique constraints on email and nickname\n4. Test the depth constraint for posts (0-2)\n5. Validate data types and constraints with sample inserts",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 2,
+      "title": "Backend Project Setup",
+      "description": "Set up the backend project structure with Node.js/Express (or preferred framework), configure environment, and establish database connection.",
+      "details": "1. Initialize a new Node.js project\n2. Install dependencies:\n   - Express.js (or preferred framework)\n   - Database ORM (Sequelize/TypeORM/Prisma)\n   - Authentication packages (passport.js, jsonwebtoken)\n   - Validation (joi/zod)\n   - OpenAI SDK for GPT integration\n   - Other utilities (cors, helmet, etc.)\n\n3. Create project structure:\n```\n/src\n  /config\n  /controllers\n  /middlewares\n  /models\n  /routes\n  /services\n  /utils\n  app.js\n  server.js\n```\n\n4. Configure environment variables (.env)\n5. Set up database connection\n6. Implement basic error handling middleware\n7. Configure CORS and security headers",
+      "testStrategy": "1. Verify project structure is correctly set up\n2. Test database connection\n3. Ensure environment variables are properly loaded\n4. Validate basic server startup and shutdown\n5. Test error handling middleware with sample errors",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "User Authentication System",
+      "description": "Implement user registration, login, and authentication system with email and nickname-based accounts.",
+      "details": "1. Create User model with Sequelize/TypeORM/Prisma\n2. Implement registration endpoint:\n   - Validate email format and uniqueness\n   - Validate nickname uniqueness\n   - Hash password securely (bcrypt)\n   - Store user in database\n\n3. Implement login endpoint:\n   - Verify credentials\n   - Generate JWT token\n   - Return user info and token\n\n4. Create authentication middleware:\n   - Verify JWT token\n   - Attach user to request object\n\n5. Implement logout functionality\n6. Add password reset flow (optional for MVP)\n\nAPI Endpoints:\n- POST /api/auth/register\n- POST /api/auth/login\n- POST /api/auth/logout\n- GET /api/auth/me",
+      "testStrategy": "1. Test registration with valid and invalid inputs\n2. Verify email and nickname uniqueness constraints\n3. Test login with correct and incorrect credentials\n4. Validate JWT token generation and verification\n5. Test authentication middleware\n6. Verify password hashing security",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 4,
+      "title": "Topic Management System",
+      "description": "Create the system for managing news/issue topics that will serve as writing prompts for users.",
+      "details": "1. Create Topic model with Sequelize/TypeORM/Prisma\n2. Implement admin-only topic creation endpoint:\n   - Add keyword\n   - Add description\n   - Set active status\n\n3. Implement topic listing endpoints:\n   - Get all topics\n   - Get today's active topic\n   - Get topic by ID\n\n4. Create simple admin interface for topic management (optional for MVP)\n\nAPI Endpoints:\n- POST /api/topics (admin only)\n- GET /api/topics\n- GET /api/topics/today\n- GET /api/topics/:id\n- PUT /api/topics/:id (admin only)\n- DELETE /api/topics/:id (admin only)",
+      "testStrategy": "1. Test topic creation with valid and invalid inputs\n2. Verify admin-only access for creation/update/delete\n3. Test retrieval of today's topic\n4. Validate topic listing functionality\n5. Test topic update and deletion",
+      "priority": "medium",
+      "dependencies": [
+        1,
+        2
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Post Creation and Tree Structure",
+      "description": "Implement the post creation system with tree structure for original posts, rebuttals, and counter-rebuttals.",
+      "details": "1. Create Post model with Sequelize/TypeORM/Prisma\n2. Implement post creation endpoint:\n   - Validate user authentication\n   - Store post content, topic, author\n   - Handle parent_post_id for rebuttals\n   - Enforce depth limit (max 2 levels deep)\n   - Validate that counter-rebuttals can only be made by original post author\n\n3. Implement post retrieval endpoints:\n   - Get post by ID\n   - Get posts by topic\n   - Get posts by user\n   - Get post tree (original + rebuttals + counter-rebuttals)\n\n4. Add pagination and sorting options\n\nAPI Endpoints:\n- POST /api/posts\n- GET /api/posts\n- GET /api/posts/:id\n- GET /api/posts/topic/:topicId\n- GET /api/posts/user/:userId\n- GET /api/posts/:id/tree",
+      "testStrategy": "1. Test post creation with valid and invalid inputs\n2. Verify depth constraints (max 2 levels)\n3. Test that counter-rebuttals can only be made by original author\n4. Validate post retrieval by different criteria\n5. Test tree structure retrieval\n6. Verify pagination and sorting functionality",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2,
+        3
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "AI Feedback Integration",
+      "description": "Integrate with OpenAI GPT API to analyze posts and provide feedback on political leaning, gender bias, and neutrality.",
+      "details": "1. Create Feedback model with Sequelize/TypeORM/Prisma\n2. Implement OpenAI GPT integration service:\n   - Configure API key and model selection\n   - Create prompt template for analyzing posts\n   - Parse response to extract scores and feedback\n\n3. Create feedback generation endpoint:\n   - Trigger on post creation\n   - Send post content to GPT API\n   - Parse response and store feedback\n   - Calculate political_score, gender_score, and neutrality\n\n4. Implement feedback retrieval endpoints:\n   - Get feedback by post ID\n   - Include feedback in post details\n\nPrompt template example:\n```\nAnalyze the following text for political leaning (0-100, where 0 is far-left, 50 is neutral, 100 is far-right), gender bias (0-100, where 0 is strongly female-biased, 50 is neutral, 100 is strongly male-biased), and overall neutrality (0-100, where 0 is highly biased, 100 is completely neutral).\n\nText: \"{{post_content}}\"\n\nProvide scores and brief explanation in JSON format:\n{\n  \"political_score\": number,\n  \"gender_score\": number,\n  \"neutrality\": number,\n  \"explanation\": string\n}\n```\n\nAPI Endpoints:\n- POST /api/posts/:id/feedback (internal use)\n- GET /api/posts/:id/feedback",
+      "testStrategy": "1. Test GPT API integration with sample posts\n2. Verify score calculation and normalization\n3. Test feedback storage and retrieval\n4. Validate error handling for API failures\n5. Test performance and response times\n6. Verify feedback is generated automatically on post creation",
+      "priority": "high",
+      "dependencies": [
+        2,
+        5
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 7,
+      "title": "Reaction System (Likes and Follows)",
+      "description": "Implement the reaction system allowing users to like posts and follow authors.",
+      "details": "1. Create Reaction model with Sequelize/TypeORM/Prisma\n2. Implement reaction endpoints:\n   - Like/unlike a post\n   - Follow/unfollow an author\n   - Get likes for a post\n   - Get followers for an author\n   - Get posts liked by a user\n   - Get authors followed by a user\n\n3. Add reaction counts to post and user responses\n\nAPI Endpoints:\n- POST /api/reactions/like/:postId\n- DELETE /api/reactions/like/:postId\n- POST /api/reactions/follow/:authorId\n- DELETE /api/reactions/follow/:authorId\n- GET /api/posts/:id/likes\n- GET /api/users/:id/followers\n- GET /api/users/:id/following\n- GET /api/users/:id/liked-posts",
+      "testStrategy": "1. Test like/unlike functionality\n2. Test follow/unfollow functionality\n3. Verify reaction counts are accurate\n4. Test retrieving likes and follows\n5. Validate that users cannot like their own posts\n6. Test concurrent reactions from multiple users",
+      "priority": "medium",
+      "dependencies": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 8,
+      "title": "User Profile and History",
+      "description": "Implement user profile page showing user's posts, received feedback, and reaction history.",
+      "details": "1. Create user profile endpoints:\n   - Get user profile details\n   - Get user's posts\n   - Get user's feedback history\n   - Get user's reaction history (likes given, authors followed)\n\n2. Implement profile update functionality:\n   - Update nickname\n   - Change password\n   - Update profile settings (optional)\n\n3. Add aggregated statistics:\n   - Average scores (political, gender, neutrality)\n   - Post count by depth (original, rebuttal, counter-rebuttal)\n   - Reaction counts received\n\nAPI Endpoints:\n- GET /api/users/:id/profile\n- GET /api/users/:id/posts\n- GET /api/users/:id/feedback\n- GET /api/users/:id/reactions\n- GET /api/users/:id/stats\n- PUT /api/users/:id/profile\n- PUT /api/users/:id/password",
+      "testStrategy": "1. Test profile retrieval with valid and invalid user IDs\n2. Verify post history retrieval\n3. Test feedback history aggregation\n4. Validate reaction history retrieval\n5. Test profile updates\n6. Verify password change functionality\n7. Test statistics calculation accuracy",
+      "priority": "medium",
+      "dependencies": [
+        3,
+        5,
+        6,
+        7
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Frontend Project Setup",
+      "description": "Set up the frontend project with React (or preferred framework), configure routing, state management, and API integration.",
+      "details": "1. Initialize a new React project (or Next.js/Vue.js)\n2. Install dependencies:\n   - Routing (react-router-dom)\n   - State management (Redux/Context API/Zustand)\n   - API client (axios/fetch)\n   - UI components (Material-UI/Chakra UI/Tailwind)\n   - Form handling (react-hook-form/formik)\n   - Validation (yup/zod)\n\n3. Create project structure:\n```\n/src\n  /assets\n    /images\n    /styles\n  /components\n    /common\n    /layout\n    /characters\n  /contexts\n  /hooks\n  /pages\n  /services\n  /utils\n  App.js\n  index.js\n```\n\n4. Set up routing\n5. Configure API client\n6. Implement authentication context/store\n7. Create basic layout components",
+      "testStrategy": "1. Verify project structure is correctly set up\n2. Test routing configuration\n3. Validate API client setup\n4. Test authentication state management\n5. Verify component rendering\n6. Test responsive layout",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Character Design and Animation",
+      "description": "Design and implement the character system including 글썽이(writer), 말썽이(rebuttal), and 몽썽이/감썽이/찡썽이(reaction characters).",
+      "details": "1. Create character illustrations:\n   - 글썽이: Writing character, shy and thoughtful\n   - 말썽이: Rebuttal character, logical and slightly sassy\n   - 몽썽이/감썽이/찡썽이: Reaction characters for likes/empathy/emotion\n\n2. Implement character animations:\n   - Idle states\n   - Action states (writing, rebutting, reacting)\n   - Transition animations\n\n3. Create character component library:\n   - Character display components\n   - Animation wrapper components\n   - Character speech bubble components\n\n4. Implement character context/state management:\n   - Track current active character\n   - Manage character state based on user actions\n\nComponents:\n- CharacterDisplay\n- CharacterAnimation\n- CharacterSpeechBubble\n- CharacterContext/Provider",
+      "testStrategy": "1. Test character rendering in different states\n2. Verify animations trigger correctly\n3. Test character context/state management\n4. Validate responsive behavior on different screen sizes\n5. Test accessibility of character components\n6. Verify performance with multiple animated characters",
+      "priority": "medium",
+      "dependencies": [
+        9
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Authentication and User Interface",
+      "description": "Implement the frontend authentication flow and user interface for registration, login, and profile management.",
+      "details": "1. Create authentication pages:\n   - Registration form\n   - Login form\n   - Password reset (optional)\n\n2. Implement authentication state management:\n   - Store user token\n   - Handle authentication status\n   - Implement protected routes\n\n3. Create user profile components:\n   - Profile display\n   - Profile edit form\n   - Password change form\n\n4. Implement form validation\n5. Add error handling and user feedback\n\nComponents:\n- RegisterForm\n- LoginForm\n- PasswordResetForm\n- ProfileDisplay\n- ProfileEditForm\n- PasswordChangeForm\n- AuthContext/Provider\n- ProtectedRoute",
+      "testStrategy": "1. Test registration with valid and invalid inputs\n2. Verify login functionality\n3. Test protected routes\n4. Validate form validation\n5. Test error handling and user feedback\n6. Verify profile display and edit functionality\n7. Test responsive behavior on different screen sizes",
+      "priority": "high",
+      "dependencies": [
+        3,
+        9
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Post Creation and Display Interface",
+      "description": "Implement the frontend interface for creating, viewing, and interacting with posts, including the tree structure visualization.",
+      "details": "1. Create post components:\n   - Post creation form with topic selection\n   - Post display card\n   - Post detail view\n   - Rebuttal form\n   - Counter-rebuttal form\n\n2. Implement tree structure visualization:\n   - Original post\n   - Connected rebuttals\n   - Connected counter-rebuttals\n   - Visual indicators for depth\n\n3. Add character integration:\n   - 글썽이 for original posts\n   - 말썽이 for rebuttals\n   - Character animations on interaction\n\n4. Implement post filtering and sorting:\n   - By topic\n   - By recency\n   - By popularity\n\nComponents:\n- PostForm\n- PostCard\n- PostDetail\n- RebuttalForm\n- PostTree\n- PostFilter\n- PostList",
+      "testStrategy": "1. Test post creation with valid and invalid inputs\n2. Verify rebuttal and counter-rebuttal creation\n3. Test tree structure visualization\n4. Validate character integration\n5. Test filtering and sorting functionality\n6. Verify responsive behavior on different screen sizes\n7. Test accessibility of post components",
+      "priority": "high",
+      "dependencies": [
+        5,
+        9,
+        10
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "AI Feedback Display",
+      "description": "Implement the frontend interface for displaying AI feedback on posts, including political, gender, and neutrality scores.",
+      "details": "1. Create feedback display components:\n   - Score visualization (charts/gauges)\n   - Feedback explanation display\n   - Historical feedback comparison\n\n2. Implement score visualization:\n   - Political score (left-center-right scale)\n   - Gender score (female-neutral-male scale)\n   - Neutrality score (biased-neutral scale)\n\n3. Add character integration:\n   - Character reactions to feedback\n   - Character speech bubbles with feedback insights\n\n4. Implement feedback history view for user profile\n\nComponents:\n- FeedbackDisplay\n- ScoreChart\n- FeedbackExplanation\n- FeedbackHistory\n- CharacterFeedbackReaction",
+      "testStrategy": "1. Test feedback display with various score combinations\n2. Verify chart/gauge visualization accuracy\n3. Test character integration with feedback\n4. Validate feedback history display\n5. Test responsive behavior on different screen sizes\n6. Verify accessibility of feedback components",
+      "priority": "medium",
+      "dependencies": [
+        6,
+        9,
+        12
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 14,
+      "title": "Topic and Exploration Interface",
+      "description": "Implement the frontend interface for exploring topics, trending posts, and discovering content by different criteria.",
+      "details": "1. Create topic components:\n   - Today's topic highlight\n   - Topic list/grid\n   - Topic detail view\n\n2. Implement exploration interfaces:\n   - Trending posts\n   - Posts by topic\n   - Posts by political leaning\n   - Posts by neutrality\n\n3. Add search functionality:\n   - Search by keyword\n   - Search by author\n   - Advanced filters\n\n4. Implement discovery features:\n   - Recommended posts\n   - Similar topics\n\nComponents:\n- TopicHighlight\n- TopicList\n- TopicDetail\n- ExplorationTabs\n- SearchBar\n- AdvancedFilters\n- RecommendationList",
+      "testStrategy": "1. Test topic display and navigation\n2. Verify exploration interface functionality\n3. Test search with various criteria\n4. Validate filtering and sorting\n5. Test recommendation algorithm\n6. Verify responsive behavior on different screen sizes\n7. Test accessibility of exploration components",
+      "priority": "medium",
+      "dependencies": [
+        4,
+        9,
+        12
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 15,
+      "title": "Deployment and Integration Testing",
+      "description": "Prepare the application for deployment, set up CI/CD pipeline, and conduct comprehensive integration testing.",
+      "details": "1. Set up deployment environments:\n   - Development\n   - Staging\n   - Production\n\n2. Configure CI/CD pipeline:\n   - Automated testing\n   - Build process\n   - Deployment scripts\n\n3. Implement environment-specific configurations:\n   - API endpoints\n   - Feature flags\n   - Error logging\n\n4. Conduct integration testing:\n   - End-to-end user flows\n   - Performance testing\n   - Security testing\n\n5. Create deployment documentation:\n   - Setup instructions\n   - Environment variables\n   - Backup procedures\n\n6. Implement monitoring and analytics:\n   - Error tracking\n   - Usage analytics\n   - Performance monitoring",
+      "testStrategy": "1. Test complete user flows from registration to post creation and interaction\n2. Verify all components work together correctly\n3. Test deployment to each environment\n4. Validate CI/CD pipeline functionality\n5. Conduct load testing to ensure performance\n6. Perform security audit and penetration testing\n7. Verify monitoring and analytics implementation",
+      "priority": "high",
+      "dependencies": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "status": "pending",
+      "subtasks": []
+    }
+  ]
+}

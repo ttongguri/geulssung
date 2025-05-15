@@ -1,0 +1,55 @@
+# Task ID: 1
+# Title: Database Schema Design
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Design and implement the database schema based on the PRD specifications for users, posts, feedbacks, reactions, and topics tables.
+# Details:
+Create the following tables with PostgreSQL or MySQL:
+
+1. users:
+   - id (PK, auto-increment)
+   - email (unique)
+   - nickname (unique)
+   - password_hash
+   - created_at (timestamp)
+
+2. posts:
+   - id (PK, auto-increment)
+   - author_id (FK to users.id)
+   - topic (text)
+   - content (text)
+   - parent_post_id (FK to posts.id, nullable)
+   - depth (integer, 0-2 for original-rebuttal-counter)
+   - created_at (timestamp)
+
+3. feedbacks:
+   - post_id (PK, FK to posts.id)
+   - political_score (float)
+   - gender_score (float)
+   - neutrality (float)
+   - feedback_json (json/text)
+   - created_at (timestamp)
+
+4. reactions:
+   - id (PK, auto-increment)
+   - user_id (FK to users.id)
+   - post_id (FK to posts.id)
+   - author_id (FK to users.id)
+   - type (enum: 'like', 'follow')
+   - created_at (timestamp)
+
+5. topics:
+   - id (PK, auto-increment)
+   - keyword (text)
+   - description (text)
+   - created_at (timestamp)
+
+Add appropriate indexes for foreign keys and frequently queried fields.
+
+# Test Strategy:
+1. Create unit tests to verify table creation scripts
+2. Test foreign key constraints with sample data
+3. Verify unique constraints on email and nickname
+4. Test the depth constraint for posts (0-2)
+5. Validate data types and constraints with sample inserts

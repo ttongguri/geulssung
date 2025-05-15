@@ -1,0 +1,35 @@
+# Task ID: 7
+# Title: Reaction System (Likes and Follows)
+# Status: pending
+# Dependencies: 1, 2, 3, 5
+# Priority: medium
+# Description: Implement the reaction system allowing users to like posts and follow authors.
+# Details:
+1. Create Reaction model with Sequelize/TypeORM/Prisma
+2. Implement reaction endpoints:
+   - Like/unlike a post
+   - Follow/unfollow an author
+   - Get likes for a post
+   - Get followers for an author
+   - Get posts liked by a user
+   - Get authors followed by a user
+
+3. Add reaction counts to post and user responses
+
+API Endpoints:
+- POST /api/reactions/like/:postId
+- DELETE /api/reactions/like/:postId
+- POST /api/reactions/follow/:authorId
+- DELETE /api/reactions/follow/:authorId
+- GET /api/posts/:id/likes
+- GET /api/users/:id/followers
+- GET /api/users/:id/following
+- GET /api/users/:id/liked-posts
+
+# Test Strategy:
+1. Test like/unlike functionality
+2. Test follow/unfollow functionality
+3. Verify reaction counts are accurate
+4. Test retrieving likes and follows
+5. Validate that users cannot like their own posts
+6. Test concurrent reactions from multiple users

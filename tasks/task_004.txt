@@ -1,0 +1,34 @@
+# Task ID: 4
+# Title: Topic Management System
+# Status: pending
+# Dependencies: 1, 2
+# Priority: medium
+# Description: Create the system for managing news/issue topics that will serve as writing prompts for users.
+# Details:
+1. Create Topic model with Sequelize/TypeORM/Prisma
+2. Implement admin-only topic creation endpoint:
+   - Add keyword
+   - Add description
+   - Set active status
+
+3. Implement topic listing endpoints:
+   - Get all topics
+   - Get today's active topic
+   - Get topic by ID
+
+4. Create simple admin interface for topic management (optional for MVP)
+
+API Endpoints:
+- POST /api/topics (admin only)
+- GET /api/topics
+- GET /api/topics/today
+- GET /api/topics/:id
+- PUT /api/topics/:id (admin only)
+- DELETE /api/topics/:id (admin only)
+
+# Test Strategy:
+1. Test topic creation with valid and invalid inputs
+2. Verify admin-only access for creation/update/delete
+3. Test retrieval of today's topic
+4. Validate topic listing functionality
+5. Test topic update and deletion

@@ -1,0 +1,40 @@
+# Task ID: 8
+# Title: User Profile and History
+# Status: pending
+# Dependencies: 3, 5, 6, 7
+# Priority: medium
+# Description: Implement user profile page showing user's posts, received feedback, and reaction history.
+# Details:
+1. Create user profile endpoints:
+   - Get user profile details
+   - Get user's posts
+   - Get user's feedback history
+   - Get user's reaction history (likes given, authors followed)
+
+2. Implement profile update functionality:
+   - Update nickname
+   - Change password
+   - Update profile settings (optional)
+
+3. Add aggregated statistics:
+   - Average scores (political, gender, neutrality)
+   - Post count by depth (original, rebuttal, counter-rebuttal)
+   - Reaction counts received
+
+API Endpoints:
+- GET /api/users/:id/profile
+- GET /api/users/:id/posts
+- GET /api/users/:id/feedback
+- GET /api/users/:id/reactions
+- GET /api/users/:id/stats
+- PUT /api/users/:id/profile
+- PUT /api/users/:id/password
+
+# Test Strategy:
+1. Test profile retrieval with valid and invalid user IDs
+2. Verify post history retrieval
+3. Test feedback history aggregation
+4. Validate reaction history retrieval
+5. Test profile updates
+6. Verify password change functionality
+7. Test statistics calculation accuracy
