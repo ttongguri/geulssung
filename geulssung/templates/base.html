@@ -1,33 +1,48 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     <title>{% block title %}글쓰기 플랫폼 글썽글썽{% endblock %}</title>
   </head>
+  <body class="bg-[#FFF9F2] min-h-screen p-8">
 
-  <body class="bg-light text-dark">
-    <header class="bg-white border-bottom py-3 mb-4">
-      <div class="container">
-        <h1 class="h3 text-center mb-0">✍️ 글쓰기 플랫폼 <strong>글썽글썽</strong></h1>
+    <div class="max-w-4xl mx-auto text-center mb-10">
+      <h1 class="text-4xl font-bold text-[#493E3E] mb-4">📚 오늘의 글쓰기 주제</h1>
+      <p class="text-lg text-[#6B5B5B]">뉴스 흐름을 보고, 나만의 시선으로 분석해보세요!</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <!-- 카드 1 -->
+      <div class="bg-white shadow-lg rounded-2xl p-6 hover:shadow-xl transition duration-300">
+        <h2 class="text-xl font-semibold text-[#493E3E] mb-2">📝 분석문</h2>
+        <p class="text-gray-600 text-sm">뉴스 흐름의 원인과 맥락을 분석하고, 시사점을 정리해보세요.</p>
       </div>
-    </header>
+
+      <!-- 카드 2 -->
+      <div class="bg-white shadow-lg rounded-2xl p-6 hover:shadow-xl transition duration-300">
+        <h2 class="text-xl font-semibold text-[#493E3E] mb-2">✒️ 컬럼</h2>
+        <p class="text-gray-600 text-sm">당신만의 의견을 녹여 이슈를 풀어보세요. 감성적인 접근도 좋아요.</p>
+      </div>
+
+      <!-- 카드 3 -->
+      <div class="bg-white shadow-lg rounded-2xl p-6 hover:shadow-xl transition duration-300">
+        <h2 class="text-xl font-semibold text-[#493E3E] mb-2">🎨 시</h2>
+        <p class="text-gray-600 text-sm">상징과 은유로 표현하는 창의적인 글쓰기도 도전해보세요!</p>
+      </div>
+    </div>
 
     <main class="container">
       {% block content %}{% endblock %}
     </main>
-
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
 
     <footer class="text-center text-muted py-4 small">
       © 글썽글썽. 생각이 차오르면, 표현도 자랍니다.
