@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <title>{% block title %}글쓰기 플랫폼 글썽글썽{% endblock %}</title>
+  </head>
+
+  <body class="bg-light text-dark">
+    <header class="bg-white border-bottom py-3 mb-4">
+      <div class="container">
+        <h1 class="h3 text-center mb-0">✍️ 글쓰기 플랫폼 <strong>글썽글썽</strong></h1>
+      </div>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center text-muted py-4 small">
+      © 글썽글썽. 생각이 차오르면, 표현도 자랍니다.
+    </footer>
+  </body>
+</html>
