@@ -1,66 +1,85 @@
 # 태스크 ID: 5
-# 제목: 글 작성 및 트리 구조 구현
+# 제목: 글쓰기 형식 및 가이딩 시스템
 # 상태: 대기중 (pending)
 # 선행 태스크: 1, 2, 3
 # 우선순위: 높음 (high)
-# 설명: 원글, 반론, 반론에 대한 반론 등 트리 구조를 지원하는 글쓰기 핵심 기능을 구현합니다.
+# 설명: T식/F식 글쓰기 분류, 형식별 가이딩 템플릿, 글 작성 에디터를 구현합니다.
 # 상세 내용:
-1. 글 작성 엔드포인트 구현:
-   - 사용자 인증 검증
-   - 글의 depth(단계) 저장
-   - 반론일 경우 parent_post_id 처리
-   - 최대 3단계(원글, 반론, 반론에 대한 반론) 제한
-   - 반론에 대한 반론(depth=2)은 반드시 원글 작성자만 가능하도록 검증
+1. 글쓰기 형식 분류 시스템:
+   - T식 글쓰기 (분석문, 칼럼)
+   - F식 글쓰기 (시, 에세이)
+   - 각 형식별 특성 및 구조 정의
+   - 형식별 가이딩 템플릿 설계
 
-2. 글 조회 엔드포인트 구현:
-   - ID로 글 조회
-   - 전체 스레드(원글+반론+반론에 대한 반론) 조회
-   - 다양한 필터(최신, 주제별, 사용자별)로 글 목록 조회
+2. 글쓰기 가이딩 템플릿:
+   - 분석문 가이딩
+     * 주제 분석 방법
+     * 논리적 구조화
+     * 근거 제시 방법
+   - 칼럼 가이딩
+     * 독자 관심사 파악
+     * 논점 제시 방법
+     * 결론 도출 방법
+   - 시 가이딩
+     * 이미지와 은유
+     * 운율과 리듬
+     * 감정 표현 방법
+   - 에세이 가이딩
+     * 개인적 경험 서술
+     * 통찰력 있는 관점
+     * 감동 전달 방법
 
-3. 트리 구조 시각화 로직 구현:
-   - 글의 부모-자식 관계 데이터 조회
-   - 프론트엔드 트리 렌더링용 데이터 구조화
+3. 글 작성 에디터 구현:
+   - 형식 선택 UI
+   - 가이딩 템플릿 표시
+   - 실시간 글쓰기 가이드
+   - 임시저장 기능
+   - 미리보기 기능
+
+4. 글쓰기 API 구현:
+   - 형식별 글 작성 엔드포인트
+   - 가이딩 템플릿 조회
+   - 임시저장/불러오기
+   - 글 수정/삭제
 
 예시 글 작성 엔드포인트:
 ```javascript
 app.post('/api/posts', authenticate, async (req, res) => {
   try {
-    const { topic, content, parent_post_id } = req.body;
+    const { writing_type, writing_format, content, parent_post_id } = req.body;
     const userId = req.user.id;
+
     // 입력값 검증
-    if (!content || (!topic && !parent_post_id)) {
-      return res.status(400).json({ error: '내용과 주제 또는 parent_post_id가 필요합니다.' });
+    if (!content || !writing_type || !writing_format) {
+      return res.status(400).json({ error: '내용, 글쓰기 유형, 형식이 필요합니다.' });
     }
-    let depth = 0;
-    let parentPost = null;
-    // 반론 처리
-    if (parent_post_id) {
-      parentPost = await Post.findByPk(parent_post_id);
-      if (!parentPost) {
-        return res.status(404).json({ error: '부모 글을 찾을 수 없습니다.' });
-      }
-      depth = parentPost.depth + 1;
-      // 최대 깊이 제한
-      if (depth > 2) {
-        return res.status(400).json({ error: '최대 스레드 깊이를 초과했습니다.' });
-      }
-      // 반론에 대한 반론(depth=2)은 원글 작성자만 가능
-      if (depth === 2) {
-        const originalPost = await Post.findByPk(parentPost.parent_post_id || parentPost.id);
-        if (originalPost.author_id !== userId) {
-          return res.status(403).json({ error: '원글 작성자만 반론에 대한 반론을 작성할 수 있습니다.' });
-        }
-      }
+
+    // 글쓰기 유형 검증
+    const validTypes = ['T', 'F'];
+    const validFormats = {
+      'T': ['분석문', '칼럼'],
+      'F': ['시', '에세이']
+    };
+
+    if (!validTypes.includes(writing_type)) {
+      return res.status(400).json({ error: '유효하지 않은 글쓰기 유형입니다.' });
     }
+
+    if (!validFormats[writing_type].includes(writing_format)) {
+      return res.status(400).json({ error: '유효하지 않은 글쓰기 형식입니다.' });
+    }
+
     // 글 생성
     const post = await Post.create({
       author_id: userId,
-      topic: topic || parentPost.topic,
+      writing_type,
+      writing_format,
       content,
       parent_post_id,
-      depth,
+      depth: parent_post_id ? 1 : 0,
       created_at: new Date()
     });
+
     res.status(201).json(post);
   } catch (error) {
     res.status(500).json({ error: '서버 오류' });
@@ -69,9 +88,18 @@ app.post('/api/posts', authenticate, async (req, res) => {
 ```
 
 # 테스트 전략:
-1. parent_post_id 유무에 따른 글 작성 테스트
-2. depth 계산 및 제한 검증
-3. 원글 작성자만 반론에 대한 반론 작성 가능 여부 테스트
-4. 스레드 구조로 글 조회 테스트
-5. 부모 글의 주제가 자식 글에 올바르게 전달되는지 확인
-6. 다양한 목록 필터 및 페이지네이션 테스트
+1. 글쓰기 유형 및 형식 검증 테스트
+2. 가이딩 템플릿 표시 및 동작 테스트
+3. 에디터 기능 테스트
+   - 형식 선택
+   - 가이딩 표시
+   - 임시저장
+   - 미리보기
+4. API 엔드포인트 테스트
+   - 글 작성
+   - 템플릿 조회
+   - 임시저장/불러오기
+5. 사용자 경험 테스트
+   - 가이딩 이해도
+   - 에디터 사용성
+   - 오류 메시지 명확성

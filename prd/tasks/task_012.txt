@@ -1,130 +1,195 @@
 # 태스크 ID: 12
-# 제목: 반응 UI(좋아요/구독)
+# 제목: 글 작성 및 조회 UI
 # 상태: 대기중 (pending)
-# 선행 태스크: 7, 9
-# 우선순위: 보통 (medium)
-# 설명: 글 좋아요 및 작성자 구독 등 반응 기능을 위한 UI를 구현하며, 캐릭터 기반 애니메이션을 포함합니다.
+# 선행 태스크: 5, 6, 10
+# 우선순위: 높음 (high)
+# 설명: 글쓰기 형식 선택, 가이딩, 에디터, 트리 구조 조회 UI를 구현합니다.
 # 상세 내용:
-1. 반응 버튼 컴포넌트 구현:
-   - 좋아요 버튼(몽썽이 캐릭터 애니메이션)
-   - 구독 버튼(상태 표시 포함)
+1. 글쓰기 형식 선택 UI:
+   - T식/F식 선택
+   - 형식별 설명
+   - 가이딩 템플릿
+   - 형식별 에디터
+   - 미리보기
 
-2. 반응 카운터 구현:
-   - 좋아요 수 표시
-   - 팔로워 수 표시
+2. 글 작성 에디터:
+   - 리치 텍스트 에디터
+   - 실시간 가이딩
+   - 임시저장
+   - 이미지 업로드
+   - 마크다운 지원
 
-3. 반응 목록 구현:
-   - 해당 글을 좋아요한 사용자 목록
-   - 사용자를 구독/구독한 사용자 목록
+3. 트리 구조 조회:
+   - 원글 표시
+   - 반론 목록
+   - 반론에 대한 반론
+   - 스레드 시각화
+   - 반응형 레이아웃
 
-예시 좋아요 버튼 컴포넌트:
-```jsx
+4. 캐릭터 기반 UI:
+   - 글썽이(원글)
+   - 말썽이(반론)
+   - 몽썽이(가이딩)
+   - 애니메이션
+   - 인터랙션
+
+예시 글 작성 컴포넌트:
+```typescript
+// components/PostEditor.tsx
 import React, { useState } from 'react';
+import { Editor } from '@tinymce/tinymce-react';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../services/api';
+import axios from 'axios';
 
-const LikeButton = ({ post, initialLikeCount, initialLiked }) => {
+interface PostEditorProps {
+  writingType: 'T' | 'F';
+  writingFormat: string;
+  onPostCreated: (post: any) => void;
+}
+
+const PostEditor: React.FC<PostEditorProps> = ({
+  writingType,
+  writingFormat,
+  onPostCreated
+}) => {
   const { user } = useAuth();
-  const [liked, setLiked] = useState(initialLiked);
-  const [likeCount, setLikeCount] = useState(initialLikeCount);
-  const [animating, setAnimating] = useState(false);
-  
-  const handleLike = async () => {
-    if (!user) {
-      // 로그인 유도 또는 로그인 모달 표시
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      setError('내용을 입력하세요.');
       return;
     }
+
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await api.post(`/api/reactions/like/${post.id}`);
-      const newLiked = response.data.liked;
-      // 상태 업데이트
-      setLiked(newLiked);
-      setLikeCount(prev => newLiked ? prev + 1 : prev - 1);
-      // 좋아요 시 애니메이션 트리거
-      if (newLiked) {
-        setAnimating(true);
-        setTimeout(() => setAnimating(false), 1000);
-      }
-    } catch (error) {
-      console.error('좋아요 토글 중 오류:', error);
+      const response = await axios.post('/api/posts', {
+        writing_type: writingType,
+        writing_format: writingFormat,
+        content
+      });
+
+      setContent('');
+      onPostCreated(response.data);
+    } catch (err) {
+      setError('글 작성에 실패했습니다.');
+    } finally {
+      setLoading(false);
     }
   };
-  
+
+  const getGuidingTemplate = () => {
+    const templates = {
+      T: {
+        분석문: [
+          '1. 주제 분석',
+          '2. 논리적 구조화',
+          '3. 근거 제시'
+        ],
+        칼럼: [
+          '1. 독자 관심사 파악',
+          '2. 논점 제시',
+          '3. 결론 도출'
+        ]
+      },
+      F: {
+        시: [
+          '1. 이미지와 은유',
+          '2. 운율과 리듬',
+          '3. 감정 표현'
+        ],
+        에세이: [
+          '1. 개인적 경험',
+          '2. 통찰력 있는 관점',
+          '3. 감동 전달'
+        ]
+      }
+    };
+
+    return templates[writingType][writingFormat];
+  };
+
   return (
-    <div className="like-container">
-      <button 
-        className={`like-button ${liked ? 'liked' : ''}`}
-        onClick={handleLike}
-        aria-label={liked ? '좋아요 취소' : '좋아요'}
-      >
-        <div className="character-container">
+    <div className="post-editor">
+      <div className="editor-header">
+        <div className="character-guide">
           <img 
-            src={`/images/mongsseong-${liked ? 'active' : 'inactive'}.png`} 
-            alt="몽썽이" 
-            className={animating ? 'animating' : ''}
+            src={`/images/${writingType === 'T' ? 'geulsseong' : 'mongsseong'}.png`} 
+            alt="가이드 캐릭터" 
           />
+          <div className="guide-text">
+            {writingType === 'T' ? '글썽이' : '몽썽이'}가 도와드릴게요!
+          </div>
         </div>
-        <span className="like-count">{likeCount}</span>
+        <div className="guiding-template">
+          {getGuidingTemplate().map((step, index) => (
+            <div key={index} className="template-step">
+              {step}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Editor
+        apiKey="your-tinymce-api-key"
+        init={{
+          height: 500,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists link image charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+          ],
+          toolbar:
+            'undo redo | formatselect | bold italic backcolor | \
+            alignleft aligncenter alignright alignjustify | \
+            bullist numlist outdent indent | removeformat | help'
+        }}
+        value={content}
+        onEditorChange={(content) => setContent(content)}
+      />
+
+      {error && <div className="error-message">{error}</div>}
+
+      <button
+        className="submit-button"
+        onClick={handleSubmit}
+        disabled={loading || !content.trim()}
+      >
+        {loading ? '작성 중...' : '글 작성'}
       </button>
     </div>
   );
 };
 
-export default LikeButton;
-```
-
-예시 구독 버튼 컴포넌트:
-```jsx
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import api from '../services/api';
-
-const FollowButton = ({ authorId, initialFollowing }) => {
-  const { user } = useAuth();
-  const [following, setFollowing] = useState(initialFollowing);
-  const [loading, setLoading] = useState(false);
-  
-  const handleFollow = async () => {
-    if (!user) {
-      // 로그인 유도 또는 로그인 모달 표시
-      return;
-    }
-    // 자기 자신 구독 방지
-    if (user.id === authorId) {
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await api.post(`/api/reactions/follow/${authorId}`);
-      setFollowing(response.data.following);
-    } catch (error) {
-      console.error('구독 토글 중 오류:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  // 내 프로필에서는 구독 버튼 미노출
-  if (user && user.id === authorId) {
-    return null;
-  }
-  return (
-    <button 
-      className={`follow-button ${following ? 'following' : ''}`}
-      onClick={handleFollow}
-      disabled={loading}
-    >
-      {following ? '구독 중' : '구독'}
-    </button>
-  );
-};
-
-export default FollowButton;
+export default PostEditor;
 ```
 
 # 테스트 전략:
-1. 좋아요 버튼 동작 및 애니메이션 테스트
-2. 구독 버튼 상태 변화 검증
-3. 좋아요/구독 수 실시간 반영 테스트
-4. 캐릭터 애니메이션 정상 동작 확인
-5. 사용자 상호작용 흐름(로그인 유도 등) 테스트
-6. 자기 자신 구독 방지 검증
+1. 형식 선택 UI 테스트
+   - 선택 동작
+   - 가이딩 표시
+   - 형식 전환
+   - 미리보기
+
+2. 에디터 기능 테스트
+   - 텍스트 입력
+   - 서식 적용
+   - 이미지 업로드
+   - 임시저장
+
+3. 트리 구조 테스트
+   - 원글 표시
+   - 반론 연결
+   - 시각화
+   - 반응형
+
+4. 성능 테스트
+   - 에디터 로딩
+   - 이미지 처리
+   - 저장/불러오기
+   - 렌더링 성능
