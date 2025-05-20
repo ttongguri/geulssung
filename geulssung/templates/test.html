@@ -1,0 +1,79 @@
+<!-- templates/post_form_custom.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글쓰기 ✍️</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body {
+      font-family: 'Gowun Batang', serif;
+    }
+  </style>
+</head>
+<body class="bg-[#FFF9F2] min-h-screen p-8">
+
+  <!-- 🔷 제목 -->
+  <div class="max-w-3xl mx-auto text-center mb-10">
+    <h1 class="text-4xl font-bold text-[#493E3E] mb-2">글쓰기 ✍️</h1>
+    <p class="text-[#6B5B5B]">주제를 선택하고, 당신의 생각을 자유롭게 펼쳐보세요.</p>
+  </div>
+
+  <!-- 📝 글쓰기 폼 -->
+  <form method="post" class="max-w-2xl mx-auto bg-white shadow-lg rounded-xl p-6 space-y-6">
+    {% csrf_token %}
+
+    <!-- 제목 -->
+    <div>
+      <label class="block text-[#493E3E] font-semibold mb-1">제목</label>
+      <input type="text" name="title" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#F9DCC4]" />
+    </div>
+
+    <!-- 장르 선택 -->
+    <div>
+      <label class="block text-[#493E3E] font-semibold mb-2">장르</label>
+
+      <!-- T식 글쓰기 -->
+      <fieldset class="mb-4">
+        <legend class="text-[#493E3E] font-medium mb-1">🧠 T식 글쓰기</legend>
+        <label class="inline-flex items-center mr-4">
+          <input type="radio" name="genre" value="column" class="form-radio text-[#F9DCC4]" required />
+          <span class="ml-2 text-gray-700">칼럼</span>
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" name="genre" value="analysis" class="form-radio text-[#F9DCC4]" />
+          <span class="ml-2 text-gray-700">분석글</span>
+        </label>
+      </fieldset>
+
+      <!-- F식 글쓰기 -->
+      <fieldset>
+        <legend class="text-[#493E3E] font-medium mb-1">💭 F식 글쓰기</legend>
+        <label class="inline-flex items-center mr-4">
+          <input type="radio" name="genre" value="essay" class="form-radio text-[#F9DCC4]" />
+          <span class="ml-2 text-gray-700">에세이</span>
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" name="genre" value="poem" class="form-radio text-[#F9DCC4]" />
+          <span class="ml-2 text-gray-700">시</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <!-- 본문 -->
+    <div>
+      <label class="block text-[#493E3E] font-semibold mb-1">내용</label>
+      <textarea name="content" rows="10" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#F9DCC4]"></textarea>
+    </div>
+
+    <!-- 제출 버튼 -->
+    <div class="text-center">
+      <button type="submit" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+        제출하기
+      </button>
+    </div>
+  </form>
+
+</body>
+</html>
