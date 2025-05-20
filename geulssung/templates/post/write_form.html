@@ -13,7 +13,7 @@
 <body class="bg-[#FFF9F2] min-h-screen p-8">
 
   <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6">
-
+    
     <!-- 제목 -->
     <div>
       <label class="block font-semibold text-[#493E3E] mb-1">제목</label>
@@ -21,28 +21,39 @@
     </div>
 
     <!-- 형식 선택 -->
-    <div>
-      <label class="block font-semibold text-[#493E3E] mb-1">글 형식 선택</label>
-      <div class="flex gap-4">
-        <label><input type="radio" name="genre" value="column" onchange="showGuide(this.value)" /> 칼럼</label>
-        <label><input type="radio" name="genre" value="analysis" onchange="showGuide(this.value)" /> 분석글</label>
-        <label><input type="radio" name="genre" value="essay" onchange="showGuide(this.value)" /> 에세이</label>
-        <label><input type="radio" name="genre" value="poem" onchange="showGuide(this.value)" /> 시</label>
-      </div>
+    <!-- 1단계: 상위 카테고리 -->
+<div class="mb-6">
+    <p class="font-semibold text-[#493E3E]">오늘 나는...</p>
+    <div class="flex gap-4">
+      <label><input type="radio" name="category" value="logic" onchange="showGenres(this.value)"> 논리가 흐르고 싶은 날</label>
+      <label><input type="radio" name="category" value="emotion" onchange="showGenres(this.value)"> 감정을 쏟고 싶은 날</label>
     </div>
+  </div>
+  
+  <!-- 2단계: 하위 장르 -->
+  <div class="mb-6" id="genre-logic" style="display:none;">
+    <p class="font-semibold text-[#493E3E]">형식을 골라보세요 (논리)</p>
+    <div class="flex gap-4">
+      <label><input type="radio" name="genre" value="column" onchange="showGuide(this.value)"> 칼럼</label>
+      <label><input type="radio" name="genre" value="analysis" onchange="showGuide(this.value)"> 분석글</label>
+    </div>
+  </div>
+  
+  <div class="mb-6" id="genre-emotion" style="display:none;">
+    <p class="font-semibold text-[#493E3E]">형식을 골라보세요 (감정)</p>
+    <div class="flex gap-4">
+      <label><input type="radio" name="genre" value="essay" onchange="showGuide(this.value)"> 에세이</label>
+      <label><input type="radio" name="genre" value="poem" onchange="showGuide(this.value)"> 시</label>
+    </div>
+  </div>
+  
 
-    <!-- 가이드 모듈화된 템플릿 포함 -->
+    <!-- 가이드 + 작성 모듈 (단계별 분할) -->
     <div id="guide-box">
-      {% include "post/_guide_column.html" %}
-      {% include "post/_guide_analysis.html" %}
-      {% include "post/_guide_essay.html" %}
-      {% include "post/_guide_poem.html" %}
-    </div>
-
-    <!-- 작성 영역 -->
-    <div>
-      <label class="block font-semibold text-[#493E3E] mb-1">내용 작성</label>
-      <textarea name="content" rows="12" class="w-full border px-4 py-2 rounded-md" placeholder="위 가이드를 참고해 글을 써보세요."></textarea>
+      <div id="guide-column" style="display:none">{% include "post/_guide_column.html" %}</div>
+      <div id="guide-analysis" style="display:none">{% include "post/_guide_analysis.html" %}</div>
+      <div id="guide-essay" style="display:none">{% include "post/_guide_essay.html" %}</div>
+      <div id="guide-poem" style="display:none">{% include "post/_guide_poem.html" %}</div>
     </div>
 
     <!-- 제출 -->
@@ -54,15 +65,32 @@
 
   </div>
 
-  <!-- JS: 선택한 가이드만 보여주기 -->
-  <script>
+  <!-- JS: 상위 카테고리 선택 + 형식별 가이드 표시 -->
+<script>
+    function showGenres(category) {
+      // 상위 카테고리에 따라 하위 장르 블록 표시
+      document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
+      document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
+  
+      // 선택 초기화 (기존 가이드 숨기기)
+      const all = ['column', 'analysis', 'essay', 'poem'];
+      all.forEach(id => {
+        const div = document.getElementById(`guide-${id}`);
+        if (div) div.style.display = 'none';
+      });
+    }
+  
     function showGuide(value) {
-      const guides = document.querySelectorAll('#guide-box > div');
-      guides.forEach(div => div.style.display = 'none');
-      const target = document.getElementById('guide-' + value);
+      // 선택한 장르의 가이드만 보여주기
+      const all = ['column', 'analysis', 'essay', 'poem'];
+      all.forEach(id => {
+        const div = document.getElementById(`guide-${id}`);
+        if (div) div.style.display = 'none';
+      });
+      const target = document.getElementById(`guide-${value}`);
       if (target) target.style.display = 'block';
     }
   </script>
-
+  
 </body>
 </html>
