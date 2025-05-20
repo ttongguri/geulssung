@@ -8,4 +8,9 @@ def test_page_view(request):
 def home_view(request):
     return render(request, "base.html")
 
+# /write로 연결 되는 글쓰기 페이지 입니다.
+def write_post_view(request):
+    return render(request, 'post/write_form.html')
+
+
 

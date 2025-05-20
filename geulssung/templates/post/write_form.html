@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글쓰기 ✍️</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body { font-family: 'Gowun Batang', serif; }
+  </style>
+</head>
+<body class="bg-[#FFF9F2] min-h-screen p-8">
+
+  <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6">
+
+    <!-- 제목 -->
+    <div>
+      <label class="block font-semibold text-[#493E3E] mb-1">제목</label>
+      <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
+    </div>
+
+    <!-- 형식 선택 -->
+    <div>
+      <label class="block font-semibold text-[#493E3E] mb-1">글 형식 선택</label>
+      <div class="flex gap-4">
+        <label><input type="radio" name="genre" value="column" onchange="showGuide(this.value)" /> 칼럼</label>
+        <label><input type="radio" name="genre" value="analysis" onchange="showGuide(this.value)" /> 분석글</label>
+        <label><input type="radio" name="genre" value="essay" onchange="showGuide(this.value)" /> 에세이</label>
+        <label><input type="radio" name="genre" value="poem" onchange="showGuide(this.value)" /> 시</label>
+      </div>
+    </div>
+
+    <!-- 가이드 모듈화된 템플릿 포함 -->
+    <div id="guide-box">
+      {% include "post/_guide_column.html" %}
+      {% include "post/_guide_analysis.html" %}
+      {% include "post/_guide_essay.html" %}
+      {% include "post/_guide_poem.html" %}
+    </div>
+
+    <!-- 작성 영역 -->
+    <div>
+      <label class="block font-semibold text-[#493E3E] mb-1">내용 작성</label>
+      <textarea name="content" rows="12" class="w-full border px-4 py-2 rounded-md" placeholder="위 가이드를 참고해 글을 써보세요."></textarea>
+    </div>
+
+    <!-- 제출 -->
+    <div class="text-center">
+      <button type="submit" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+        제출하기
+      </button>
+    </div>
+
+  </div>
+
+  <!-- JS: 선택한 가이드만 보여주기 -->
+  <script>
+    function showGuide(value) {
+      const guides = document.querySelectorAll('#guide-box > div');
+      guides.forEach(div => div.style.display = 'none');
+      const target = document.getElementById('guide-' + value);
+      if (target) target.style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
