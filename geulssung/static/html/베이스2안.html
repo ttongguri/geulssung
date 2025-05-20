@@ -1,0 +1,55 @@
+<!-- templates/simple_landing.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글썽글썽 ✍️</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body {
+      font-family: 'Gowun Batang', serif;
+    }
+  </style>
+</head>
+<body class="bg-[#FFF9F2] min-h-screen p-8">
+
+  <!-- 🔷 상단 제목 + 설명 -->
+  <div class="text-center max-w-2xl mx-auto mb-12">
+    <h1 class="text-5xl font-bold text-[#493E3E] mb-4">글썽글썽 ✍️</h1>
+    <p class="text-lg text-[#6B5B5B] leading-relaxed">
+      뉴스에서 시작된 생각의 불씨,<br />
+      당신의 글로 표현해보세요.
+    </p>
+  </div>
+
+  <!-- 🟨 기능 진입 카드: 3개 -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto text-center">
+    
+    <!-- ✍️ 글쓰기 -->
+    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
+      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">✍️ 글방울</h2>
+      <p class="text-gray-700 text-sm">오늘의 주제에 맞춰 글을 써보세요.</p>
+    </div>
+
+    <!-- 📂 내 글 보기 -->
+    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
+      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">📂 글자국</h2>
+      <p class="text-gray-700 text-sm">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
+    </div>
+
+    <!-- 🌍 글 둘러보기 -->
+    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
+      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">🌍 글바다</h2>
+      <p class="text-gray-700 text-sm">다른 사람들의 시선을 함께 읽어보세요.</p>
+    </div>
+
+  </div>
+
+  <!-- 🧾 푸터 -->
+  <footer class="mt-16 text-center text-sm text-gray-500">
+    © 글썽글썽 2025. 생각이 차오르면, 표현도 자랍니다 🌱
+  </footer>
+
+</body>
+</html>
