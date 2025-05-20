@@ -2,20 +2,20 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap 5 CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
-    <title>{% block title %}글쓰기 플랫폼 글썽글썽{% endblock %}</title>
+    <meta charset="UTF-8" />
+    <title>글썽글썽 ✍️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+      body {
+        font-family: 'Gowun Batang', serif;
+      }
+    </style>
   </head>
   <body class="bg-[#FFF9F2] min-h-screen p-8">
 
     <div class="max-w-4xl mx-auto text-center mb-10">
+      <img src="{% static 'images/banner.jfif' %}" alt="글쓰기 배너" class="w-full h-auto rounded-2xl shadow-md mb-6">
       <h1 class="text-4xl font-bold text-[#493E3E] mb-4">📚 오늘의 글쓰기 주제</h1>
       <p class="text-lg text-[#6B5B5B]">뉴스 흐름을 보고, 나만의 시선으로 분석해보세요!</p>
     </div>
@@ -40,12 +40,11 @@
       </div>
     </div>
 
-    <main class="container">
-      {% block content %}{% endblock %}
-    </main>
+    <div class="mt-12 text-center">
+      <button class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold py-3 px-6 rounded-full shadow-md transition">
+        글쓰기 시작하기 ✍️
+      </button>
+    </div>
 
-    <footer class="text-center text-muted py-4 small">
-      © 글썽글썽. 생각이 차오르면, 표현도 자랍니다.
-    </footer>
   </body>
 </html>

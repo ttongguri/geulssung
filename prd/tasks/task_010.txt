@@ -1,167 +1,145 @@
 # 태스크 ID: 10
-# 제목: 글 작성 및 조회 UI
+# 제목: 프론트엔드 세팅 및 인증 UI
 # 상태: 대기중 (pending)
-# 선행 태스크: 5, 9
+# 선행 태스크: 2, 3
 # 우선순위: 높음 (high)
-# 설명: 글 작성 및 조회, 트리 구조 시각화 등 글 관련 UI를 구현합니다.
+# 설명: 프론트엔드 프로젝트를 세팅하고, 인증 관련 UI 컴포넌트를 구현합니다.
 # 상세 내용:
-1. 글 작성 에디터 컴포넌트 구현:
-   - 리치 텍스트 에디터(Draft.js, Quill 등) 연동
-   - 주제 선택 또는 표시
-   - 제출 버튼(로딩 상태 포함)
+1. 프로젝트 초기화:
+   - Next.js 프로젝트 설정
+   - TypeScript 설정
+   - ESLint/Prettier 설정
+   - 패키지 의존성 관리
+   - 환경 변수 설정
 
-2. 글 조회 컴포넌트 구현:
-   - 개별 글 카드
-   - 글 상세 보기
-   - 스레드 트리 구조 시각화
+2. 기본 구조 설정:
+   - 디렉토리 구조
+   - 라우팅 설정
+   - 상태 관리 설정
+   - API 클라이언트 설정
+   - 공통 컴포넌트 구조
 
-3. 글 목록 뷰 구현:
-   - 최신 글 피드
-   - 주제별 글 목록
-   - 내 글 목록
+3. 인증 UI 구현:
+   - 회원가입 폼
+   - 로그인 폼
+   - 비밀번호 재설정
+   - 인증 상태 관리
+   - 보호된 라우트
 
-4. 반론 UI 구현:
-   - 글에 '반론 작성' 버튼
-   - 원글 참조 반론 에디터
-   - 반론에 대한 반론 UI(원글 작성자만 가능)
+4. 기본 레이아웃:
+   - 헤더/네비게이션
+   - 푸터
+   - 반응형 디자인
+   - 테마 시스템
+   - 로딩 상태
 
-5. 캐릭터 기반 UI 요소 추가:
-   - 글썽이(원글용)
-   - 말썽이(반론용)
+예시 인증 컨텍스트:
+```typescript
+// contexts/AuthContext.tsx
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
-예시 글 작성 에디터 컴포넌트:
-```jsx
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import api from '../services/api';
-import RichTextEditor from '../components/RichTextEditor';
+interface User {
+  id: number;
+  email: string;
+  nickname: string;
+}
 
-const PostEditor = ({ topic, parentPostId, onPostCreated }) => {
-  const { user } = useAuth();
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!content.trim()) {
-      setError('내용을 입력하세요.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, nickname: string, password: string) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
     try {
-      const postData = {
-        content,
-        ...(parentPostId ? { parent_post_id: parentPostId } : { topic })
-      };
-      const response = await api.post('/api/posts', postData);
-      setContent('');
-      if (onPostCreated) {
-        onPostCreated(response.data);
+      const token = localStorage.getItem('token');
+      if (token) {
+        const response = await axios.get('/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(response.data);
       }
-    } catch (err) {
-      setError(err.response?.data?.error || '글 작성에 실패했습니다.');
+    } catch (error) {
+      localStorage.removeItem('token');
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const login = async (email: string, password: string) => {
+    const response = await axios.post('/api/auth/login', { email, password });
+    const { token, user } = response.data;
+    localStorage.setItem('token', token);
+    setUser(user);
+    router.push('/');
+  };
+
+  const register = async (email: string, nickname: string, password: string) => {
+    const response = await axios.post('/api/auth/register', { email, nickname, password });
+    const { token, user } = response.data;
+    localStorage.setItem('token', token);
+    setUser(user);
+    router.push('/');
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/login');
+  };
+
   return (
-    <div className="post-editor">
-      <div className="editor-header">
-        {parentPostId ? (
-          <div className="rebuttal-indicator">
-            <img src="/images/malsseong.png" alt="말썽이" />
-            <span>반론을 작성하세요</span>
-          </div>
-        ) : (
-          <div className="original-post-indicator">
-            <img src="/images/geulsseong.png" alt="글썽이" />
-            <span>오늘의 불씨: {topic}</span>
-          </div>
-        )}
-      </div>
-      <RichTextEditor value={content} onChange={setContent} />
-      {error && <div className="error-message">{error}</div>}
-      <button 
-        className="submit-button" 
-        onClick={handleSubmit} 
-        disabled={loading || !content.trim()}
-      >
-        {loading ? '작성 중...' : '글 작성'}
-      </button>
-    </div>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
-};
+}
 
-export default PostEditor;
-```
-
-예시 글 트리 시각화:
-```jsx
-import React, { useState, useEffect } from 'react';
-import api from '../services/api';
-import PostCard from './PostCard';
-
-const PostThread = ({ postId }) => {
-  const [thread, setThread] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  useEffect(() => {
-    const fetchThread = async () => {
-      try {
-        const response = await api.get(`/api/posts/${postId}/thread`);
-        setThread(response.data);
-      } catch (err) {
-        setError('스레드 불러오기에 실패했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchThread();
-  }, [postId]);
-  if (loading) return <div>스레드 불러오는 중...</div>;
-  if (error) return <div className="error-message">{error}</div>;
-  if (!thread) return null;
-  return (
-    <div className="post-thread">
-      <div className="original-post">
-        <PostCard post={thread.originalPost} showActions />
-      </div>
-      {thread.rebuttals.length > 0 && (
-        <div className="rebuttals">
-          <h3>반론</h3>
-          {thread.rebuttals.map(rebuttal => (
-            <div key={rebuttal.id} className="rebuttal-container">
-              <div className="rebuttal">
-                <PostCard post={rebuttal} showActions />
-              </div>
-              {rebuttal.counterRebuttals.length > 0 && (
-                <div className="counter-rebuttals">
-                  {rebuttal.counterRebuttals.map(counterRebuttal => (
-                    <div key={counterRebuttal.id} className="counter-rebuttal">
-                      <PostCard post={counterRebuttal} showActions={false} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default PostThread;
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
 ```
 
 # 테스트 전략:
-1. 다양한 유형의 글 작성 테스트
-2. 반론 작성 및 연결 동작 확인
-3. 다양한 스레드 구조에서 트리 시각화 테스트
-4. 캐릭터 UI 요소 정상 노출 확인
-5. 글 관련 컴포넌트 반응형 디자인 테스트
-6. 반론에 대한 반론이 원글 작성자에게만 노출되는지 검증
+1. 프로젝트 설정 테스트
+   - 빌드 프로세스
+   - 타입 체크
+   - 린트 규칙
+   - 환경 변수
+
+2. 인증 기능 테스트
+   - 회원가입
+   - 로그인
+   - 토큰 관리
+   - 보호된 라우트
+
+3. UI 컴포넌트 테스트
+   - 폼 검증
+   - 에러 처리
+   - 반응형 디자인
+   - 접근성
+
+4. 성능 테스트
+   - 초기 로딩
+   - 번들 크기
+   - 렌더링 성능
+   - 메모리 사용량

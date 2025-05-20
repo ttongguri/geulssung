@@ -3,7 +3,7 @@
 # 상태: 대기중 (pending)
 # 선행 태스크: 없음
 # 우선순위: 높음 (high)
-# 설명: PRD 명세에 따라 users, posts, feedbacks, reactions, topics 테이블의 데이터베이스 스키마를 설계하고 구현합니다.
+# 설명: PRD 명세에 따라 users, posts, reactions, archives, news, news_keywords 테이블의 데이터베이스 스키마를 설계하고 구현합니다.
 # 상세 내용:
 PostgreSQL 또는 MySQL을 사용하여 다음과 같은 테이블을 생성합니다:
 
@@ -17,21 +17,14 @@ PostgreSQL 또는 MySQL을 사용하여 다음과 같은 테이블을 생성합�
 2. posts(글):
    - id (기본키, 자동 증가)
    - author_id (users.id 외래키)
-   - topic (텍스트)
+   - writing_type (enum: 'T', 'F')
+   - writing_format (enum: '분석문', '칼럼', '시', '에세이')
    - content (텍스트)
    - parent_post_id (posts.id 외래키, null 허용)
    - depth (정수, 0~2: 원글, 반론, 반론에 대한 반론)
    - created_at (생성일시)
 
-3. feedbacks(피드백):
-   - post_id (posts.id 외래키)
-   - political_score (실수)
-   - gender_score (실수)
-   - neutrality (실수)
-   - feedback_json (AI 피드백 상세 json/텍스트)
-   - created_at (생성일시)
-
-4. reactions(반응):
+3. reactions(반응):
    - id (기본키, 자동 증가)
    - user_id (users.id 외래키)
    - post_id (posts.id 외래키, null 허용)
@@ -39,10 +32,28 @@ PostgreSQL 또는 MySQL을 사용하여 다음과 같은 테이블을 생성합�
    - type (enum: 'like', 'follow')
    - created_at (생성일시)
 
-5. topics(주제):
+4. archives(아카이브):
+   - id (기본키, 자동 증가)
+   - post_id (posts.id 외래키)
+   - user_id (users.id 외래키)
+   - archive_date (날짜)
+   - tags (배열/JSON)
+   - created_at (생성일시)
+
+5. news(뉴스):
    - id (기본키, 자동 증가)
    - keyword (텍스트)
-   - description (텍스트)
+   - title (텍스트)
+   - content (텍스트)
+   - url (텍스트)
+   - published_date (날짜)
+   - created_at (생성일시)
+
+6. news_keywords(뉴스 키워드):
+   - id (기본키, 자동 증가)
+   - keyword (텍스트, 고유값)
+   - frequency (정수)
+   - trend_data (JSON)
    - created_at (생성일시)
 
 적절한 인덱스와 제약조건(외래키, 고유값 등)을 구현합니다.
@@ -51,6 +62,9 @@ PostgreSQL 또는 MySQL을 사용하여 다음과 같은 테이블을 생성합�
 1. 테이블 생성 스크립트 단위 테스트 작성
 2. 샘플 데이터로 외래키 제약조건 테스트
 3. 이메일/닉네임 고유값 제약 테스트
-4. posts 테이블의 depth(0~2) 제약 테스트
-5. 생성일시 필드 자동 생성 확인
-6. 샘플 데이터 대량 입력 시 DB 성능 테스트
+4. posts 테이블의 writing_type, writing_format enum 제약 테스트
+5. posts 테이블의 depth(0~2) 제약 테스트
+6. 생성일시 필드 자동 생성 확인
+7. archives 테이블의 tags 배열/JSON 저장 테스트
+8. news_keywords 테이블의 trend_data JSON 저장 테스트
+9. 샘플 데이터 대량 입력 시 DB 성능 테스트
