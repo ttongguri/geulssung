@@ -16,18 +16,21 @@
 
   <!-- 🔷 제목 -->
   <div class="max-w-3xl mx-auto text-center mb-10">
-    <h1 class="text-4xl font-bold text-[#493E3E] mb-2">글쓰기 ✍️</h1>
-    <p class="text-[#6B5B5B]">주제를 선택하고, 당신의 생각을 자유롭게 펼쳐보세요.</p>
+    <h1 class="text-5xl font-extrabold text-[#3A2F2F] mb-3 tracking-tight">글쓰기 ✍️</h1>
+    <p class="text-[#7A6B6B] text-lg">주제를 선택하고, 당신의 생각을 자유롭게 펼쳐보세요.</p>
+
   </div>
 
   <!-- 📝 글쓰기 폼 -->
   <form method="post" class="max-w-2xl mx-auto bg-white shadow-lg rounded-xl p-6 space-y-6">
+  <form class="max-w-2xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
+
     {% csrf_token %}
 
     <!-- 제목 -->
     <div>
       <label class="block text-[#493E3E] font-semibold mb-1">제목</label>
-      <input type="text" name="title" required class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#F9DCC4]" />
+      <input type="text" ... class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#F9DCC4] shadow-sm" />
     </div>
 
     <!-- 장르 선택 -->
@@ -69,7 +72,10 @@
 
     <!-- 제출 버튼 -->
     <div class="text-center">
-      <button type="submit" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+      <button type="submit" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-6 py-3 rounded-full transition transform hover:scale-105 flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
         제출하기
       </button>
     </div>
