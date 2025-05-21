@@ -34,7 +34,11 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto text-center">
     
     <!-- ✍️ 글쓰기 -->
+    {% if user.is_authenticated %}
     <a href="{% url 'write' %}" class="block">
+    {% else %}
+    <a href="{% url 'signup' %}" class="block">
+    {% endif %}
       <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition hover:scale-[1.02] duration-200">
         <h2 class="text-xl font-semibold text-[#493E3E] mb-2">💧 글방울</h2>
         <p class="text-gray-700 text-sm">오늘의 주제에 맞춰 글을 써보세요.</p>
@@ -42,12 +46,17 @@
     </a>
          
     <!-- 📂 내 글 보기 -->
+    {% if user.is_authenticated %}
     <a href="{% url 'public_user_posts' nickname=user.nickname %}" class="block">
+    {% else %}
+    <a href="{% url 'signup' %}" class="block">
+    {% endif %}
       <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition hover:scale-[1.02] duration-200">
         <h2 class="text-xl font-semibold text-[#493E3E] mb-2">📂 글자국</h2>
         <p class="text-gray-700 text-sm">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
       </div>
     </a>
+
 
 
 
