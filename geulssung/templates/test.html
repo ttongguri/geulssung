@@ -8,11 +8,11 @@
     @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
     body {
       font-family: 'Gaegu', cursive;
-      background-image: url('/static/images/happy_plan.png');
-      background-size: contain; /* 전체 이미지가 화면에 보이도록 */
+      background-image: url('/static/images/clean_sea_header.png');
+      background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      background-color: #fff; /* 이미지 외 영역 배경색 */
+      background-color: #fff;
       min-height: 100vh;
       position: relative;
       overflow: hidden;
@@ -46,9 +46,8 @@
       <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
       <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
     {% endif %}
-</div>
+  </div>
 
-<body class="relative py-16 px-4 text-[#493E3E]">
   <div class="overlay"></div>
 
   <!-- 제목 및 설명 -->
