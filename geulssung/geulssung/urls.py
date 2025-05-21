@@ -20,6 +20,7 @@ from post import views
 
 urlpatterns = [
     path("geulssung/", views.home_view, name="home"),  # /geulssung/
+    path("geulssung/test/", views.test_page_view, name="test"), #/geulssung/test/
     path('admin/', admin.site.urls),
     path("geulssung/write/", views.write_post_view, name="write"),  # /geulssung/write
     path("geulssung/mypost/<int:post_id>", views.post_detail_view, name="post_detail"),  # /geulssung/mypost/1
