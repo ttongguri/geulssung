@@ -6,16 +6,30 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: 'Gaegu', cursive;
-      background-image: url('/static/images/cute_island_bg.png');
-      background-size: cover;
+    }
+    body {
+      background-image: url('/static/images/forest_plan_theme.png');
+      background-size: 100% 100%; /* 페이지 전체에 맞게 덮기 */
       background-position: center;
       background-repeat: no-repeat;
+      background-color: #e6f4f1;
       min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.3);
+      z-index: 0;
     }
     .theme-box {
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.85);
       border-radius: 1.5rem;
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
       padding: 1.5rem;
@@ -28,11 +42,16 @@
   </style>
 </head>
 <body class="relative py-16 px-4 text-[#493E3E]">
-  <div class="max-w-5xl mx-auto text-center mb-20">
-    <h1 class="text-5xl font-extrabold mb-4">글썽글썽</h1>
+  <div class="overlay"></div>
+
+  <!-- 제목 및 설명 -->
+  <div class="absolute top-6 right-8 text-right z-10">
+    <h1 class="text-5xl font-extrabold">글썽글썽</h1>
+    <p class="text-lg mt-1">생각이 차오르면 표현이 자랍니다</p>
   </div>
 
-  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6">
+  <!-- 기능 버튼들 -->
+  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6 z-10">
     <!-- 글방울 -->
     <a href="/geulssung/write/" class="theme-box text-center text-sm">
       <div class="text-3xl mb-1">✍️</div>
@@ -55,7 +74,7 @@
     </a>
   </div>
 
-  <footer class="absolute bottom-2 w-full text-center text-sm text-[#6B5B5B]">
+  <footer class="absolute bottom-2 w-full text-center text-sm text-[#6B5B5B] z-10">
     © 글썽글썽 2025. 자연 속에서, 생각이 차오르면 표현도 자랍니다 🌱
   </footer>
 </body>
