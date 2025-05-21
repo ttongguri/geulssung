@@ -26,8 +26,8 @@
 </div>
 
     <div class="max-w-4xl mx-auto text-center mb-10">
-      <h1 class="text-4xl font-bold text-[#493E3E] mb-4">📚 오늘의 글쓰기 주제</h1>
-      <p class="text-lg text-[#6B5B5B]">뉴스 흐름을 보고, 나만의 시선으로 분석해보세요!</p>
+      <h1 class="text-4xl font-bold text-[#493E3E] mb-4">✍️글썽글썽 </h1>
+      <p class="text-lg text-[#6B5B5B]">오늘의 글감을 보고, 나만의 글을 써 보세요!</p>
     </div>
 
   <!-- 🟨 기능 진입 카드: 3개 -->
@@ -42,10 +42,14 @@
     </a>
          
     <!-- 📂 내 글 보기 -->
-    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
-      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">📂 글자국</h2>
-      <p class="text-gray-700 text-sm">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
-    </div>
+    <a href="{% url 'public_user_posts' nickname=user.nickname %}" class="block">
+      <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition hover:scale-[1.02] duration-200">
+        <h2 class="text-xl font-semibold text-[#493E3E] mb-2">📂 글자국</h2>
+        <p class="text-gray-700 text-sm">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
+      </div>
+    </a>
+
+
 
     <!-- 🌍 글 둘러보기 -->
     <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">

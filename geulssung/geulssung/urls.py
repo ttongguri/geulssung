@@ -23,6 +23,7 @@ urlpatterns = [
     path("geulssung/test/", views.test_page_view, name="test"), #/geulssung/test/
     path('admin/', admin.site.urls),
     path("geulssung/write/", views.write_post_view, name="write"),  # /geulssung/write
-    path("geulssung/mypost/<int:post_id>", views.post_detail_view, name="post_detail"),  # /geulssung/mypost/1
+    path("geulssung/post/<int:post_id>", views.post_detail_view, name="post_detail"),  # /geulssung/post/1
     path("geulssung/accounts/", include("accounts.urls")), # /geulssung/accounts/
+    path("geulssung/post/<str:nickname>/", views.public_posts_by_user, name="public_user_posts"),  # /geulssung/post/nickname
 ]

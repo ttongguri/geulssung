@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ author.nickname }}님의 글자국 - 글썽글썽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#FFF9F2] p-8 font-serif">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold text-[#493E3E] mb-8 text-center">📂 {{ author.nickname }}님의 글자국</h1>
+
+    <!-- 논리 (T) -->
+    <h2 class="text-xl font-bold text-[#493E3E] mb-4">🧠 논리 글</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+      {% for post in posts_t %}
+        <a href="{% url 'post_detail' post_id=post.id %}" class="block bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
+          <h3 class="text-lg font-semibold text-[#493E3E] mb-2">{{ post.title }}</h3>
+          <p class="text-sm text-gray-600">{{ post.created_at|date:"Y.m.d H:i" }}</p>
+        </a>
+      {% empty %}
+        <p class="col-span-full text-gray-400">논리 글이 없습니다.</p>
+      {% endfor %}
+    </div>
+
+    <!-- 감성 (F) -->
+    <h2 class="text-xl font-bold text-[#493E3E] mb-4">💖 감성 글</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {% for post in posts_f %}
+        <a href="{% url 'post_detail' post_id=post.id %}" class="block bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
+          <h3 class="text-lg font-semibold text-[#493E3E] mb-2">{{ post.title }}</h3>
+          <p class="text-sm text-gray-600">{{ post.created_at|date:"Y.m.d H:i" }}</p>
+        </a>
+      {% empty %}
+        <p class="col-span-full text-gray-400">감성 글이 없습니다.</p>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>
