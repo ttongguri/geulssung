@@ -1,0 +1,29 @@
+<!-- templates/post/post_detail.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ post.title }} - 글썽글썽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#FFF9F2] p-8 font-serif">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
+    <h1 class="text-2xl font-bold text-[#493E3E] mb-2">{{ post.title }}</h1>
+    <p class="text-sm text-gray-600 mb-4">by {{ post.author.nickname }} | {{ post.created_at|date:"Y.m.d H:i" }}</p>
+
+    <div class="prose">
+      <p class="font-bold">Step 1</p>
+      <p>{{ post.step1 }}</p>
+
+      <p class="font-bold mt-4">Step 2</p>
+      <p>{{ post.step2 }}</p>
+
+      <p class="font-bold mt-4">Step 3</p>
+      <p>{{ post.step3 }}</p>
+
+      <p class="font-bold mt-6 text-lg">🧩 최종 글</p>
+      <p>{{ post.final_content|linebreaks }}</p>
+    </div>
+  </div>
+</body>
+</html>

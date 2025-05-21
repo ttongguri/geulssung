@@ -1,0 +1,33 @@
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class Post(models.Model):
+    GENRE_CHOICES = [
+        ('column', '칼럼'),
+        ('analysis', '분석글'),
+        ('essay', '에세이'),
+        ('poem', '시'),
+    ]
+
+    CATEGORY_CHOICES = [
+        ('T', '논리적 글쓰기'),
+        ('F', '감정적 글쓰기'),
+    ]
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    title = models.CharField(max_length=100)
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
+    genre = models.CharField(max_length=20, choices=GENRE_CHOICES)
+
+    step1 = models.TextField(blank=True)
+    step2 = models.TextField(blank=True)
+    step3 = models.TextField(blank=True)
+    final_content = models.TextField()
+
+    is_public = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"[{self.get_genre_display()}] {self.title} by {self.author.nickname}"

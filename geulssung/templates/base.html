@@ -12,7 +12,18 @@
     }
   </style>
 </head>
-<body class="bg-[#FFF9F2] min-h-screen p-8">
+<body class="bg-[#FFF9F2] min-h-screen p-8 relative">
+
+  <!-- 🔹 헤더 오른쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
+<div class="absolute top-6 right-8 text-sm space-x-4">
+  {% if user.is_authenticated %}
+    <span class="text-[#493E3E] font-semibold">{{ user.nickname }}님</span>
+    <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
+  {% else %}
+    <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
+    <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
+  {% endif %}
+</div>
 
     <div class="max-w-4xl mx-auto text-center mb-10">
       <h1 class="text-4xl font-bold text-[#493E3E] mb-4">📚 오늘의 글쓰기 주제</h1>
@@ -25,7 +36,7 @@
     <!-- ✍️ 글쓰기 -->
     <a href="{% url 'write' %}" class="block">
       <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition hover:scale-[1.02] duration-200">
-        <h2 class="text-xl font-semibold text-[#493E3E] mb-2">✍️ 글방울</h2>
+        <h2 class="text-xl font-semibold text-[#493E3E] mb-2">💧 글방울</h2>
         <p class="text-gray-700 text-sm">오늘의 주제에 맞춰 글을 써보세요.</p>
       </div>
     </a>

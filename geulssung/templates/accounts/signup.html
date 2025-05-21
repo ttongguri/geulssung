@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>회원가입 - 글썽글썽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body { font-family: 'Gowun Batang', serif; }
+  </style>
+</head>
+<body class="bg-[#FFF9F2] min-h-screen flex items-center justify-center p-6">
+
+  <div class="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+    
+    <!-- 🟫 헤더 -->
+    <h1 class="text-3xl font-bold text-center text-[#493E3E] mb-6">✍️ 글썽글썽 회원가입</h1>
+    <p class="text-sm text-center text-[#6B5B5B] mb-8">
+      글썽이와 함께 할 준비 되셨나요?
+    </p>
+
+    <!-- 🟥 오류 메시지 -->
+    {% if error %}
+      <div class="bg-red-100 text-red-700 text-sm px-4 py-2 rounded mb-4">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <!-- 🟨 폼 -->
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm text-[#493E3E] font-semibold mb-1">아이디</label>
+        <input type="text" name="username" required class="w-full border px-3 py-2 rounded-md shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-[#493E3E] font-semibold mb-1">닉네임</label>
+        <input type="text" name="nickname" required class="w-full border px-3 py-2 rounded-md shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-[#493E3E] font-semibold mb-1">이메일</label>
+        <input type="email" name="email" required class="w-full border px-3 py-2 rounded-md shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-[#493E3E] font-semibold mb-1">비밀번호</label>
+        <input type="password" name="password" required class="w-full border px-3 py-2 rounded-md shadow-sm" />
+      </div>
+
+      <button type="submit" class="w-full bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold py-2 rounded-full transition">
+        가입하기
+      </button>
+    </form>
+
+    <p class="text-xs text-center text-gray-400 mt-6">
+      이미 계정이 있으신가요?
+      <a href="{% url 'login' %}" class="underline text-[#493E3E] font-semibold">로그인하기</a>
+    </p>
+  </div>
+
+</body>
+</html>
+
+
+
+
