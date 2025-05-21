@@ -1,18 +1,29 @@
-{% extends "base.html" %}
+<!-- templates/post/post_detail.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ post.title }} - 글썽글썽</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#FFF9F2] p-8 font-serif">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
+    <h1 class="text-2xl font-bold text-[#493E3E] mb-2">{{ post.title }}</h1>
+    <p class="text-sm text-gray-600 mb-4">by {{ post.author.nickname }} | {{ post.created_at|date:"Y.m.d H:i" }}</p>
 
-{% block content %}
-  <h1>{{ post.title }}</h1>
-  <p>작성자: {{ post.author.username }}</p>
-  <p>카테고리: {{ post.category }}</p>
-  <p>장르: {{ post.genre }}</p>
-  <hr>
-  <h3>1단계</h3>
-  <p>{{ post.step1 }}</p>
-  <h3>2단계</h3>
-  <p>{{ post.step2 }}</p>
-  <h3>3단계</h3>
-  <p>{{ post.step3 }}</p>
-  <h3>최종 내용</h3>
-  <p>{{ post.final_content }}</p>
-  <p>공개여부: {{ post.is_public|yesno:"공개,비공개" }}</p>
-{% endblock %} 
+    <div class="prose">
+      <p class="font-bold">Step 1</p>
+      <p>{{ post.step1 }}</p>
+
+      <p class="font-bold mt-4">Step 2</p>
+      <p>{{ post.step2 }}</p>
+
+      <p class="font-bold mt-4">Step 3</p>
+      <p>{{ post.step3 }}</p>
+
+      <p class="font-bold mt-6 text-lg">🧩 최종 글</p>
+      <p>{{ post.final_content|linebreaks }}</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -16,14 +16,33 @@ def home_view(request):
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
+        genre = request.POST['genre']
+        if genre == 'column':
+            step1 = request.POST.get('column_step1', '')
+            step2 = request.POST.get('column_step2', '')
+            step3 = request.POST.get('column_step3', '')
+        elif genre == 'analysis':
+            step1 = request.POST.get('analysis_step1', '')
+            step2 = request.POST.get('analysis_step2', '')
+            step3 = request.POST.get('analysis_step3', '')
+        elif genre == 'essay':
+            step1 = request.POST.get('essay_step1', '')
+            step2 = request.POST.get('essay_step2', '')
+            step3 = request.POST.get('essay_step3', '')
+        elif genre == 'poem':
+            step1 = request.POST.get('poem_step1', '')
+            step2 = request.POST.get('poem_step2', '')
+            step3 = request.POST.get('poem_step3', '')
+        else:
+            step1 = step2 = step3 = ''
         post = Post(
             author=request.user,
             title=request.POST['title'],
             category=request.POST['category'],
-            genre=request.POST['genre'],
-            step1=request.POST.get('step1', ''),
-            step2=request.POST.get('step2', ''),
-            step3=request.POST.get('step3', ''),
+            genre=genre,
+            step1=step1,
+            step2=step2,
+            step3=step3,
             final_content=request.POST.get('final_text', ''),
             is_public='is_public' in request.POST
         )
