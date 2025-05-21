@@ -6,18 +6,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Gaegu', cursive;
-    }
     body {
-      background-image: url('/static/images/forest_plan_theme.png');
-      background-size: 100% 100%; /* 페이지 전체에 맞게 덮기 */
+      font-family: 'Gaegu', cursive;
+      background-image: url('/static/images/happy_plan.png');
+      background-size: contain; /* 전체 이미지가 화면에 보이도록 */
       background-position: center;
       background-repeat: no-repeat;
-      background-color: #e6f4f1;
+      background-color: #fff; /* 이미지 외 영역 배경색 */
       min-height: 100vh;
       position: relative;
       overflow: hidden;
@@ -25,7 +20,7 @@
     .overlay {
       position: absolute;
       inset: 0;
-      background-color: rgba(255, 255, 255, 0.3);
+      background-color: rgba(255, 255, 255, 0.4);
       z-index: 0;
     }
     .theme-box {
@@ -42,11 +37,28 @@
   </style>
 </head>
 <body class="relative py-16 px-4 text-[#493E3E]">
-  <div class="max-w-5xl mx-auto text-center mb-20">
-    <h1 class="text-5xl font-extrabold mb-4">글썽글썽</h1>
+  <!-- 🔹 왼쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
+  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4">
+    {% if user.is_authenticated %}
+      <span class="text-[#493E3E]">{{ user.nickname }}님</span>
+      <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
+      <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
+    {% endif %}
+</div>
+
+<body class="relative py-16 px-4 text-[#493E3E]">
+  <div class="overlay"></div>
+
+  <!-- 제목 및 설명 -->
+  <div class="absolute top-6 right-8 text-right z-10">
+    <h1 class="text-5xl font-extrabold">글썽글썽</h1>
+    <p class="text-lg mt-1">생각이 차오르면 표현이 자랍니다</p>
   </div>
 
-  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6">
+  <!-- 기능 버튼들 -->
+  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6 z-10">
     <!-- 글방울 -->
     <a href="/geulssung/write/" class="theme-box text-center text-sm">
       <div class="text-3xl mb-1">✍️</div>
@@ -69,7 +81,7 @@
     </a>
   </div>
 
-  <footer class="absolute bottom-2 w-full text-center text-sm text-[#6B5B5B]">
+  <footer class="absolute bottom-2 w-full text-center text-sm text-[#6B5B5B] z-10">
     © 글썽글썽 2025. 자연 속에서, 생각이 차오르면 표현도 자랍니다 🌱
   </footer>
 </body>

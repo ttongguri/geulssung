@@ -1,55 +1,88 @@
-<!-- templates/simple_landing.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>글썽글썽 ✍️</title>
+  <title>그심그심 가죠워 테마</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
     body {
-      font-family: 'Gowun Batang', serif;
+      font-family: 'Gaegu', cursive;
+      background-image: url('/static/images/happy_plan.png');
+      background-size: contain; /* 전체 이미지가 화면에 보이도록 */
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #fff; /* 이미지 외 영역 배경색 */
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.4);
+      z-index: 0;
+    }
+    .theme-box {
+      background-color: rgba(255, 255, 255, 0.85);
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: all 0.3s ease-in-out;
+    }
+    .theme-box:hover {
+      transform: translateY(-4px) scale(1.02);
+      background-color: rgba(255, 255, 255, 0.95);
     }
   </style>
 </head>
-<body class="bg-[#FFF9F2] min-h-screen p-8">
+<body class="relative py-16 px-4 text-[#493E3E]">
+  <!-- 🔹 왼쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
+  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4">
+    {% if user.is_authenticated %}
+      <span class="text-[#493E3E]">{{ user.nickname }}님</span>
+      <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
+      <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
+    {% endif %}
 
-  <!-- 🔷 상단 제목 + 설명 -->
-  <div class="text-center max-w-2xl mx-auto mb-12">
-    <h1 class="text-5xl font-bold text-[#493E3E] mb-4">글썽글썽 ✍️</h1>
-    <p class="text-lg text-[#6B5B5B] leading-relaxed">
-      뉴스에서 시작된 생각의 흐름,<br />
-      당신의 글로 표현해보세요.
-    </p>
-  </div>
-
-  <!-- 🟨 기능 진입 카드: 3개 -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto text-center">
+  <div class="overlay">
     
-    <!-- ✍️ 글쓰기 -->
-    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
-      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">✍️ 글방울</h2>
-      <p class="text-gray-700 text-sm">오늘의 주제에 맞춰 글을 써보세요.</p>
-    </div>
-
-    <!-- 📂 내 글 보기 -->
-    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
-      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">📂 글자국</h2>
-      <p class="text-gray-700 text-sm">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
-    </div>
-
-    <!-- 🌍 글 둘러보기 -->
-    <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-xl transition cursor-not-allowed opacity-80">
-      <h2 class="text-xl font-semibold text-[#493E3E] mb-2">🌍 글바다</h2>
-      <p class="text-gray-700 text-sm">다른 사람들의 시선을 함께 읽어보세요.</p>
-    </div>
-
   </div>
 
-  <!-- 🧾 푸터 -->
-  <footer class="mt-16 text-center text-sm text-gray-500">
-    © 글썽글썽 2025. 생각이 차오르면, 표현도 자랍니다 🌱
-  </footer>
+  <!-- 제목 및 설명 -->
+  <div class="absolute top-6 right-8 text-right z-10">
+    <h1 class="text-5xl font-extrabold">글썽글썽</h1>
+    <p class="text-lg mt-1">생각이 차오르면 표현이 자랍니다</p>
+  </div>
 
+  <!-- 기능 버튼들 -->
+  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6 z-10">
+    <!-- 글방울 -->
+    <a href="/geulssung/write/" class="theme-box text-center text-sm">
+      <div class="text-3xl mb-1">✍️</div>
+      <h2 class="text-lg font-bold">글방울</h2>
+      <p class="text-xs mt-1">오늘의 주제에 맞춰 글을 써보세요.</p>
+    </a>
+
+    <!-- 글자국 -->
+    <a href="/geulssung/myposts/" class="theme-box text-center text-sm">
+      <div class="text-3xl mb-1">📁</div>
+      <h2 class="text-lg font-bold">글자국</h2>
+      <p class="text-xs mt-1">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
+    </a>
+
+    <!-- 글바다 -->
+    <a href="/geulssung/explore/" class="theme-box text-center text-sm">
+      <div class="text-3xl mb-1">🌏</div>
+      <h2 class="text-lg font-bold">글바다</h2>
+      <p class="text-xs mt-1">다른 사람들의 시선을 함께 읽어보세요.</p>
+    </a>
+  </div>
+
+  <footer class="absolute bottom-2 w-full text-center text-sm text-[#6B5B5B] z-10">
+    © 글썽글썽 2025. 자연 속에서, 생각이 차오르면 표현도 자랍니다 🌱
+  </footer>
 </body>
 </html>
