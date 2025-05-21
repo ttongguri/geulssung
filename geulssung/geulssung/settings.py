@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_bootstrap5',
-    'core',
     'post',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -129,4 +129,4 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'core.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'

@@ -12,7 +12,18 @@
     }
   </style>
 </head>
-<body class="bg-[#FFF9F2] min-h-screen p-8">
+<body class="bg-[#FFF9F2] min-h-screen p-8 relative">
+
+  <!-- 🔹 헤더 오른쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
+<div class="absolute top-6 right-8 text-sm space-x-4">
+  {% if user.is_authenticated %}
+    <span class="text-[#493E3E] font-semibold">{{ user.nickname }}님</span>
+    <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
+  {% else %}
+    <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
+    <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
+  {% endif %}
+</div>
 
   <!-- 🔷 상단 제목 + 설명 -->
   <div class="text-center max-w-2xl mx-auto mb-12">
