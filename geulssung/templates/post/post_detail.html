@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ post.title }}</h1>
+  <p>작성자: {{ post.author.username }}</p>
+  <p>카테고리: {{ post.category }}</p>
+  <p>장르: {{ post.genre }}</p>
+  <hr>
+  <h3>1단계</h3>
+  <p>{{ post.step1 }}</p>
+  <h3>2단계</h3>
+  <p>{{ post.step2 }}</p>
+  <h3>3단계</h3>
+  <p>{{ post.step3 }}</p>
+  <h3>최종 내용</h3>
+  <p>{{ post.final_content }}</p>
+  <p>공개여부: {{ post.is_public|yesno:"공개,비공개" }}</p>
+{% endblock %} 

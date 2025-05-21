@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from core import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("geulssung/", include("core.urls")), 
+    path("geulssung/", include([
+        path("", include("core.urls")),       # 예전 core 앱 (지금은 account?)
+        path("post/", include("post.urls")),  # ✅ post 앱을 geulssung/post/ 하위로 넣기
+    ])),
 ]
