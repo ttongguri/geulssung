@@ -8,7 +8,6 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
     body { font-family: 'Gowun Batang', serif; }
-
     .step-nav-btn {
       padding: 6px 12px;
       border-radius: 9999px;
@@ -29,8 +28,6 @@
   </style>
 </head>
 <body class="bg-[#FFF9F2] min-h-screen pb-24 p-8">
-
-  <!-- 상단 고정 네비게이션 바 -->
   <div id="step-nav" class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-center gap-4 z-50">
     <button class="step-nav-btn" onclick="goToStep(1)">1. 글감</button>
     <button class="step-nav-btn" onclick="goToStep(2)">2. 한 방울</button>
@@ -39,10 +36,10 @@
     <button class="step-nav-btn" onclick="goToStep(5)">5. 글줄기</button>
   </div>
 
-  <!-- 본문 내용 (nav 높이만큼 상단 여백 추가) -->
   <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6 mt-24">
     <form method="post" action="">
       {% csrf_token %}
+
       <div class="step" id="step-1">
         <div class="mb-6">
           <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
@@ -112,18 +109,45 @@
     </form>
   </div>
 
+  <div id="summary-container" class="fixed bottom-4 right-4 z-50 text-sm text-[#493E3E] w-80">
+    <button onclick="toggleSummary()" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] px-4 py-2 rounded-t-xl w-full font-bold transition">
+      요약 보기 / 숨기기
+    </button>
+    <div id="summary-box" class="bg-white border border-[#F9DCC4] shadow-xl p-4 rounded-b-2xl space-y-2 hidden">
+      <p><strong>형식:</strong> <span id="summary-genre"></span></p>
+      <p><strong>글감:</strong> <span id="summary-prompt"></span></p>
+      <p><strong>한 방울:</strong> <span id="summary-step1"></span></p>
+      <p><strong>두 방울:</strong> <span id="summary-step2"></span></p>
+      <p><strong>세 방울:</strong> <span id="summary-step3"></span></p>
+    </div>
+  </div>
+
   <script>
     let currentStep = 1;
     const totalSteps = 5;
 
+    function toggleSummary() {
+      document.getElementById("summary-box").classList.toggle("hidden");
+    }
+
+    function updateSummaryBox() {
+      const genre = document.querySelector('input[name="genre"]:checked')?.nextSibling?.textContent?.trim();
+      const prompt = document.getElementById('selectedPrompt')?.value;
+      const step1 = document.querySelector('textarea[name="poem_step1"]')?.value;
+      const step2 = document.querySelector('textarea[name="poem_step2"]')?.value;
+      const step3 = document.querySelector('textarea[name="poem_step3"]')?.value;
+
+      document.getElementById('summary-genre').textContent = genre || '';
+      document.getElementById('summary-prompt').textContent = prompt || '';
+      document.getElementById('summary-step1').textContent = step1 || '';
+      document.getElementById('summary-step2').textContent = step2 || '';
+      document.getElementById('summary-step3').textContent = step3 || '';
+    }
+
     function showGenres(category) {
       document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
       document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
-      const all = ['column', 'analysis', 'essay', 'poem'];
-      all.forEach(id => {
-        const div = document.getElementById(`guide-${id}`);
-        if (div) div.style.display = 'none';
-      });
+      updateSummaryBox();
     }
 
     function showGuide(value) {
@@ -136,6 +160,7 @@
       if (target) target.style.display = 'block';
       showPrompts(value);
       checkFormReady();
+      updateSummaryBox();
     }
 
     function showPrompts(genre) {
@@ -170,6 +195,7 @@
       button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
       document.getElementById('selectedPrompt').value = prompt;
       checkFormReady();
+      updateSummaryBox();
     }
 
     function checkFormReady() {
@@ -211,6 +237,7 @@
         currentStep++;
       }
       showStep(currentStep);
+      updateSummaryBox();
     }
 
     function prevStep() {
@@ -218,6 +245,7 @@
         currentStep = currentStep === 2 ? 1 : currentStep - 1;
         showStep(currentStep);
       }
+      updateSummaryBox();
     }
 
     function goToStep(step) {
