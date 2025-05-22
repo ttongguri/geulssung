@@ -29,7 +29,18 @@
   </style>
 </head>
 <body class="bg-[#FFF9F2] min-h-screen pb-24 p-8">
-  <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6">
+
+  <!-- 상단 고정 네비게이션 바 -->
+  <div id="step-nav" class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-center gap-4 z-50">
+    <button class="step-nav-btn" onclick="goToStep(1)">1. 글감</button>
+    <button class="step-nav-btn" onclick="goToStep(2)">2. 한 방울</button>
+    <button class="step-nav-btn" onclick="goToStep(3)">3. 두 방울</button>
+    <button class="step-nav-btn" onclick="goToStep(4)">4. 세 방울</button>
+    <button class="step-nav-btn" onclick="goToStep(5)">5. 글줄기</button>
+  </div>
+
+  <!-- 본문 내용 (nav 높이만큼 상단 여백 추가) -->
+  <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6 mt-24">
     <form method="post" action="">
       {% csrf_token %}
       <div class="step" id="step-1">
@@ -99,15 +110,6 @@
         </div>
       </div>
     </form>
-  </div>
-
-  <!-- 고정형 네비게이션 바 -->
-  <div id="step-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t shadow px-6 py-3 flex justify-center gap-4 z-50">
-    <button class="step-nav-btn" onclick="goToStep(1)">1. 글감</button>
-    <button class="step-nav-btn" onclick="goToStep(2)">2. 한 방울</button>
-    <button class="step-nav-btn" onclick="goToStep(3)">3. 두 방울</button>
-    <button class="step-nav-btn" onclick="goToStep(4)">4. 세 방울</button>
-    <button class="step-nav-btn" onclick="goToStep(5)">5. 글줄기</button>
   </div>
 
   <script>
@@ -219,25 +221,23 @@
     }
 
     function goToStep(step) {
-  const genre = document.querySelector('input[name="genre"]:checked')?.value;
-  if (step === 1 || (genre && document.getElementById('selectedPrompt').value)) {
-    const targetId = document.getElementById(`step-${genre}-${step}`) || document.getElementById(`step-${step}`);
-    if (targetId) {
-      currentStep = step;
-      showStep(currentStep);
+      const genre = document.querySelector('input[name="genre"]:checked')?.value;
+      if (step === 1 || (genre && document.getElementById('selectedPrompt').value)) {
+        const targetId = document.getElementById(`step-${genre}-${step}`) || document.getElementById(`step-${step}`);
+        if (targetId) {
+          currentStep = step;
+          showStep(currentStep);
+        }
+      } else {
+        alert("먼저 형식과 글감을 선택해주세요!");
+      }
     }
-  } else {
-    alert("먼저 형식과 글감을 선택해주세요!");
-  }
-}
 
     function updateStepNav() {
       document.querySelectorAll(".step-nav-btn").forEach((btn, idx) => {
         btn.classList.remove("active", "disabled");
         if (idx + 1 === currentStep) {
           btn.classList.add("active");
-        } else if (idx + 1 > currentStep) {
-          // btn.classList.add("disabled");
         }
       });
     }
