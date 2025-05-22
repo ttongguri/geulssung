@@ -2,31 +2,50 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>그심그심 가죠워 테마</title>
+  <title>글썽글썽 메인</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Gaegu', cursive;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap');
     body {
-      background-image: url('/static/images/기깔나게 글쓰기~.png');
-      background-size: contain;
-      background-position: center;
+      font-family: 'Gaegu', cursive;
+      background-image: url('/static/images/sea_rip_paper.png');
+      background-size: 100%;
+      background-position: 30% 42%;
       background-repeat: no-repeat;
-      background-color: #e5c1a7;
+      background-color: #fff;
       min-height: 100vh;
       position: relative;
       overflow: hidden;
+      padding: 2rem;
+      color: #493E3E;
+    }
+    .center-text {
+      position: absolute;
+      top: 17%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 4.5rem;
+      font-weight: 800;
+      color: #493E3E;
+      z-index: 2;
+      text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+    }
+    .center-text2 {
+      position: absolute;
+      top: 33%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #493E3E;
+      z-index: 2;
+      text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
     }
     .theme-box {
       background-color: rgba(255, 255, 255, 0.85);
       border-radius: 1.5rem;
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      padding: 1rem;
+      padding: 1.5rem;
       transition: all 0.3s ease-in-out;
     }
     .theme-box:hover {
@@ -35,16 +54,15 @@
     }
   </style>
 </head>
-<body class="relative py-16 px-4 text-[#493E3E]">
+<body>
 
-  <!-- 🔹 오른쪽 상단: 제목 + 푸터 문구 -->
-  <div class="absolute top-6 right-8 text-right">
-    <h1 class="text-6xl font-extrabold">글썽글썽</h1>
-    <p class="text-sm text-[#6B5B5B] mt-1">© 글썽글썽 2025. 자연 속에서,<br />생각이 차오르면 표현도 자랍니다 🌱</p>
-  </div>
+  <!-- 종이 영역 중앙 텍스트 -->
+  <div class="center-text">글썽글썽</div>
+  <div class="center-text2">© 글썽글썽 2025. 자연 속에서, 생각이 차오르면 표현도 자랍니다 🌱</div>
 
-  <!-- 🔹 왼쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
-  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4">
+
+  <!-- 로그인/회원가입 -->
+  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4 z-10">
     {% if user.is_authenticated %}
       <span class="text-[#493E3E]">{{ user.nickname }}님</span>
       <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
@@ -55,7 +73,7 @@
   </div>
 
   <!-- 기능 버튼들 -->
-  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6">
+  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6 z-10">
     <a href="/geulssung/write/" class="theme-box text-center text-sm">
       <div class="text-3xl mb-1">✍️</div>
       <h2 class="text-lg font-bold">글방울</h2>
@@ -72,5 +90,9 @@
       <p class="text-xs mt-1">다른 사람들의 시선을 함께 읽어보세요.</p>
     </a>
   </div>
+
+  <footer class="absolute bottom-2 w-full text-center text-sm text-[#6B5B5B] z-10">
+    © 글썽글썽 2025. 자연 속에서, 생각이 차오르면 표현도 자랍니다 🌱
+  </footer>
 </body>
 </html>
