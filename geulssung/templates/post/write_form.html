@@ -125,31 +125,34 @@
   <script>
     let currentStep = 1;
     const totalSteps = 5;
-
+  
     function toggleSummary() {
       document.getElementById("summary-box").classList.toggle("hidden");
     }
-
+  
     function updateSummaryBox() {
-      const genre = document.querySelector('input[name="genre"]:checked')?.nextSibling?.textContent?.trim();
+      const genreInput = document.querySelector('input[name="genre"]:checked');
+      const genre = genreInput?.nextSibling?.textContent?.trim() || '';
+      const genreValue = genreInput?.value || '';
       const prompt = document.getElementById('selectedPrompt')?.value;
-      const step1 = document.querySelector('textarea[name="poem_step1"]')?.value;
-      const step2 = document.querySelector('textarea[name="poem_step2"]')?.value;
-      const step3 = document.querySelector('textarea[name="poem_step3"]')?.value;
-
-      document.getElementById('summary-genre').textContent = genre || '';
+  
+      const step1 = document.querySelector(`textarea[name="${genreValue}_step1"]`)?.value || '';
+      const step2 = document.querySelector(`textarea[name="${genreValue}_step2"]`)?.value || '';
+      const step3 = document.querySelector(`textarea[name="${genreValue}_step3"]`)?.value || '';
+  
+      document.getElementById('summary-genre').textContent = genre;
       document.getElementById('summary-prompt').textContent = prompt || '';
-      document.getElementById('summary-step1').textContent = step1 || '';
-      document.getElementById('summary-step2').textContent = step2 || '';
-      document.getElementById('summary-step3').textContent = step3 || '';
+      document.getElementById('summary-step1').textContent = step1;
+      document.getElementById('summary-step2').textContent = step2;
+      document.getElementById('summary-step3').textContent = step3;
     }
-
+  
     function showGenres(category) {
       document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
       document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
       updateSummaryBox();
     }
-
+  
     function showGuide(value) {
       const all = ['column', 'analysis', 'essay', 'poem'];
       all.forEach(id => {
@@ -162,7 +165,7 @@
       checkFormReady();
       updateSummaryBox();
     }
-
+  
     function showPrompts(genre) {
       const promptBox = document.getElementById("prompt-box");
       const promptOptions = document.getElementById("prompt-options");
@@ -187,7 +190,7 @@
       });
       promptBox.style.display = "block";
     }
-
+  
     function selectPrompt(button, prompt) {
       document.querySelectorAll('.prompt-option').forEach(btn => {
         btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
@@ -197,7 +200,7 @@
       checkFormReady();
       updateSummaryBox();
     }
-
+  
     function checkFormReady() {
       const genre = document.querySelector('input[name="genre"]:checked');
       const prompt = document.getElementById('selectedPrompt').value;
@@ -208,7 +211,7 @@
         btn.classList.add('opacity-50', 'pointer-events-none');
       }
     }
-
+  
     function showStep(step) {
       const genre = document.querySelector('input[name="genre"]:checked')?.value;
       const allSteps = document.querySelectorAll('.step');
@@ -217,7 +220,7 @@
       if (current) current.style.display = 'block';
       updateStepNav();
     }
-
+  
     function nextStep() {
       if (currentStep === 1) {
         const genre = document.querySelector('input[name="genre"]:checked')?.value;
@@ -239,7 +242,7 @@
       showStep(currentStep);
       updateSummaryBox();
     }
-
+  
     function prevStep() {
       if (currentStep > 1) {
         currentStep = currentStep === 2 ? 1 : currentStep - 1;
@@ -247,7 +250,7 @@
       }
       updateSummaryBox();
     }
-
+  
     function goToStep(step) {
       const genre = document.querySelector('input[name="genre"]:checked')?.value;
       if (step === 1 || (genre && document.getElementById('selectedPrompt').value)) {
@@ -260,7 +263,7 @@
         alert("먼저 형식과 글감을 선택해주세요!");
       }
     }
-
+  
     function updateStepNav() {
       document.querySelectorAll(".step-nav-btn").forEach((btn, idx) => {
         btn.classList.remove("active", "disabled");
@@ -269,10 +272,23 @@
         }
       });
     }
-
+  
     document.addEventListener("DOMContentLoaded", function () {
       showStep(currentStep);
+  
+      // textarea 변경 시 요약 실시간 업데이트
+      [
+        'poem_step1', 'poem_step2', 'poem_step3',
+        'essay_step1', 'essay_step2', 'essay_step3',
+        'column_step1', 'column_step2', 'column_step3',
+        'analysis_step1', 'analysis_step2', 'analysis_step3'
+      ].forEach(name => {
+        const textarea = document.querySelector(`textarea[name="${name}"]`);
+        if (textarea) {
+          textarea.addEventListener("input", updateSummaryBox);
+        }
+      });
     });
-  </script>
+  </script>  
 </body>
 </html>
