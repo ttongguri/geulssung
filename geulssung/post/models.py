@@ -20,7 +20,7 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
     genre = models.CharField(max_length=20, choices=GENRE_CHOICES)
-
+    topic = models.CharField(max_length=200, default="글감 없음")
     step1 = models.TextField(blank=True)
     step2 = models.TextField(blank=True)
     step3 = models.TextField(blank=True)
