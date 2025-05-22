@@ -10,7 +10,7 @@
     <h1 class="text-3xl font-bold text-[#493E3E] mb-8 text-center">📂 {{ author.nickname }}님의 글자국</h1>
 
     <!-- 논리 (T) -->
-    <h2 class="text-xl font-bold text-[#493E3E] mb-4">🧠 논리 글</h2>
+    <h2 class="text-xl font-bold text-[#493E3E] mb-4">글썽이 공간</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
       {% for post in posts_t %}
         <a href="{% url 'post_detail' post_id=post.id %}" class="block bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
@@ -23,7 +23,7 @@
     </div>
 
     <!-- 감성 (F) -->
-    <h2 class="text-xl font-bold text-[#493E3E] mb-4">💖 감성 글</h2>
+    <h2 class="text-xl font-bold text-[#493E3E] mb-4">말썽이 공간</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts_f %}
         <a href="{% url 'post_detail' post_id=post.id %}" class="block bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
