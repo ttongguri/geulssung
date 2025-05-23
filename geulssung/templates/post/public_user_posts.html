@@ -15,22 +15,8 @@
       {% for post in posts %}
         <a href="{% url 'post_detail' post_id=post.id %}" class="block bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
 
-          <!-- 🖼 대표 이미지 -->
-          {% if post.postimage %}
-            <img src="{{ post.postimage.image.url }}" class="w-full h-48 object-cover" />
-          {% else %}
-            {% if post.genre == 'column' %}
-              <img src="{% static 'images/genre_column.jpg' %}" class="w-full h-48 object-cover">
-            {% elif post.genre == 'analysis' %}
-              <img src="{% static 'images/genre_analysis.jpg' %}" class="w-full h-48 object-cover">
-            {% elif post.genre == 'essay' %}
-              <img src="{% static 'images/genre_essay.jpg' %}" class="w-full h-48 object-cover">
-            {% elif post.genre == 'poem' %}
-              <img src="{% static 'images/genre_poem.jpg' %}" class="w-full h-48 object-cover">
-            {% else %}
-              <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-sm text-gray-500">이미지 없음</div>
-            {% endif %}
-          {% endif %}
+           <!-- 🖼 대표 이미지 -->
+          <img src="{% static 'images/피그민.png' %}" class="w-full h-48 object-cover" />
 
           <!-- 📌 텍스트 정보 -->
           <div class="p-4">
