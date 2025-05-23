@@ -1,0 +1,244 @@
+# 태스크 ID: 14
+# 제목: 아카이빙 UI
+# 상태: 대기중 (pending)
+# 선행 태스크: 8, 10
+# 우선순위: 보통 (medium)
+# 설명: 글 아카이빙 및 태그 관리 기능을 위한 UI를 구현하며, 검색 및 필터링 기능을 포함합니다.
+# 상세 내용:
+1. 아카이빙 버튼 컴포넌트:
+   - 아카이빙 토글
+   - 상태 표시
+   - 애니메이션
+   - 툴팁
+   - 호버 효과
+
+2. 태그 관리 UI:
+   - 태그 생성/수정/삭제
+   - 태그 목록
+   - 태그 검색
+   - 자동완성
+   - 추천 태그
+
+3. 검색 및 필터링:
+   - 전체 검색
+   - 태그 필터
+   - 형식 필터
+   - 날짜 필터
+   - 정렬 옵션
+
+4. 아카이빙 목록:
+   - 그리드/리스트 뷰
+   - 페이지네이션
+   - 정렬
+   - 필터링
+   - 미리보기
+
+예시 아카이빙 버튼 컴포넌트:
+```typescript
+// components/ArchiveButton.tsx
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
+
+interface ArchiveButtonProps {
+  postId: string;
+  initialArchived: boolean;
+}
+
+const ArchiveButton: React.FC<ArchiveButtonProps> = ({
+  postId,
+  initialArchived
+}) => {
+  const { user } = useAuth();
+  const [archived, setArchived] = useState(initialArchived);
+  const [loading, setLoading] = useState(false);
+
+  const handleArchive = async () => {
+    if (!user) {
+      // 로그인 모달 표시
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(`/api/archives/${postId}`);
+      setArchived(response.data.archived);
+    } catch (error) {
+      console.error('아카이빙 처리 중 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button 
+      className={`archive-button ${archived ? 'archived' : ''} ${loading ? 'loading' : ''}`}
+      onClick={handleArchive}
+      disabled={loading}
+      aria-label={archived ? '아카이빙 취소' : '아카이빙'}
+    >
+      <div className="icon-container">
+        <img 
+          src={`/images/archive-${archived ? 'active' : 'inactive'}.png`} 
+          alt="아카이빙" 
+        />
+      </div>
+      <span>{archived ? '보관됨' : '보관하기'}</span>
+    </button>
+  );
+};
+
+export default ArchiveButton;
+```
+
+예시 태그 관리 컴포넌트:
+```typescript
+// components/TagManager.tsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+interface Tag {
+  id: string;
+  name: string;
+  count: number;
+}
+
+interface TagManagerProps {
+  postId: string;
+  initialTags: Tag[];
+}
+
+const TagManager: React.FC<TagManagerProps> = ({
+  postId,
+  initialTags
+}) => {
+  const [tags, setTags] = useState<Tag[]>(initialTags);
+  const [newTag, setNewTag] = useState('');
+  const [suggestions, setSuggestions] = useState<Tag[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleAddTag = async () => {
+    if (!newTag.trim()) return;
+
+    setLoading(true);
+    try {
+      const response = await axios.post(`/api/posts/${postId}/tags`, {
+        name: newTag
+      });
+      setTags([...tags, response.data]);
+      setNewTag('');
+    } catch (error) {
+      console.error('태그 추가 중 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveTag = async (tagId: string) => {
+    setLoading(true);
+    try {
+      await axios.delete(`/api/posts/${postId}/tags/${tagId}`);
+      setTags(tags.filter(tag => tag.id !== tagId));
+    } catch (error) {
+      console.error('태그 삭제 중 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`/api/tags/search?q=${query}`);
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error('태그 검색 중 오류:', error);
+    }
+  };
+
+  return (
+    <div className="tag-manager">
+      <div className="tag-input">
+        <input
+          type="text"
+          value={newTag}
+          onChange={(e) => {
+            setNewTag(e.target.value);
+            handleSearch(e.target.value);
+          }}
+          placeholder="태그 추가..."
+          disabled={loading}
+        />
+        <button 
+          onClick={handleAddTag}
+          disabled={loading || !newTag.trim()}
+        >
+          추가
+        </button>
+      </div>
+
+      {suggestions.length > 0 && (
+        <div className="tag-suggestions">
+          {suggestions.map(tag => (
+            <div 
+              key={tag.id}
+              className="suggestion-item"
+              onClick={() => {
+                setNewTag(tag.name);
+                setSuggestions([]);
+              }}
+            >
+              {tag.name} ({tag.count})
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="tag-list">
+        {tags.map(tag => (
+          <div key={tag.id} className="tag-item">
+            <span>{tag.name}</span>
+            <button
+              onClick={() => handleRemoveTag(tag.id)}
+              disabled={loading}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TagManager;
+```
+
+# 테스트 전략:
+1. 아카이빙 기능 테스트
+   - 토글 동작
+   - 상태 변경
+   - 애니메이션
+   - 에러 처리
+
+2. 태그 관리 테스트
+   - 태그 CRUD
+   - 자동완성
+   - 검색 기능
+   - 중복 처리
+
+3. 검색 및 필터링 테스트
+   - 검색 정확도
+   - 필터 동작
+   - 정렬 기능
+   - 성능
+
+4. UI/UX 테스트
+   - 반응형 디자인
+   - 접근성
+   - 사용성
+   - 성능
