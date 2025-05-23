@@ -5,9 +5,13 @@
   <meta charset="UTF-8">
   <title>{{ post.title }} - 글썽글썽</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    /* @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap'); */
     body { font-family: 'Gowun Batang', serif; }
+    .gaegu{
+      font-family: 'Gaegu', cursive;
+    }
   </style>
 </head>
 <body class="bg-[#FFF9F2] min-h-screen p-8 relative">
@@ -50,31 +54,34 @@
       <p class="font-bold text-lg mt-6">Step 3</p>
       <p class="mt-1">{{ post.step3 }}</p>
     </div>
+    <br>
+    <hr>
 
     <!-- 최종 글 내용 -->
     <div class="prose mt-8">
       <p class="font-bold text-xl">🧩 최종 글</p>
       <p class="mt-2">{{ post.final_content|linebreaks }}</p>
     </div>
-
+    <br>
+    <hr>
     <!-- 공개/비공개 토글 라디오 -->
     <div class="flex space-x-8 mt-8">
       <!-- 공개 라디오 -->
       <label class="inline-flex items-center cursor-pointer space-x-2">
         <input type="radio" name="visibility" value="public" class="hidden peer" checked>
-        <span class="w-5 h-5 inline-block rounded-full border-2 border-gray-300 peer-checked:border-[#493E3E] peer-checked:bg-[#493E3E]"></span>
+        <span class="w-3 h-3 inline-block rounded-full border-2 border-gray-300 peer-checked:border-[#493E3E] peer-checked:bg-[#493E3E]"></span>
         <span class="text-base text-gray-700 peer-checked:text-[#493E3E]">공개</span>
       </label>
       <!-- 비공개 라디오 -->
       <label class="inline-flex items-center cursor-pointer space-x-2">
         <input type="radio" name="visibility" value="private" class="hidden peer">
-        <span class="w-5 h-5 inline-block rounded-full border-2 border-gray-300 peer-checked:border-[#493E3E] peer-checked:bg-[#493E3E]"></span>
+        <span class="w-3 h-3 inline-block rounded-full border-2 border-gray-300 peer-checked:border-[#493E3E] peer-checked:bg-[#493E3E]"></span>
         <span class="text-base text-gray-700 peer-checked:text-[#493E3E]">비공개</span>
       </label>
     </div>
 
     <!-- 라디오 선택 메시지 -->
-    <p id="visibility-message" class="mt-4 text-md text-gray-600">이 글은 공개됩니다.</p>
+    <p id="visibility-message" class="mt-3 text-sm text-black-600">이 글은 공개됩니다.</p>
 
     <!-- 수정/완료 버튼 -->
   </div>

@@ -150,6 +150,8 @@
     function showGenres(category) {
       document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
       document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
+      showPrompts(category); // 감성/이성에 맞는 글감 표시
+      checkFormReady();      // 체크 상태 반영
       updateSummaryBox();
     }
   
@@ -161,25 +163,26 @@
       });
       const target = document.getElementById(`guide-${value}`);
       if (target) target.style.display = 'block';
-      showPrompts(value);
+      // showPrompts(value);
       checkFormReady();
       updateSummaryBox();
     }
   
-    function showPrompts(genre) {
+    function showPrompts(categoryOrGenre) {
       const promptBox = document.getElementById("prompt-box");
       const promptOptions = document.getElementById("prompt-options");
       const hiddenInput = document.getElementById("selectedPrompt");
+
       const promptMap = {
-        poem: ["사라진 우산", "낙엽이 흔들린 날", "밤의 정류장", "우유 한 방울"],
-        essay: ["무연고 장례", "버스 창밖", "학교 종이 땡땡땡", "엄마 손"],
-        column: ["디지털 감시", "전세 사기", "청소년 투표권", "야근은 의무인가"],
-        analysis: ["청년 고립", "기후 재난", "젠더 임금격차", "플랫폼 노동"]
+        emotion: ["사라진 우산", "낙엽이 흔들린 날", "밤의 정류장", "우유 한 방울"],
+        logic: ["디지털 감시", "전세 사기", "청소년 투표권", "야근은 의무인가"]
       };
-      const prompts = promptMap[genre] || [];
+
+      const prompts = promptMap[categoryOrGenre] || [];
       promptOptions.innerHTML = "";
       hiddenInput.value = "";
       document.getElementById('step1NextBtn').classList.add('opacity-50', 'pointer-events-none');
+
       prompts.forEach(prompt => {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -190,6 +193,7 @@
       });
       promptBox.style.display = "block";
     }
+
   
     function selectPrompt(button, prompt) {
       document.querySelectorAll('.prompt-option').forEach(btn => {
@@ -202,15 +206,18 @@
     }
   
     function checkFormReady() {
+      const category = document.querySelector('input[name="category"]:checked');
       const genre = document.querySelector('input[name="genre"]:checked');
       const prompt = document.getElementById('selectedPrompt').value;
       const btn = document.getElementById('step1NextBtn');
-      if (genre && prompt) {
+
+      if (category && genre && prompt) {
         btn.classList.remove('opacity-50', 'pointer-events-none');
       } else {
         btn.classList.add('opacity-50', 'pointer-events-none');
       }
     }
+
   
     function showStep(step) {
       const genre = document.querySelector('input[name="genre"]:checked')?.value;
