@@ -148,10 +148,27 @@
     }
   
     function showGenres(category) {
+      // 카테고리(도우미)에 따라 형식 선택 영역 보이기
       document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
       document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
-      showPrompts(category); // 감성/이성에 맞는 글감 표시
-      checkFormReady();      // 체크 상태 반영
+  
+      // 형식 라디오 초기화
+      document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+  
+      // 글감 초기화
+      document.getElementById("selectedPrompt").value = "";
+      document.getElementById("prompt-options").innerHTML = "";
+      document.getElementById("prompt-box").style.display = "none";
+  
+      // 가이드 초기화
+      ['column', 'analysis', 'essay', 'poem'].forEach(id => {
+        const guide = document.getElementById(`guide-${id}`);
+        if (guide) guide.style.display = "none";
+      });
+  
+      // 글감 다시 로드
+      showPrompts(category);
+      checkFormReady();
       updateSummaryBox();
     }
   
@@ -161,9 +178,18 @@
         const div = document.getElementById(`guide-${id}`);
         if (div) div.style.display = 'none';
       });
+  
       const target = document.getElementById(`guide-${value}`);
       if (target) target.style.display = 'block';
-      // showPrompts(value);
+  
+      // 글감 초기화만 (도우미는 유지)
+      document.getElementById("selectedPrompt").value = "";
+      document.getElementById("prompt-options").innerHTML = "";
+      document.getElementById("prompt-box").style.display = "none";
+  
+      const category = document.querySelector('input[name="category"]:checked')?.value;
+      if (category) showPrompts(category);
+  
       checkFormReady();
       updateSummaryBox();
     }
@@ -172,17 +198,17 @@
       const promptBox = document.getElementById("prompt-box");
       const promptOptions = document.getElementById("prompt-options");
       const hiddenInput = document.getElementById("selectedPrompt");
-
+  
       const promptMap = {
         emotion: ["사라진 우산", "낙엽이 흔들린 날", "밤의 정류장", "우유 한 방울"],
         logic: ["디지털 감시", "전세 사기", "청소년 투표권", "야근은 의무인가"]
       };
-
+  
       const prompts = promptMap[categoryOrGenre] || [];
       promptOptions.innerHTML = "";
       hiddenInput.value = "";
       document.getElementById('step1NextBtn').classList.add('opacity-50', 'pointer-events-none');
-
+  
       prompts.forEach(prompt => {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -191,9 +217,9 @@
         btn.onclick = () => selectPrompt(btn, prompt);
         promptOptions.appendChild(btn);
       });
+  
       promptBox.style.display = "block";
     }
-
   
     function selectPrompt(button, prompt) {
       document.querySelectorAll('.prompt-option').forEach(btn => {
@@ -210,14 +236,13 @@
       const genre = document.querySelector('input[name="genre"]:checked');
       const prompt = document.getElementById('selectedPrompt').value;
       const btn = document.getElementById('step1NextBtn');
-
+  
       if (category && genre && prompt) {
         btn.classList.remove('opacity-50', 'pointer-events-none');
       } else {
         btn.classList.add('opacity-50', 'pointer-events-none');
       }
     }
-
   
     function showStep(step) {
       const genre = document.querySelector('input[name="genre"]:checked')?.value;
@@ -235,11 +260,6 @@
           alert("형식과 글감을 모두 선택해주세요!");
           return;
         }
-        const all = ['column', 'analysis', 'essay', 'poem'];
-        all.forEach(id => {
-          const div = document.getElementById(`guide-${id}`);
-          if (div) div.style.display = 'none';
-        });
         const target = document.getElementById(`guide-${genre}`);
         if (target) target.style.display = 'block';
         currentStep = 2;
@@ -283,7 +303,7 @@
     document.addEventListener("DOMContentLoaded", function () {
       showStep(currentStep);
   
-      // textarea 변경 시 요약 실시간 업데이트
+      // 요약 실시간 반영
       [
         'poem_step1', 'poem_step2', 'poem_step3',
         'essay_step1', 'essay_step2', 'essay_step3',
