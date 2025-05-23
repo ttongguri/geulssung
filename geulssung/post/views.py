@@ -52,19 +52,18 @@ def write_post_view(request):
             })
         post = Post(
             author=request.user,
-            title=title,
-            category=category,
+            title=request.POST['title'],
+            category=request.POST['category'],
             genre=genre,
             topic=request.POST['topic'],
             step1=step1,
             step2=step2,
             step3=step3,
-            final_content=final_text,
-            is_public=False  # 체크박스 추가 전까진 False 처리
+            final_content=request.POST.get('final_text', ''),
+            is_public='is_public' in request.POST
         )
         post.save()
         return redirect('post_detail', post_id=post.id)
-
     return render(request, 'post/write_form.html')
 
 # 글 상세 페이지입니다.
