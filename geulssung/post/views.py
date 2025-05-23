@@ -38,11 +38,24 @@ def write_post_view(request):
             step3 = request.POST.get('poem_step3', '')
         else:
             step1 = step2 = step3 = ''
+        # 필수값 누락 등으로 저장 실패 시 기존 값 유지
+        if not request.POST.get('title') or not genre or not request.POST.get('category'):
+            return render(request, 'post/write_form.html', {
+                'selected_category': request.POST.get('category', ''),
+                'selected_genre': genre,
+                'topic': request.POST.get('topic', ''),
+                'title': request.POST.get('title', ''),
+                'final_text': request.POST.get('final_text', ''),
+                'step1': step1,
+                'step2': step2,
+                'step3': step3,
+            })
         post = Post(
             author=request.user,
             title=request.POST['title'],
             category=request.POST['category'],
             genre=genre,
+            topic=request.POST['topic'],
             step1=step1,
             step2=step2,
             step3=step3,
