@@ -1,92 +1,76 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>글썽글썽 회원가입</title>
+  <meta charset="UTF-8" />
+  <title>그심그심 가죠워 테마</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap');
-    body {
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: 'Gaegu', cursive;
+    }
+    body {
+      background-image: url('/static/images/기깔나게 글쓰기~.png');
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
       background-color: #e5c1a7;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       position: relative;
       overflow: hidden;
     }
-    .hand-img {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 150px;
-      opacity: 0.8;
-      z-index: 0;
+    .theme-box {
+      background-color: rgba(255, 255, 255, 0.85);
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: all 0.3s ease-in-out;
     }
-    .left-img {
-      left: 0;
-    }
-    .right-img {
-      right: 0;
-    }
-    .top-img {
-      top: 100px; /* 또는 적절한 위치 */
-      width: 330px; /* 예: 기존보다 더 크게 */
-    }
-    .form-wrapper {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(5px);
-      padding: 3rem 2rem;
-      border-radius: 2rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      z-index: 1;
-      max-width: 480px;
-      width: 100%;
-    }
-    .form-input {
-      border: 1px solid #ddd;
-      border-radius: 0.75rem;
-      padding: 0.75rem;
-      width: 100%;
-      margin-bottom: 1rem;
-      font-family: 'Gaegu', cursive;
-    }
-    .form-button {
-      background-color: #fde2cd;
-      border-radius: 2rem;
-      padding: 0.75rem;
-      width: 100%;
-      color: #493E3E;
-      font-weight: bold;
-    }
-    .form-button:hover {
-      background-color: #fbc7a8;
+    .theme-box:hover {
+      transform: translateY(-4px) scale(1.02);
+      background-color: rgba(255, 255, 255, 0.95);
     }
   </style>
 </head>
-<body>
-  <!-- 왼쪽 고양이 -->
-  <img src="/static/images/킹받는 고양이.png" alt="왼쪽 캐릭터" class="hand-img left-img">
+<body class="relative py-16 px-4 text-[#493E3E]">
 
-  <!-- 오른쪽 개구리 -->
-  <img src="/static/images/킹받는 개구리.png" alt="오른쪽 캐릭터" class="hand-img right-img">
+  <!-- 🔹 오른쪽 상단: 제목 + 푸터 문구 -->
+  <div class="absolute top-6 right-8 text-right">
+    <h1 class="text-4xl font-extrabold">글썽글썽</h1>
+    <p class="text-sm text-[#6B5B5B] mt-1">© 글썽글썽 2025. 자연 속에서,<br />생각이 차오르면 표현도 자랍니다 🌱</p>
+  </div>
 
-  <!-- 위쪽 글씨 -->
-   <img src="/static/images/함께 기깔난 글을....png" alt="위쪽 글씨" class="hand-img top-img">
+  <!-- 🔹 왼쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
+  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4">
+    {% if user.is_authenticated %}
+      <span class="text-[#493E3E]">{{ user.nickname }}님</span>
+      <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
+      <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
+    {% endif %}
+  </div>
 
-  <!-- 회원가입 박스 -->
-  <div class="form-wrapper text-center text-[#493E3E]">
-    <h2 class="text-4xl mb-2">🔐 로그인 </h2>
-    <form method="post">
-      {% csrf_token %}
-      <input type="text" name="username" placeholder="아이디" class="form-input" required>
-      <input type="password" name="password1" placeholder="비밀번호" class="form-input" required>
-      <button type="submit" class="form-button mt-2">로그인</button>
-    </form>
-    <p class="mt-4 text-sm">
-      계정이 없으신가요? <a href="{% url 'login' %}" class="underline">회원가입</a>
-    </p>
+  <!-- 기능 버튼들 -->
+  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6">
+    <a href="/geulssung/write/" class="theme-box text-center text-sm">
+      <div class="text-3xl mb-1">✍️</div>
+      <h2 class="text-lg font-bold">글방울</h2>
+      <p class="text-xs mt-1">오늘의 주제에 맞춰 글을 써보세요.</p>
+    </a>
+    <a href="/geulssung/myposts/" class="theme-box text-center text-sm">
+      <div class="text-3xl mb-1">📁</div>
+      <h2 class="text-lg font-bold">글자국</h2>
+      <p class="text-xs mt-1">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
+    </a>
+    <a href="/geulssung/explore/" class="theme-box text-center text-sm">
+      <div class="text-3xl mb-1">🌏</div>
+      <h2 class="text-lg font-bold">글바다</h2>
+      <p class="text-xs mt-1">다른 사람들의 시선을 함께 읽어보세요.</p>
+    </a>
   </div>
 </body>
 </html>
