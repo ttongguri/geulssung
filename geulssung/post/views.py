@@ -74,14 +74,14 @@ def post_detail_view(request, post_id):
 # 유저 글 보기 페이지입니다.
 def public_posts_by_user(request, nickname):
     author = get_object_or_404(User, nickname=nickname)
-    posts_t = Post.objects.filter(author=author, category='T', is_public=True).order_by('-created_at')
-    posts_f = Post.objects.filter(author=author, category='F', is_public=True).order_by('-created_at')
-
+    # 로그인한 사용자가 해당 nickname의 주인일 때는 모든 글, 아니면 공개글만
+    if request.user.is_authenticated and request.user.nickname == nickname:
+        posts = Post.objects.filter(author=author).order_by('-created_at')
+    else:
+        posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
     return render(request, 'post/public_user_posts.html', {
         'author': author,
-        'posts_t': posts_t,
-        'posts_f': posts_f,
+        'posts': posts,
     })
-
 
 

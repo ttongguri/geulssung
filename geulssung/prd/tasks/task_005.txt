@@ -1,0 +1,105 @@
+# 태스크 ID: 5
+# 제목: 글쓰기 형식 및 가이딩 시스템
+# 상태: 대기중 (pending)
+# 선행 태스크: 1, 2, 3
+# 우선순위: 높음 (high)
+# 설명: T식/F식 글쓰기 분류, 형식별 가이딩 템플릿, 글 작성 에디터를 구현합니다.
+# 상세 내용:
+1. 글쓰기 형식 분류 시스템:
+   - T식 글쓰기 (분석문, 칼럼)
+   - F식 글쓰기 (시, 에세이)
+   - 각 형식별 특성 및 구조 정의
+   - 형식별 가이딩 템플릿 설계
+
+2. 글쓰기 가이딩 템플릿:
+   - 분석문 가이딩
+     * 주제 분석 방법
+     * 논리적 구조화
+     * 근거 제시 방법
+   - 칼럼 가이딩
+     * 독자 관심사 파악
+     * 논점 제시 방법
+     * 결론 도출 방법
+   - 시 가이딩
+     * 이미지와 은유
+     * 운율과 리듬
+     * 감정 표현 방법
+   - 에세이 가이딩
+     * 개인적 경험 서술
+     * 통찰력 있는 관점
+     * 감동 전달 방법
+
+3. 글 작성 에디터 구현:
+   - 형식 선택 UI
+   - 가이딩 템플릿 표시
+   - 실시간 글쓰기 가이드
+   - 임시저장 기능
+   - 미리보기 기능
+
+4. 글쓰기 API 구현:
+   - 형식별 글 작성 엔드포인트
+   - 가이딩 템플릿 조회
+   - 임시저장/불러오기
+   - 글 수정/삭제
+
+예시 글 작성 엔드포인트:
+```javascript
+app.post('/api/posts', authenticate, async (req, res) => {
+  try {
+    const { writing_type, writing_format, content, parent_post_id } = req.body;
+    const userId = req.user.id;
+
+    // 입력값 검증
+    if (!content || !writing_type || !writing_format) {
+      return res.status(400).json({ error: '내용, 글쓰기 유형, 형식이 필요합니다.' });
+    }
+
+    // 글쓰기 유형 검증
+    const validTypes = ['T', 'F'];
+    const validFormats = {
+      'T': ['분석문', '칼럼'],
+      'F': ['시', '에세이']
+    };
+
+    if (!validTypes.includes(writing_type)) {
+      return res.status(400).json({ error: '유효하지 않은 글쓰기 유형입니다.' });
+    }
+
+    if (!validFormats[writing_type].includes(writing_format)) {
+      return res.status(400).json({ error: '유효하지 않은 글쓰기 형식입니다.' });
+    }
+
+    // 글 생성
+    const post = await Post.create({
+      author_id: userId,
+      writing_type,
+      writing_format,
+      content,
+      parent_post_id,
+      depth: parent_post_id ? 1 : 0,
+      created_at: new Date()
+    });
+
+    res.status(201).json(post);
+  } catch (error) {
+    res.status(500).json({ error: '서버 오류' });
+  }
+});
+```
+
+# 테스트 전략:
+1. 글쓰기 유형 및 형식 검증 테스트
+2. 가이딩 템플릿 표시 및 동작 테스트
+3. 에디터 기능 테스트
+   - 형식 선택
+   - 가이딩 표시
+   - 임시저장
+   - 미리보기
+4. API 엔드포인트 테스트
+   - 글 작성
+   - 템플릿 조회
+   - 임시저장/불러오기
+5. 사용자 경험 테스트
+   - 가이딩 이해도
+   - 에디터 사용성
+   - 오류 메시지 명확성

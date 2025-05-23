@@ -1,0 +1,140 @@
+# 태스크 ID: 11
+# 제목: 뉴스/이슈 UI
+# 상태: 대기중 (pending)
+# 선행 태스크: 4, 10
+# 우선순위: 높음 (high)
+# 설명: 뉴스 키워드 트렌드 시각화, 관련 뉴스 목록, 키워드 검색 UI를 구현합니다.
+# 상세 내용:
+1. 키워드 트렌드 시각화:
+   - 트렌드 그래프
+   - 워드클라우드
+   - 키워드 연관관계
+   - 시계열 데이터
+   - 인터랙티브 차트
+
+2. 뉴스 목록 UI:
+   - 뉴스 카드 컴포넌트
+   - 목록 뷰/그리드 뷰
+   - 필터링/정렬
+   - 페이지네이션
+   - 무한 스크롤
+
+3. 키워드 검색 UI:
+   - 검색 입력창
+   - 자동완성
+   - 검색 결과
+   - 필터 옵션
+   - 검색 히스토리
+
+4. 반응형 디자인:
+   - 모바일 최적화
+   - 태블릿 레이아웃
+   - 데스크톱 뷰
+   - 다크 모드
+   - 접근성
+
+예시 키워드 트렌드 컴포넌트:
+```typescript
+// components/KeywordTrend.tsx
+import React, { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import axios from 'axios';
+
+interface TrendData {
+  date: string;
+  frequency: number;
+}
+
+interface KeywordTrendProps {
+  keyword: string;
+  period: 'day' | 'week' | 'month';
+}
+
+const KeywordTrend: React.FC<KeywordTrendProps> = ({ keyword, period }) => {
+  const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTrendData = async () => {
+      try {
+        const response = await axios.get(`/api/news/keywords/${keyword}/trend`, {
+          params: { period }
+        });
+        setTrendData(response.data);
+      } catch (err) {
+        setError('트렌드 데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendData();
+  }, [keyword, period]);
+
+  if (loading) return <div>로딩 중...</div>;
+  if (error) return <div className="error">{error}</div>;
+
+  const chartData = {
+    labels: trendData.map(d => d.date),
+    datasets: [{
+      label: keyword,
+      data: trendData.map(d => d.frequency),
+      fill: false,
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1
+    }]
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: `${keyword} 트렌드 (${period})`
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  };
+
+  return (
+    <div className="keyword-trend">
+      <Line data={chartData} options={options} />
+    </div>
+  );
+};
+
+export default KeywordTrend;
+```
+
+# 테스트 전략:
+1. 시각화 컴포넌트 테스트
+   - 차트 렌더링
+   - 데이터 업데이트
+   - 인터랙션
+   - 반응형 동작
+
+2. 뉴스 목록 테스트
+   - 목록 표시
+   - 필터링/정렬
+   - 페이지네이션
+   - 무한 스크롤
+
+3. 검색 기능 테스트
+   - 검색 동작
+   - 자동완성
+   - 결과 표시
+   - 히스토리
+
+4. 성능 테스트
+   - 데이터 로딩
+   - 렌더링 성능
+   - 메모리 사용량
+   - 네트워크 요청

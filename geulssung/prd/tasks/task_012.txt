@@ -1,0 +1,195 @@
+# 태스크 ID: 12
+# 제목: 글 작성 및 조회 UI
+# 상태: 대기중 (pending)
+# 선행 태스크: 5, 6, 10
+# 우선순위: 높음 (high)
+# 설명: 글쓰기 형식 선택, 가이딩, 에디터, 트리 구조 조회 UI를 구현합니다.
+# 상세 내용:
+1. 글쓰기 형식 선택 UI:
+   - T식/F식 선택
+   - 형식별 설명
+   - 가이딩 템플릿
+   - 형식별 에디터
+   - 미리보기
+
+2. 글 작성 에디터:
+   - 리치 텍스트 에디터
+   - 실시간 가이딩
+   - 임시저장
+   - 이미지 업로드
+   - 마크다운 지원
+
+3. 트리 구조 조회:
+   - 원글 표시
+   - 반론 목록
+   - 반론에 대한 반론
+   - 스레드 시각화
+   - 반응형 레이아웃
+
+4. 캐릭터 기반 UI:
+   - 글썽이(원글)
+   - 말썽이(반론)
+   - 몽썽이(가이딩)
+   - 애니메이션
+   - 인터랙션
+
+예시 글 작성 컴포넌트:
+```typescript
+// components/PostEditor.tsx
+import React, { useState } from 'react';
+import { Editor } from '@tinymce/tinymce-react';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
+
+interface PostEditorProps {
+  writingType: 'T' | 'F';
+  writingFormat: string;
+  onPostCreated: (post: any) => void;
+}
+
+const PostEditor: React.FC<PostEditorProps> = ({
+  writingType,
+  writingFormat,
+  onPostCreated
+}) => {
+  const { user } = useAuth();
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      setError('내용을 입력하세요.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post('/api/posts', {
+        writing_type: writingType,
+        writing_format: writingFormat,
+        content
+      });
+
+      setContent('');
+      onPostCreated(response.data);
+    } catch (err) {
+      setError('글 작성에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getGuidingTemplate = () => {
+    const templates = {
+      T: {
+        분석문: [
+          '1. 주제 분석',
+          '2. 논리적 구조화',
+          '3. 근거 제시'
+        ],
+        칼럼: [
+          '1. 독자 관심사 파악',
+          '2. 논점 제시',
+          '3. 결론 도출'
+        ]
+      },
+      F: {
+        시: [
+          '1. 이미지와 은유',
+          '2. 운율과 리듬',
+          '3. 감정 표현'
+        ],
+        에세이: [
+          '1. 개인적 경험',
+          '2. 통찰력 있는 관점',
+          '3. 감동 전달'
+        ]
+      }
+    };
+
+    return templates[writingType][writingFormat];
+  };
+
+  return (
+    <div className="post-editor">
+      <div className="editor-header">
+        <div className="character-guide">
+          <img 
+            src={`/images/${writingType === 'T' ? 'geulsseong' : 'mongsseong'}.png`} 
+            alt="가이드 캐릭터" 
+          />
+          <div className="guide-text">
+            {writingType === 'T' ? '글썽이' : '몽썽이'}가 도와드릴게요!
+          </div>
+        </div>
+        <div className="guiding-template">
+          {getGuidingTemplate().map((step, index) => (
+            <div key={index} className="template-step">
+              {step}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Editor
+        apiKey="your-tinymce-api-key"
+        init={{
+          height: 500,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists link image charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+          ],
+          toolbar:
+            'undo redo | formatselect | bold italic backcolor | \
+            alignleft aligncenter alignright alignjustify | \
+            bullist numlist outdent indent | removeformat | help'
+        }}
+        value={content}
+        onEditorChange={(content) => setContent(content)}
+      />
+
+      {error && <div className="error-message">{error}</div>}
+
+      <button
+        className="submit-button"
+        onClick={handleSubmit}
+        disabled={loading || !content.trim()}
+      >
+        {loading ? '작성 중...' : '글 작성'}
+      </button>
+    </div>
+  );
+};
+
+export default PostEditor;
+```
+
+# 테스트 전략:
+1. 형식 선택 UI 테스트
+   - 선택 동작
+   - 가이딩 표시
+   - 형식 전환
+   - 미리보기
+
+2. 에디터 기능 테스트
+   - 텍스트 입력
+   - 서식 적용
+   - 이미지 업로드
+   - 임시저장
+
+3. 트리 구조 테스트
+   - 원글 표시
+   - 반론 연결
+   - 시각화
+   - 반응형
+
+4. 성능 테스트
+   - 에디터 로딩
+   - 이미지 처리
+   - 저장/불러오기
+   - 렌더링 성능
