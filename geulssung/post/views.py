@@ -19,21 +19,43 @@ def home_view(request):
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
-        genre = request.POST.get('genre', '')
-        category = request.POST.get('category', '')
-        title = request.POST.get('title', '')
-        final_text = request.POST.get('final_text', '')
-
-        # 공통 step 처리 (입력 필드 이름이 아래와 같이 있어야 함)
-        step1 = request.POST.get('step1', '')
-        step2 = request.POST.get('step2', '')
-        step3 = request.POST.get('step3', '')
-
+        genre = request.POST['genre']
+        if genre == 'column':
+            step1 = request.POST.get('column_step1', '')
+            step2 = request.POST.get('column_step2', '')
+            step3 = request.POST.get('column_step3', '')
+        elif genre == 'analysis':
+            step1 = request.POST.get('analysis_step1', '')
+            step2 = request.POST.get('analysis_step2', '')
+            step3 = request.POST.get('analysis_step3', '')
+        elif genre == 'essay':
+            step1 = request.POST.get('essay_step1', '')
+            step2 = request.POST.get('essay_step2', '')
+            step3 = request.POST.get('essay_step3', '')
+        elif genre == 'poem':
+            step1 = request.POST.get('poem_step1', '')
+            step2 = request.POST.get('poem_step2', '')
+            step3 = request.POST.get('poem_step3', '')
+        else:
+            step1 = step2 = step3 = ''
+        # 필수값 누락 등으로 저장 실패 시 기존 값 유지
+        if not request.POST.get('title') or not genre or not request.POST.get('category'):
+            return render(request, 'post/write_form.html', {
+                'selected_category': request.POST.get('category', ''),
+                'selected_genre': genre,
+                'topic': request.POST.get('topic', ''),
+                'title': request.POST.get('title', ''),
+                'final_text': request.POST.get('final_text', ''),
+                'step1': step1,
+                'step2': step2,
+                'step3': step3,
+            })
         post = Post(
             author=request.user,
             title=title,
             category=category,
             genre=genre,
+            topic=request.POST['topic'],
             step1=step1,
             step2=step2,
             step3=step3,

@@ -1,0 +1,27 @@
+1. toggleSummary: 요약 박스(요약 보기/숨기기 버튼 아래의 div)를 보이거나 숨기는 기능을 한다. 버튼 클릭 시 summary-box의 hidden 클래스를 토글한다.
+
+2. updateSummaryBox: 현재 선택된 형식(genre), 글감(prompt), 각 단계별 텍스트(한 방울, 두 방울, 세 방울)를 요약 박스에 실시간으로 반영한다. textarea 입력값과 선택값을 읽어 summary-box의 각 span에 값을 넣는다.
+
+3. showGenres: 카테고리(감성/논리)에 따라 해당 형식 선택 영역(genre-emotion, genre-logic)을 보여주고, 요약 박스를 갱신한다.
+
+4. showGuide: 선택된 형식(essay, poem, column, analysis)에 따라 해당 가이드(div)를 보여주고, 나머지는 숨긴다. 그리고 showPrompts로 글감 선택 버튼을 띄우고, 폼 준비 상태를 체크하며, 요약 박스도 갱신한다.
+
+5. showPrompts: 선택된 형식에 맞는 글감(프롬프트) 목록을 버튼으로 생성해 보여준다. promptMap 객체에 따라 버튼을 만들고, 선택 시 selectPrompt가 호출된다. prompt-box를 보이게 한다.
+
+6. selectPrompt: 글감 버튼을 클릭하면 해당 버튼을 강조 표시(배경색, 테두리)하고, 선택된 글감을 hidden input(selectedPrompt)에 저장한다. 폼 준비 상태와 요약 박스도 갱신한다.
+
+7. checkFormReady: 형식과 글감이 모두 선택되었는지 확인해, '다음' 버튼의 활성화/비활성화(불투명도, 클릭 가능 여부)를 제어한다.
+
+8. showStep: 현재 단계(currentStep)에 맞는 step div만 보여주고, 나머지는 숨긴다. 장르별로 step-<genre>-<step> id가 있으면 우선 사용한다. 네비게이션도 갱신한다.
+
+9. nextStep: 다음 단계로 이동한다. 1단계에서는 형식/글감 미선택 시 경고를 띄우고, 선택된 형식에 맞는 가이드만 보여준다. 그 외에는 currentStep을 증가시켜 showStep을 호출한다. 요약 박스도 갱신한다.
+
+10. prevStep: 이전 단계로 이동한다. 2단계에서 뒤로 가면 1단계로, 그 외에는 currentStep을 감소시킨다. showStep과 요약 박스를 갱신한다.
+
+11. goToStep: 상단 네비게이션 버튼 클릭 시 해당 단계로 이동한다. 단, 1단계가 아니면 형식/글감이 선택되어 있어야 이동 가능하다. 조건 미충족 시 경고를 띄운다.
+
+12. updateStepNav: 상단 네비게이션 버튼의 활성화 상태(현재 단계 active, 나머지 비활성화)를 갱신한다.
+
+13. document.addEventListener("DOMContentLoaded", ...): 페이지가 로드되면 1단계를 보여주고, 각 textarea 입력값이 바뀔 때마다 요약 박스를 실시간으로 갱신하도록 이벤트 리스너를 등록한다.
+
+14. currentStep, totalSteps: 현재 단계와 전체 단계 수를 관리하는 전역 변수이다. 

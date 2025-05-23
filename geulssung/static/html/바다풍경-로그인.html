@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>글썽글썽 회원가입</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+    font-family: 'Ownglyph_corncorn-Rg';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap');
+    body {
+      font-family: 'Ownglyph_corncorn-Rg', 'Gaegu', cursive;
+      background-image: url('/static/images/clean_sea_header.png'); /* 바다 이미지 경로 */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .hand-img {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+    .top-img {
+      top: 75px; /* 또는 적절한 위치 */
+      width: 330px; /* 예: 기존보다 더 크게 */
+    }
+    .form-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 5rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      max-width: 440px;
+      width: 70%;
+      text-align: center;
+    }
+    .form-input {
+      width: 80%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 4rem;
+      border: 1px solid #ccc;
+      font-family: 'Ownglyph_corncorn-Rg', 'Gaegu', cursive;
+    }
+    .form-button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #fbd6b5;
+      border-radius: 2rem;
+      font-weight: bold;
+      color: #493E3E;
+    }
+    .form-button:hover {
+      background-color: #f9c69e;
+    }
+  </style>
+</head>
+<body>
+  <!-- 위쪽 글씨 -->
+   <img src="/static/images/함께 기깔난 글을....png" alt="위쪽 글씨" class="hand-img top-img">
+
+  <!-- 회원가입 박스 -->
+  <div class="form-container">
+    <h2 class="text-4xl mb-2">🔐 로그인</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="text" name="username" placeholder="아이디" class="form-input" required>
+      <input type="password" name="password1" placeholder="비밀번호" class="form-input" required>
+      <button type="submit" class="form-button">로그인</button>
+    </form>
+    <p class="mt-4 text-sm text-gray-600">
+      계정이 없으신가요? <a href="{% url 'login' %}" class="underline">회원가입</a>
+    </p>
+  </div>
+</body>
+</html>
