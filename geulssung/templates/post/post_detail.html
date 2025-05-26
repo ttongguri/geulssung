@@ -1,4 +1,4 @@
-<!-- templates/post/post_detail.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,14 +7,33 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap" rel="stylesheet">
   <style>
-    /* @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap'); */
-    body { font-family: 'Gowun Batang', serif; }
-    .gaegu{
+    body {
+      font-family: 'Gowun Batang', serif;
+      background-color: #FFF9F2;
+      position: relative;
+      min-height: 100vh;
+      padding: 8px;
+      overflow-x: hidden;
+    }
+    .gaegu {
       font-family: 'Gaegu', cursive;
+    }
+    .blurred-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('{% static "images/바다만 덩그러니2.png" %}');
+      background-size: cover;
+      background-position: center;
+      filter: blur(4px) brightness(0.95);
+      z-index: -10;
     }
   </style>
 </head>
 <body class="bg-[#FFF9F2] min-h-screen p-8 relative">
+  <div class="blurred-bg"></div>
   <!-- 헤더 오른쪽 상단 네비게이션 -->
   <div class="absolute top-6 right-8 text-sm space-x-4">
     {% if user.is_authenticated %}
@@ -154,6 +173,5 @@
       });
     });
   </script>
-
 </body>
 </html>
