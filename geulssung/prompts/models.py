@@ -11,7 +11,6 @@ class Issue(models.Model):
         ("스포츠", "스포츠"),
         ("IT과학", "IT과학"),
     ]
-
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     title = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,20 +20,16 @@ class Issue(models.Model):
 
 
 class GeneratedPrompt(models.Model):
-    STYLE_CHOICES = [
+    GENRE_CHOICES = [
         ("칼럼", "칼럼"),
         ("분석글", "분석글"),
         ("에세이", "에세이"),
         ("시", "시"),
     ]
-
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name="prompts")
-    style = models.CharField(max_length=10, choices=STYLE_CHOICES)
+    style = models.CharField(max_length=10, choices=GENRE_CHOICES)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.issue.title} - {self.style}"
-
-
-# Create your models here.
