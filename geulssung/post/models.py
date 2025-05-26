@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+# 게시글 모델
 class Post(models.Model):
     GENRE_CHOICES = [
         ('column', '칼럼'),
@@ -31,3 +32,12 @@ class Post(models.Model):
 
     def __str__(self):
         return f"[{self.get_genre_display()}] {self.title} by {self.author.nickname}"
+
+# 게시글 이미지 모델
+class PostImage(models.Model):
+    post = models.OneToOneField(Post, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='post_images/')  # media/post_images/ 에 저장
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.post.title}의 표지 이미지"

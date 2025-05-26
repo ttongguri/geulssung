@@ -55,6 +55,10 @@
       💧글방울 모아보기
     </button>
 
+    <!-- 커버 이미지 -->
+    {% if post.cover_image %}
+      <img src="{{ post.cover_image.url }}" alt="커버 이미지" class="w-full h-auto mb-6 rounded-lg">
+    {% endif %}
 
     <!-- Step1~3 섹션 (기본 숨김) -->
     <div id="steps-section" class="prose hidden">
@@ -97,36 +101,37 @@
     <p id="visibility-message" class="mt-3 text-sm text-black-600">이 글은 공개됩니다.</p>
 
     <!-- 유저페이지 이동 버튼 -->
-  <div class="flex justify-center space-x-4 mt-8">
-    <a href="{% url 'home' %}" 
-      class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-      홈으로 이동
-    </a>
-    <a href="{% url 'public_user_posts' post.author.nickname %}" 
-      class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-      글자국으로 이동
-    </a>
-  </div>
-  
-  <!-- 수정 섹션 (숨김) -->
-  <div id="edit-section" class="hidden max-w-3xl mx-auto bg-white p-6 rounded-xl shadow mt-16">
-    <form method="post">
-      {% csrf_token %}
-      <div class="mb-8 mt-8">
-        <p class="font-bold text-[#493E3E] text-lg mb-2">🧩 글줄기: 하나의 글로 완성해보세요</p>
-        <p class="text-sm text-gray-700 mb-3">
-          위 단계별 작성 내용을 참고하여, 당신의 생각을 하나의 흐름 있는 글로 정리해보세요.<br />
-          이 글은 실제 제출 및 공개 글로 사용될 수 있어요 ✍️
-        </p>
-        <textarea name="final_text" rows="10" class="w-full border px-4 py-3 rounded-md shadow-sm" required>{{ post.final_content }}</textarea>
-      </div>
-      <div class="flex justify-between mt-4">
-        <button type="button" id="prev-btn" class="bg-gray-200 px-4 py-2 rounded-full">← 이전</button>
-        <button type="submit" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
-          제출하기
-        </button>
-      </div>
-    </form>
+    <div class="flex justify-center space-x-4 mt-8">
+      <a href="{% url 'home' %}" 
+        class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
+        홈으로 이동
+      </a>
+      <a href="{% url 'public_user_posts' post.author.nickname %}" 
+        class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
+        글자국으로 이동
+      </a>
+    </div>
+
+    <!-- 수정 섹션 (숨김) -->
+    <div id="edit-section" class="hidden max-w-3xl mx-auto bg-white p-6 rounded-xl shadow mt-16">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-8 mt-8">
+          <p class="font-bold text-[#493E3E] text-lg mb-2">🧩 글줄기: 하나의 글로 완성해보세요</p>
+          <p class="text-sm text-gray-700 mb-3">
+            위 단계별 작성 내용을 참고하여, 당신의 생각을 하나의 흐름 있는 글로 정리해보세요.<br />
+            이 글은 실제 제출 및 공개 글로 사용될 수 있어요 ✍️
+          </p>
+          <textarea name="final_text" rows="10" class="w-full border px-4 py-3 rounded-md shadow-sm" required>{{ post.final_content }}</textarea>
+        </div>
+        <div class="flex justify-between mt-4">
+          <button type="button" id="prev-btn" class="bg-gray-200 px-4 py-2 rounded-full">← 이전</button>
+          <button type="submit" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+            제출하기
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
@@ -149,7 +154,6 @@
       });
     });
   </script>
-
 
 </body>
 </html>

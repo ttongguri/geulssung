@@ -37,7 +37,7 @@
   </div>
 
   <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6 mt-24">
-    <form method="post" action="">
+    <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
 
       <div class="step" id="step-1">
@@ -85,6 +85,19 @@
       <div id="guide-analysis" style="display:none">{% include "post/_guide_analysis.html" %}</div>
 
       <div class="step" id="step-5" style="display: none;">
+        <!-- 이미지 업로드 -->
+        <div class="mb-6">
+          <label class="block font-semibold text-[#493E3E] mb-1">커버 이미지 업로드 (선택)</label>
+          <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
+          <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#F9DCC4] text-[#493E3E] font-bold text-xs px-3 py-2 rounded-full shadow hover:bg-[#f7cbaa] hover:text-[#2d2323] border border-[#f7cbaa] transition-all focus:outline-none focus:ring-2 focus:ring-[#F9DCC4]">커버 사진 선택</button>
+          
+          <!-- 이미지 미리보기 -->
+          <div id="coverImagePreviewContainer" class="mt-4 hidden">
+            <p class="text-sm text-[#493E3E] font-semibold mb-1">미리보기:</p>
+            <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg border border-gray-200 shadow-sm" />
+          </div>
+        </div>
+
         <div class="mb-6">
           <label class="block font-semibold text-[#493E3E] mb-1">제목</label>
           <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
@@ -298,6 +311,23 @@
           btn.classList.add("active");
         }
       });
+    }
+  
+    function showCoverPreview(event) {
+      const file = event.target.files[0];
+      const previewContainer = document.getElementById('coverImagePreviewContainer');
+      const previewImage = document.getElementById('coverImagePreview');
+      if (file) {
+        const reader = new FileReader();
+        previewContainer.style.display = 'block';
+        reader.onload = function (e) {
+          previewImage.setAttribute('src', e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewContainer.style.display = 'none';
+        previewImage.setAttribute('src', '');
+      }
     }
   
     document.addEventListener("DOMContentLoaded", function () {
