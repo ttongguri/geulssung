@@ -13,7 +13,7 @@ def test_page_view(request):
 
 # /geulssung으로 연결 되는 메인 페이지 입니다.
 def home_view(request):
-    return render(request, "base.html")
+    return render(request, "hj_main_test.html")
 
 # /geulssung/write로 연결 되는 글쓰기 페이지 입니다.
 @login_required

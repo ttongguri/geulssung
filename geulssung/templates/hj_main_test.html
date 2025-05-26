@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>테스트 페이지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ 폰트 하나만 명확하게 불러오기 -->
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Gowun Dodum', sans-serif;
+      background-image: url('/static/images/sea.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #fff;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.4);
+      z-index: 0;
+    }
+
+    .theme-box {
+      background-color: rgba(255, 255, 255, 0.85);
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .theme-box:hover {
+      transform: translateY(-4px) scale(1.02);
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+  </style>
+</head>
+
+<body class="relative py-16 px-4 text-[#493E3E]">
+  <div class="overlay"></div>
+
+  <!-- 🔹 로그인/회원가입 -->
+  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4 z-10">
+    {% if user.is_authenticated %}
+      <span class="text-[#493E3E]">{{ user.nickname }}님</span>
+      <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
+      <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
+    {% endif %}
+  </div>
+
+    <!-- 제목 -->
+    <div class="absolute top-[43%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+      <h1 class="text-7xl font-bold text-[#493E3E] drop-shadow-md tracking-widest leading-tight">
+        글썽글썽
+        </h1>
+    <p class="text-xl mt-4 text-[#666] tracking-wide">자연 속에서, 생각이 차오르면 표현도 자랍니다</p>
+    </div>
+
+
+  <!-- 버튼들 -->
+  <div class="absolute bottom-64 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6 z-10">
+    {% if user.is_authenticated %}
+      <a href="{% url 'write' %}" class="theme-box text-center text-sm rounded-full">
+    {% else %}
+      <a href="{% url 'signup' %}" class="theme-box text-center text-sm rounded-full">
+    {% endif %}
+        <div class="text-3xl mb-1">💧</div>
+        <h2 class="text-lg font-bold">글방울</h2>
+        <p class="text-s mt-1">주제에 맞춰 글을 써보세요.</p>
+      </a>
+
+    {% if user.is_authenticated %}
+      <a href="{% url 'public_user_posts' nickname=user.nickname %}" class="theme-box text-center text-sm rounded-full">
+    {% else %}
+      <a href="{% url 'signup' %}" class="theme-box text-center text-sm">
+    {% endif %}
+        <div class="text-3xl mb-1">🐾</div>
+        <h2 class="text-lg font-bold">글자국</h2>
+        <p class="text-s mt-1">내가 쓴 글을 관리할 수 있어요.</p>
+      </a>
+
+    <a href="/geulssung/explore/" class="theme-box text-center text-sm rounded-full">
+      <div class="text-3xl mb-1">🌊</div>
+      <h2 class="text-lg font-bold">글바다</h2>
+      <p class="text-s mt-1">다른 사람의 글을 볼 수 있어요.</p>
+    </a>
+  </div>
+
+  <footer class="absolute bottom-7 w-full text-center text-sm text-[#6B5B5B] z-10">
+    © 글썽글썽 2025. 자연 속에서, 생각이 차오르면 표현도 자랍니다 🌱
+  </footer>
+</body>
+</html>
