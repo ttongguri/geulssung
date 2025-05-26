@@ -55,7 +55,7 @@ class Command(BaseCommand):
         elif style == "에세이":
             return [{"role": "user", "content": f"{base}개인의 경험, 감정, 추억과 연결할 수 있는 짧고 섬세한 글감을 만들어줘. 한가지 소재만 제목처럼 간결하게."}]
         elif style == "시":
-            return [{"role": "user", "content": f"{base}시적인 이미지나 은유로 풀 수 있는 짧은 글감 하나를 제시해줘. 간결하고, 함축적이고, 추상적으로."}]
+            return [{"role": "user", "content": f"{base}시적인 이미지나 은유로 풀 수 있는 짧은 글감 하나를 제시해줘. 한가지 소재만 간결하고, 함축적이고, 추상적으로."}]
 
 
     def safe_ask_gemini(self, messages, role="generator", retries=3):
