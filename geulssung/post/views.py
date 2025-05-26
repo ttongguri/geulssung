@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from accounts.models import CustomUser
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotAllowed
 from django.contrib.auth import get_user_model
-from .models import Post
+from .models import Post, PostImage
 
 User = get_user_model()
 
@@ -63,6 +63,9 @@ def write_post_view(request):
             is_public='is_public' in request.POST
         )
         post.save()
+        # 이미지가 첨부된 경우 PostImage 저장
+        if 'cover_image' in request.FILES:
+            PostImage.objects.create(post=post, image=request.FILES['cover_image'])
         return redirect('post_detail', post_id=post.id)
     return render(request, 'post/write_form.html')
 
@@ -84,4 +87,15 @@ def public_posts_by_user(request, nickname):
         'posts': posts,
     })
 
-
+@login_required
+def update_cover_image(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user != post.author:
+        return HttpResponseForbidden()
+    if request.method == 'POST' and request.FILES.get('cover_image'):
+        image_file = request.FILES['cover_image']
+        post_image, created = PostImage.objects.get_or_create(post=post)
+        post_image.image = image_file
+        post_image.save()
+        return redirect('public_user_posts', nickname=post.author.nickname)
+    return HttpResponseNotAllowed(['POST'])

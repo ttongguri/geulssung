@@ -5,32 +5,65 @@
   <meta charset="UTF-8" />
   <title>{{ author.nickname }}님의 글자국</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Gowun Batang', serif;
+    }
+  </style>
 </head>
-<body class="bg-[#FFF9F2] min-h-screen p-10 text-[#493E3E] font-serif">
+<body class="bg-[#FFF9F2] min-h-screen p-10 text-[#493E3E]">
 
   <div class="max-w-6xl mx-auto">
+    <!-- 상단 제목 -->
     <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국 📂</h1>
 
+    <!-- 게시글 카드 리스트 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
-        <a href="{% url 'post_detail' post_id=post.id %}" class="block bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
-
-           <!-- 🖼 대표 이미지 -->
-          <img src="{% static 'images/피그민.png' %}" class="w-full h-48 object-cover" />
-
+        <div class="relative bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+          <a href="{% url 'post_detail' post_id=post.id %}">
+            <!-- 🖼 대표 이미지 -->
+            {% if post.postimage %}
+              <img src="{{ post.postimage.image.url }}" alt="커버 이미지" class="w-full h-48 object-cover rounded-t-xl border-b" />
+            {% else %}
+              <img src="{% static 'images/피그민.png' %}" alt="기본 이미지" class="w-full h-48 object-cover rounded-t-xl border-b" />
+            {% endif %}
+          </a>
           <!-- 📌 텍스트 정보 -->
           <div class="p-4">
-            <h2 class="text-xl font-bold truncate mb-1">{{ post.title }}</h2>
+            <div class="flex items-center justify-between mb-1">
+              <h2 class="text-xl font-bold truncate">{{ post.title }}</h2>
+              {% if user.is_authenticated and user.id == author.id %}
+                <form method="post" action="{% url 'update_cover_image' post.id %}" enctype="multipart/form-data" class="ml-2" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="file" name="cover_image" accept="image/*" required style="display:none;" onchange="this.form.submit()" id="coverImageInput-{{ post.id }}" />
+                  <button type="button"
+                    onclick="document.getElementById('coverImageInput-{{ post.id }}').click();"
+                    class="bg-[#F9DCC4] text-[#493E3E] font-bold text-xs px-3 py-1 rounded-full shadow hover:bg-[#f7cbaa] hover:text-[#2d2323] border border-[#f7cbaa] transition-all focus:outline-none focus:ring-2 focus:ring-[#F9DCC4]">
+                    커버 사진 변경
+                  </button>
+                </form>
+              {% endif %}
+            </div>
             <div class="flex justify-between items-center mt-3 text-sm text-gray-500">
-              <span>#{{ post.genre }}</span>
+              <span>
+                {% if post.genre == 'poem' %}#시
+                {% elif post.genre == 'essay' %}#에세이
+                {% elif post.genre == 'column' %}#칼럼
+                {% elif post.genre == 'analysis' %}#분석글
+                {% else %}#{{ post.genre }}
+                {% endif %}
+              </span>
               <span class="italic">by {{ post.author.nickname }}</span>
             </div>
           </div>
-        </a>
+        </div>
       {% empty %}
-        <p class="text-gray-500">아직 작성된 글이 없습니다.</p>
+        <p class="text-gray-500 col-span-full text-center">아직 작성된 글이 없습니다.</p>
       {% endfor %}
     </div>
+
   </div>
+
 </body>
 </html>

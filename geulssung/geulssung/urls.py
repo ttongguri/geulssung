@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from post import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("geulssung/", views.home_view, name="home"),  # /geulssung/
@@ -26,4 +28,8 @@ urlpatterns = [
     path("geulssung/post/<int:post_id>", views.post_detail_view, name="post_detail"),  # /geulssung/post/1
     path("geulssung/accounts/", include("accounts.urls")), # /geulssung/accounts/
     path("geulssung/post/<str:nickname>/", views.public_posts_by_user, name="public_user_posts"),  # /geulssung/post/nickname
+    path("geulssung/update-cover-image/<int:post_id>/", views.update_cover_image, name="update_cover_image"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
