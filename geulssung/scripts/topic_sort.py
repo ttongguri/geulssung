@@ -7,10 +7,12 @@ from collections import defaultdict
 today = date.today().strftime("%Y-%m-%d")
 
 # === 파일 경로 자동 설정
+BASE_DIR = Path(__file__).resolve().parent.parent  # geulssung/
+data_dir = BASE_DIR / "scripts" / "data"
 input_filename = f"issue_{today}.json"
 output_filename = f"grouped_issues_{today}.json"
-input_path = Path("data") / input_filename
-output_path = Path("data") / output_filename
+input_path = data_dir / input_filename
+output_path = data_dir / output_filename
 
 # === JSON 불러오기
 if not input_path.exists():

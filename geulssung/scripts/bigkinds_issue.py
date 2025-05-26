@@ -51,7 +51,8 @@ driver.quit()
 
 # === 저장
 today = date.today().strftime("%Y-%m-%d")
-output_dir = Path("data")
+BASE_DIR = Path(__file__).resolve().parent.parent  # geulssung/
+output_dir = BASE_DIR / "scripts" / "data"
 output_dir.mkdir(exist_ok=True)
 filename = output_dir / f"issue_{today}.json"
 
