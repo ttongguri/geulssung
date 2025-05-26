@@ -24,9 +24,9 @@
           <a href="{% url 'post_detail' post_id=post.id %}">
             <!-- 🖼 대표 이미지 -->
             {% if post.postimage %}
-              <img src="{{ post.postimage.image.url }}" alt="커버 이미지" class="w-full h-48 object-cover rounded-t-xl border-b" />
+              <img src="{{ post.postimage.image.url }}" alt="커버 이미지" class="w-full aspect-square object-cover rounded-t-xl border-b" />
             {% else %}
-              <img src="{% static 'images/피그민.png' %}" alt="기본 이미지" class="w-full h-48 object-cover rounded-t-xl border-b" />
+              <img src="{% static 'images/피그민.png' %}" alt="기본 이미지" class="w-full aspect-square object-cover rounded-t-xl border-b" />
             {% endif %}
           </a>
           <!-- 📌 텍스트 정보 -->
