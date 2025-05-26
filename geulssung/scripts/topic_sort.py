@@ -1,37 +1,73 @@
+# scripts/crawl_and_group_issues.py
+
+import time
+import random
 import json
-from pathlib import Path
+import os
 from datetime import date
+from pathlib import Path
 from collections import defaultdict
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 
-# === 오늘 날짜 가져오기
-today = date.today().strftime("%Y-%m-%d")
+# === 브라우저 설정 ===
+options = Options()
+options.add_argument("--headless")
+options.add_argument("user-agent=Mozilla/5.0")
+driver = webdriver.Chrome(options=options)
 
-# === 파일 경로 자동 설정
-BASE_DIR = Path(__file__).resolve().parent.parent  # geulssung/
-data_dir = BASE_DIR / "scripts" / "data"
-input_filename = f"issue_{today}.json"
-output_filename = f"grouped_issues_{today}.json"
-input_path = data_dir / input_filename
-output_path = data_dir / output_filename
+# === 사이트 접속 ===
+driver.get("https://www.bigkinds.or.kr/")
+time.sleep(random.uniform(2.5, 4.0))
 
-# === JSON 불러오기
-if not input_path.exists():
-    print(f"❌ 입력 파일 없음: {input_path.resolve()}")
-    exit()
+# === 이슈 수집 ===
+issue_data = []
 
-with open(input_path, "r", encoding="utf-8") as f:
-    issues = json.load(f)
+category_buttons = driver.find_elements(By.CSS_SELECTOR, "a.button.issue-category")
+for btn in category_buttons:
+    try:
+        category = btn.get_attribute("data-category")
+        print(f"📍 카테고리: {category}")
 
-# === 카테고리별 토픽 묶기
+        driver.execute_script("arguments[0].click();", btn)
+        time.sleep(random.uniform(2.0, 3.0))
+
+        items = driver.find_elements(By.CSS_SELECTOR, "a.txt_title02.issue-item-link")
+        print(f"  - 이슈 {len(items)}개 감지됨")
+
+        for item in items:
+            topic = item.get_attribute("data-topic")
+            if topic:
+                issue_data.append({
+                    "category": category,
+                    "topic": topic.strip()
+                })
+            time.sleep(random.uniform(0.4, 0.9))
+
+        time.sleep(random.uniform(1.5, 2.5))
+
+    except Exception as e:
+        print(f"❌ {category} 카테고리 에러: {e}")
+
+driver.quit()
+
+# === 카테고리별 그룹화 ===
 grouped = defaultdict(list)
-for item in issues:
+for item in issue_data:
     category = item.get("category")
     topic = item.get("topic")
     if category and topic:
         grouped[category].append(topic)
 
 # === 저장
+today = date.today().strftime("%Y-%m-%d")
+BASE_DIR = Path(__file__).resolve().parent.parent
+output_dir = BASE_DIR / "scripts" / "data"
+output_dir.mkdir(exist_ok=True)
+output_path = output_dir / f"grouped_issues_{today}.json"
+
 with open(output_path, "w", encoding="utf-8") as f:
     json.dump(grouped, f, ensure_ascii=False, indent=2)
 
-print(f"✅ 카테고리별 토픽 그룹 저장 완료: {output_path.resolve()}")
+print(f"\n✅ 그룹화된 이슈 저장 완료: {output_path.resolve()}")
