@@ -129,4 +129,9 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# 사용자 모델 설정
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# 미디어 파일 업로드 경로 설정
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
