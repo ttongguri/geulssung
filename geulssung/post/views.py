@@ -96,6 +96,7 @@ def public_posts_by_user(request, nickname):
         'posts': posts,
     })
 
+# 커버 이미지 업데이트 기능입니다
 @login_required
 def update_cover_image(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -109,6 +110,7 @@ def update_cover_image(request, post_id):
         return redirect('public_user_posts', nickname=post.author.nickname)
     return HttpResponseNotAllowed(['POST'])
 
+# 글 삭제 기능입니다
 @login_required
 def delete_post_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -116,5 +118,5 @@ def delete_post_view(request, post_id):
         return HttpResponseForbidden()
     if request.method == 'POST':
         post.delete()
-        return redirect('home')
+        return redirect('public_user_posts', nickname=post.author.nickname)
     return render(request, 'post/confirm_delete.html', {'post': post})
