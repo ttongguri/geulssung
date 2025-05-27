@@ -91,9 +91,14 @@ def public_posts_by_user(request, nickname):
         posts = Post.objects.filter(author=author).order_by('-created_at')
     else:
         posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
+    is_following = False
+    if request.user.is_authenticated and request.user != author:
+        from accounts.models import Follow
+        is_following = Follow.objects.filter(follower=request.user, following=author).exists()
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
+        'is_following': is_following,
     })
 
 # 커버 이미지 업데이트 기능입니다
