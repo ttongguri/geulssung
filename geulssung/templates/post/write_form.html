@@ -78,7 +78,12 @@
         </div>
 
         <div id="prompt-box" class="mb-6" style="display: none;">
-          <p class="font-semibold text-[#493E3E] mb-2">🧠 오늘의 글감을 골라보세요</p>
+          <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
+            🧠 오늘의 글감을 골라보세요
+            <button type="button" id="refreshPromptsBtn" class="ml-2 px-2 py-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]" style="vertical-align:middle;">
+              🔄 새로고침
+            </button>
+          </p>
           <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
           <input type="hidden" name="topic" id="selectedPrompt">
           <input type="hidden" name="prompt_id" id="selectedPromptId">
@@ -152,7 +157,53 @@
   <script>
     let currentStep = 1;
     const totalSteps = 5;
-  
+    let promptCache = {}; // { "에세이": [...], "시": [...], ... }
+    let currentGenre = null;
+
+    function fetchPrompts(genre, callback, forceRefresh=false) {
+      if (!forceRefresh && promptCache[genre]) {
+        if (callback) callback();
+        return;
+      }
+      fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
+        .then(res => res.json())
+        .then(data => {
+          promptCache[genre] = data.prompts;
+          if (callback) callback();
+        });
+    }
+
+    function renderPrompts() {
+      const genreInput = document.querySelector('input[name="genre"]:checked');
+      if (!genreInput) return;
+      const genreMap = {
+        essay: "에세이",
+        poem: "시",
+        column: "칼럼",
+        analysis: "분석글"
+      };
+      const genre = genreMap[genreInput.value];
+      const prompts = promptCache[genre] || [];
+      const promptOptions = document.getElementById("prompt-options");
+      promptOptions.innerHTML = "";
+      document.getElementById("selectedPrompt").value = "";
+      document.getElementById('step1NextBtn').classList.add('opacity-50', 'pointer-events-none');
+      if (!prompts.length) {
+        promptOptions.innerHTML = "<div class='text-gray-400'>글감이 없습니다.</div>";
+        return;
+      }
+      prompts.forEach(prompt => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6] h-12 flex items-center";
+        btn.textContent = prompt.content;
+        btn.setAttribute("data-id", prompt.id);
+        btn.onclick = () => selectPrompt(btn, prompt.content, prompt.id);
+        promptOptions.appendChild(btn);
+      });
+      document.getElementById("prompt-box").style.display = "block";
+    }
+
     function toggleSummary() {
       document.getElementById("summary-box").classList.toggle("hidden");
     }
@@ -175,26 +226,17 @@
     }
   
     function showGenres(category) {
-      // 카테고리(도우미)에 따라 형식 선택 영역 보이기
       document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
       document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
-  
-      // 형식 라디오 초기화
       document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
-  
-      // 글감 초기화
       document.getElementById("selectedPrompt").value = "";
       document.getElementById("prompt-options").innerHTML = "";
       document.getElementById("prompt-box").style.display = "none";
-  
-      // 가이드 초기화
       ['column', 'analysis', 'essay', 'poem'].forEach(id => {
         const guide = document.getElementById(`guide-${id}`);
         if (guide) guide.style.display = "none";
       });
-  
-      // 글감 다시 로드
-      showPrompts();
+      // promptCache는 초기화하지 않음!
       checkFormReady();
       updateSummaryBox();
     }
@@ -205,51 +247,19 @@
         const div = document.getElementById(`guide-${id}`);
         if (div) div.style.display = 'none';
       });
-  
       const target = document.getElementById(`guide-${value}`);
       if (target) target.style.display = 'block';
-  
-      // 글감 초기화만 (도우미는 유지)
-      document.getElementById("selectedPrompt").value = "";
-      document.getElementById("prompt-options").innerHTML = "";
-      document.getElementById("prompt-box").style.display = "none";
-  
-      const category = document.querySelector('input[name="category"]:checked')?.value;
-      if (category) showPrompts();
-  
-      checkFormReady();
-      updateSummaryBox();
-    }
-  
-    function showPrompts() {
-      const genreInput = document.querySelector('input[name="genre"]:checked');
-      if (!genreInput) return;
       const genreMap = {
         essay: "에세이",
         poem: "시",
         column: "칼럼",
         analysis: "분석글"
       };
-      const genre = genreMap[genreInput.value];
-
-      fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
-        .then(res => res.json())
-        .then(data => {
-          const promptOptions = document.getElementById("prompt-options");
-          promptOptions.innerHTML = "";
-          document.getElementById("selectedPrompt").value = "";
-          document.getElementById('step1NextBtn').classList.add('opacity-50', 'pointer-events-none');
-          data.prompts.forEach(prompt => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6] h-12 flex items-center";
-            btn.textContent = prompt.content;
-            btn.setAttribute("data-id", prompt.id);
-            btn.onclick = () => selectPrompt(btn, prompt.content, prompt.id);
-            promptOptions.appendChild(btn);
-          });
-          document.getElementById("prompt-box").style.display = "block";
-        });
+      const genre = genreMap[value];
+      currentGenre = genre;
+      fetchPrompts(genre, renderPrompts); // forceRefresh=false
+      checkFormReady();
+      updateSummaryBox();
     }
   
     function selectPrompt(button, prompt, promptId) {
@@ -351,8 +361,10 @@
   
     document.addEventListener("DOMContentLoaded", function () {
       showStep(currentStep);
-  
-      // 요약 실시간 반영
+      document.getElementById("refreshPromptsBtn").onclick = function() {
+        if (!currentGenre) return;
+        fetchPrompts(currentGenre, renderPrompts, true); // forceRefresh=true
+      };
       [
         'poem_step1', 'poem_step2', 'poem_step3',
         'essay_step1', 'essay_step2', 'essay_step3',
