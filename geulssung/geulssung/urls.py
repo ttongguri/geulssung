@@ -29,6 +29,7 @@ urlpatterns = [
     path("geulssung/accounts/", include("accounts.urls")), # /geulssung/accounts/
     path("geulssung/post/<str:nickname>/", views.public_posts_by_user, name="public_user_posts"),  # /geulssung/post/nickname
     path("geulssung/update-cover-image/<int:post_id>/", views.update_cover_image, name="update_cover_image"),
+    path("geulssung/explore/", views.explore_view, name="explore"),
 ]
 
 if settings.DEBUG:

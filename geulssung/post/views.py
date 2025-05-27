@@ -99,3 +99,7 @@ def update_cover_image(request, post_id):
         post_image.save()
         return redirect('public_user_posts', nickname=post.author.nickname)
     return HttpResponseNotAllowed(['POST'])
+
+
+def explore_view(request):
+    return render(request, 'post/explore.html')  # templates/explore.html 위치에 파일이 있어야 함
