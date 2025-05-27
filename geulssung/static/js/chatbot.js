@@ -1,8 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // chat-box-wrapper 안에 동적으로 채팅창 생성
+  const wrapper = document.getElementById("chat-box-wrapper");
+
+  if (!wrapper) {
+    console.error("❌ chat-box-wrapper가 HTML에 존재하지 않습니다.");
+    return;
+  }
+
   const chatBox = document.createElement("div");
   chatBox.id = "chat-box";
+  chatBox.classList.add("hidden");  // 시작 시 숨김
   chatBox.innerHTML = `
-    <div style="position: fixed; bottom: 80px; right: 20px; width: 320px; background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 9999;">
+    <div style="width: 100%; background: white; border: 1px solid #ccc; border-radius: 0 0 10px 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
       <div style="padding: 10px; border-bottom: 1px solid #eee;">📚 글도우미 챗봇</div>
       <div id="chat-log" style="height: 200px; overflow-y: auto; padding: 10px;"></div>
       <div style="padding: 10px; border-top: 1px solid #eee;">
@@ -11,10 +20,12 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     </div>
   `;
-  document.body.appendChild(chatBox);
+
+  wrapper.appendChild(chatBox);
 
   const input = document.getElementById("chat-input");
   const sendBtn = document.getElementById("chat-send-btn");
+  const log = document.getElementById("chat-log");
 
   input.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
@@ -28,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('input[name="genre"]').forEach(radio => {
     radio.addEventListener("change", () => {
       const genre = radio.value;
-      const log = document.getElementById("chat-log");
       const introMap = {
         poem: "✍️ 시 쓰기를 도와드릴게요. 어떤 감정이 떠오르시나요?",
         essay: "📝 에세이 작성에 필요한 생각을 나눠보세요.",
@@ -43,16 +53,14 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function sendChat() {
-    const input = document.getElementById("chat-input");
     const message = input.value.trim();
     if (!message) return;
 
-    const log = document.getElementById("chat-log");
+    const genre = document.querySelector('input[name="genre"]:checked')?.value || "default";
+
     log.innerHTML += `<div><strong>👩‍💻 나:</strong> ${message}</div>`;
     log.scrollTop = log.scrollHeight;
     input.value = "";
-
-    const genre = document.querySelector('input[name="genre"]:checked')?.value || "default";
 
     fetch("/geulssung/chat", {
       method: "POST",
@@ -62,21 +70,29 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       body: JSON.stringify({ message, genre })
     })
-      .then(response => {
-        if (!response.ok) throw new Error("서버 응답 실패");
-        return response.json();
-      })
-      .then(data => {
-        log.innerHTML += `<div><strong>🤖 챗봇:</strong> ${data.reply}</div>`;
-        log.scrollTop = log.scrollHeight;
-      })
-      .catch(error => {
-        log.innerHTML += `<div style="color:red;"><strong>⚠️ 오류:</strong> ${error.message}</div>`;
-      });
+    .then(response => {
+      if (!response.ok) throw new Error("서버 응답 실패");
+      return response.json();
+    })
+    .then(data => {
+      log.innerHTML += `<div><strong>🤖 챗봇:</strong> ${data.reply}</div>`;
+      log.scrollTop = log.scrollHeight;
+    })
+    .catch(error => {
+      log.innerHTML += `<div style="color:red;"><strong>⚠️ 오류:</strong> ${error.message}</div>`;
+    });
   }
 
   function getCSRFToken() {
-    const cookie = document.cookie.split('; ').find(row => row.startsWith("csrftoken="));
+    const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));
     return cookie ? cookie.split("=")[1] : "";
   }
+
+  // ✅ 외부에서 토글할 수 있도록 전역 함수 등록
+  window.toggleChat = function () {
+    const box = document.getElementById("chat-box");
+    if (box) {
+      box.classList.toggle("hidden");
+    }
+  };
 });

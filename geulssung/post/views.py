@@ -43,7 +43,7 @@ def chat_view(request):
 
 def generate_gemini_reply(system_prompt, user_input):
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = gemini.GenerativeModel("gemini-1.5-flash")
         chat = model.start_chat(history=[{"role": "user", "parts": [system_prompt]}])
         response = chat.send_message(user_input)
         return response.text

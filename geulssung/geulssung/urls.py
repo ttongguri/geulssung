@@ -19,6 +19,7 @@ from django.urls import path, include
 from post import views
 from django.conf import settings
 from django.conf.urls.static import static
+from post.views import chat_view
 
 urlpatterns = [
     path("geulssung/", views.home_view, name="home"),  # /geulssung/
@@ -32,6 +33,7 @@ urlpatterns = [
     path("geulssung/explore/", views.explore_view, name="explore"),
     path("geulssung/delete/<int:post_id>/", views.delete_post_view, name="delete_post"),
     path("prompts/", include("prompts.urls")),  # 글감 API 연결
+    path("geulssung/chat", chat_view, name="chat"),
     path('like/<int:post_id>/', views.like, name='like'),
 ]
 
