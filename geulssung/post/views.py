@@ -91,9 +91,14 @@ def public_posts_by_user(request, nickname):
         posts = Post.objects.filter(author=author).order_by('-created_at')
     else:
         posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
+    is_following = False
+    if request.user.is_authenticated and request.user != author:
+        from accounts.models import Follow
+        is_following = Follow.objects.filter(follower=request.user, following=author).exists()
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
+        'is_following': is_following,
     })
 
 # 커버 이미지 업데이트 기능입니다
@@ -122,3 +127,21 @@ def delete_post_view(request, post_id):
         post.delete()
         return redirect('public_user_posts', nickname=post.author.nickname)
     return render(request, 'post/confirm_delete.html', {'post': post})
+
+# 글 공개/비공개 기능입니다
+@login_required
+def toggle_post_visibility(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.author:
+        return redirect('post_detail', post_id=post.id)  # 권한 없음
+
+    if request.method == 'POST':
+        visibility = request.POST.get('visibility')
+        if visibility == 'public':
+            post.is_public = True
+        elif visibility == 'private':
+            post.is_public = False
+        post.save()
+
+    return redirect('post_detail', post_id=post.id)

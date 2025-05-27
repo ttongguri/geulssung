@@ -3,79 +3,137 @@
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap" rel="stylesheet">
   <meta charset="UTF-8" />
-  <title>그심그심 가죠워 테마</title>
+  <title>글바다 🌍</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap');
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Gaegu', cursive;
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body { font-family: 'Gowun Batang', serif; }
+    .tab-btn {
+      @apply bg-[#F9DCC4] text-[#493E3E] font-bold px-4 py-2 rounded-full transition opacity-60;
     }
-    body {
-      background-image: url('/static/images/기깔나게 글쓰기~.png');
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-color: #e5c1a7;
-      min-height: 100vh;
-      position: relative;
-      overflow: hidden;
-      font-family: 'Gowun Batang', serif;
-    }
-    .gaegu{
-      font-family: 'Gaegu', cursive;
-    }
-    .theme-box {
-      background-color: rgba(255, 255, 255, 0.85);
-      border-radius: 1.5rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      transition: all 0.3s ease-in-out;
-    }
-    .theme-box:hover {
-      transform: translateY(-4px) scale(1.02);
-      background-color: rgba(255, 255, 255, 0.95);
+    .tab-btn.active {
+      @apply bg-[#f7cbaa] opacity-100;
     }
   </style>
 </head>
-<body class="relative py-16 px-4 text-[#493E3E]">
+<body class="bg-[#bae6fd] min-h-screen text-[#493E3E] p-10">
 
-  <!-- 🔹 오른쪽 상단: 제목 + 푸터 문구 -->
-  <div class="absolute top-6 right-8 text-right">
-    <h1 class="text-4xl font-extrabold">글썽글썽</h1>
-    <p class="text-sm text-[#6B5B5B] mt-1">© 글썽글썽 2025. 자연 속에서,<br />생각이 차오르면 표현도 자랍니다 🌱</p>
+  <!-- 상단 고정 버튼 -->
+  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
+    <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
+    <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
   </div>
 
-  <!-- 🔹 왼쪽 상단 로그인/회원가입/닉네임/로그아웃 -->
-  <div class="absolute top-6 left-8 text-[15px] md:text-base font-semibold space-x-4">
-    {% if user.is_authenticated %}
-      <span class="text-[#493E3E]">{{ user.nickname }}님</span>
-      <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
-    {% else %}
-      <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
-      <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
-    {% endif %}
+  <!-- 메인 영역 -->
+  <div class="pt-24 max-w-5xl mx-auto">
+
+    <!-- 상위 탭 -->
+    <div class="flex justify-center gap-4 mb-6">
+      <button class="main-tab-btn tab-btn active" data-main-target="tab-explore">글바다</button>
+      <button class="main-tab-btn tab-btn" data-main-target="tab-likes">좋아요글</button>
+      <button class="main-tab-btn tab-btn" data-main-target="tab-subs">구독글</button>
+    </div>
+
+    <!-- 하위 탭 (좋아요글 전용) -->
+    <div id="sub-tabs" class="flex justify-center gap-3 mb-8 hidden">
+      <button class="sub-tab-btn tab-btn active" data-sub-target="likes-all">전체</button>
+      <button class="sub-tab-btn tab-btn" data-sub-target="likes-politics">정치</button>
+      <button class="sub-tab-btn tab-btn" data-sub-target="likes-economy">경제</button>
+      <button class="sub-tab-btn tab-btn" data-sub-target="likes-society">사회</button>
+      <button class="sub-tab-btn tab-btn" data-sub-target="likes-etc">기타</button>
+    </div>
+
+    <!-- 콘텐츠 영역들 -->
+    <div id="tab-explore" class="tab-content">
+      <h1 class="text-3xl font-bold mb-4">🌍 글바다</h1>
+      <p class="text-lg">다른 사람들의 글을 곧 둘러볼 수 있어요!</p>
+      <div class="mt-6 bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-2">📌 주간 좋아요글</h2>
+        <p>이번 주 가장 인기 있었던 글들을 모았어요.</p>
+      </div>
+    </div>
+
+    <div id="tab-likes" class="tab-content hidden">
+      <!-- 좋아요글 하위 콘텐츠 -->
+      <div id="likes-all" class="likes-content">
+        <h2 class="text-xl font-bold mb-2">👍 좋아요글 (전체)</h2>
+        <p>모든 카테고리의 인기 글을 보여줘요.</p>
+      </div>
+      <div id="likes-politics" class="likes-content hidden">
+        <h2 class="text-xl font-bold mb-2">🗳️ 좋아요글 (정치)</h2>
+        <p>정치 관련 인기 글입니다.</p>
+      </div>
+      <div id="likes-economy" class="likes-content hidden">
+        <h2 class="text-xl font-bold mb-2">💰 좋아요글 (경제)</h2>
+        <p>경제 관련 인기 글입니다.</p>
+      </div>
+      <div id="likes-society" class="likes-content hidden">
+        <h2 class="text-xl font-bold mb-2">🌐 좋아요글 (사회)</h2>
+        <p>사회 이슈 관련 인기 글입니다.</p>
+      </div>
+      <div id="likes-etc" class="likes-content hidden">
+        <h2 class="text-xl font-bold mb-2">📎 좋아요글 (기타)</h2>
+        <p>기타 다양한 글들을 볼 수 있어요.</p>
+      </div>
+    </div>
+
+    <div id="tab-subs" class="tab-content hidden">
+      <h2 class="text-2xl font-bold mb-4">📨 구독한 유저의 글</h2>
+      <p>내가 구독한 유저들의 최신 글입니다 😊</p>
+    </div>
+
   </div>
 
-  <!-- 기능 버튼들 -->
-  <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-6">
-    <a href="/geulssung/write/" class="theme-box text-center text-sm">
-      <div class="text-3xl mb-1">✍️</div>
-      <h2 class="text-lg font-bold">글방울</h2>
-      <p class="text-xs mt-1">오늘의 주제에 맞춰 글을 써보세요.</p>
-    </a>
-    <a href="/geulssung/myposts/" class="theme-box text-center text-sm">
-      <div class="text-3xl mb-1">📁</div>
-      <h2 class="text-lg font-bold">글자국</h2>
-      <p class="text-xs mt-1">내가 쓴 글을 다시 보고 관리할 수 있어요.</p>
-    </a>
-    <a href="/geulssung/explore/" class="theme-box text-center text-sm">
-      <div class="text-3xl mb-1">🌏</div>
-      <h2 class="text-lg font-bold">글바다</h2>
-      <p class="text-xs mt-1">다른 사람들의 시선을 함께 읽어보세요.</p>
-    </a>
-  </div>
+  <!-- JavaScript -->
+  <script>
+    const mainButtons = document.querySelectorAll('.main-tab-btn');
+    const subButtons = document.querySelectorAll('.sub-tab-btn');
+    const mainContents = document.querySelectorAll('.tab-content');
+    const subContents = document.querySelectorAll('.likes-content');
+    const subTabContainer = document.getElementById('sub-tabs');
+
+    // 메인 탭 클릭
+    mainButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // 메인 탭 상태 갱신
+        mainButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        const target = button.getAttribute('data-main-target');
+
+        mainContents.forEach(content => {
+          content.classList.toggle('hidden', content.id !== target);
+        });
+
+        // 좋아요글이면 하위탭 보여주기
+        subTabContainer.classList.toggle('hidden', target !== 'tab-likes');
+
+        if (target === 'tab-likes') {
+          switchSubTab('likes-all');
+        }
+      });
+    });
+
+    // 하위 탭 클릭
+    subButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const target = button.getAttribute('data-sub-target');
+        switchSubTab(target);
+      });
+    });
+
+    function switchSubTab(targetId) {
+      subButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-sub-target') === targetId) {
+          btn.classList.add('active');
+        }
+      });
+      subContents.forEach(content => {
+        content.classList.toggle('hidden', content.id !== targetId);
+      });
+    }
+  </script>
+
 </body>
 </html>
