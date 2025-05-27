@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   sendBtn.addEventListener("click", sendChat);
 
-  // ✅ 장르 변경 시 환영 메시지 추가
   document.querySelectorAll('input[name="genre"]').forEach(radio => {
     radio.addEventListener("change", () => {
       const genre = radio.value;
@@ -42,36 +41,42 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+  function sendChat() {
+    const input = document.getElementById("chat-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const log = document.getElementById("chat-log");
+    log.innerHTML += `<div><strong>👩‍💻 나:</strong> ${message}</div>`;
+    log.scrollTop = log.scrollHeight;
+    input.value = "";
+
+    const genre = document.querySelector('input[name="genre"]:checked')?.value || "default";
+
+    fetch("/geulssung/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken()
+      },
+      body: JSON.stringify({ message, genre })
+    })
+      .then(response => {
+        if (!response.ok) throw new Error("서버 응답 실패");
+        return response.json();
+      })
+      .then(data => {
+        log.innerHTML += `<div><strong>🤖 챗봇:</strong> ${data.reply}</div>`;
+        log.scrollTop = log.scrollHeight;
+      })
+      .catch(error => {
+        log.innerHTML += `<div style="color:red;"><strong>⚠️ 오류:</strong> ${error.message}</div>`;
+      });
+  }
+
+  function getCSRFToken() {
+    const cookie = document.cookie.split('; ').find(row => row.startsWith("csrftoken="));
+    return cookie ? cookie.split("=")[1] : "";
+  }
 });
-
-function sendChat() {
-  const input = document.getElementById("chat-input");
-  const message = input.value.trim();
-  if (!message) return;
-
-  const log = document.getElementById("chat-log");
-  log.innerHTML += `<div><strong>👩‍💻 나:</strong> ${message}</div>`;
-  log.scrollTop = log.scrollHeight;
-
-  input.value = '';
-
-  // ✅ 현재 선택된 장르를 같이 보냄
-  const genre = document.querySelector('input[name="genre"]:checked')?.value || 'default';
-
-  fetch('/geulssung/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, genre })
-  })
-    .then(response => {
-      if (!response.ok) throw new Error("서버 응답 실패");
-      return response.json();
-    })
-    .then(data => {
-      log.innerHTML += `<div><strong>🤖 챗봇:</strong> ${data.reply}</div>`;
-      log.scrollTop = log.scrollHeight;
-    })
-    .catch(error => {
-      log.innerHTML += `<div style="color:red;"><strong>⚠️ 오류:</strong> ${error.message}</div>`;
-    });
-}
