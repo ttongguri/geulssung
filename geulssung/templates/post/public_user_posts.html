@@ -48,7 +48,26 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
         <div class="relative card overflow-hidden">
-          <a href="{% url 'post_detail' post_id=post.id %}">
+      <!-- 👍 좋아요 버튼 위치 -->
+      {% if request.path != '/'|add:user.nickname|add:'/' %}
+        <form action="{% url 'like' post.id %}" method="post" class="absolute top-3 right-3 z-10">
+          {% csrf_token %}
+          <button type="submit" title="좋아요" class="text-red-400 hover:text-red-600 text-xl">
+            {% if user in post.like_users.all %}
+              ❤️
+            {% else %}
+              🤍
+            {% endif %}
+            <span class="text-sm align-middle">({{ post.like_users.count }})</span>
+          </button>
+        </form>
+      {% else %}
+        <!-- ❤️ 좋아요 수만 표시 -->
+        <div class="absolute top-3 right-3 z-10 text-red-400 text-xl">
+          ❤️ <span class="text-sm align-middle">({{ post.like_users.count }})</span>
+        </div>
+      {% endif %}
+
             <!-- 🖼 대표 이미지 -->
             {% if post.postimage %}
               <img src="{{ post.postimage.image.url }}" alt="커버 이미지" class="w-full aspect-square object-cover rounded-xl border-b" />

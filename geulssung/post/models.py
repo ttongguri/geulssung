@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from prompts.models import GeneratedPrompt
+from django.conf import settings
 
 
 User = get_user_model()
@@ -39,6 +40,12 @@ class Post(models.Model):
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # 이 글에 좋아요 누른 사람
+    like_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='like_posts',
+    )
+
     def __str__(self):
         return f"[{self.get_genre_display()}] {self.title} by {self.author.nickname}"
 
@@ -50,3 +57,5 @@ class PostImage(models.Model):
 
     def __str__(self):
         return f"{self.post.title}의 표지 이미지"
+
+    

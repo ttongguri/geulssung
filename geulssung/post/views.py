@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from .models import Post, PostImage
 from django.urls import reverse
 from prompts.models import GeneratedPrompt
+from django.http import HttpResponseRedirect
 
 load_dotenv()
 gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -152,6 +153,7 @@ def update_cover_image(request, post_id):
 
 def explore_view(request):
     return render(request, 'post/explore.html')  # templates/explore.html 위치에 파일이 있어야 함
+
 # 글 삭제 기능입니다
 @login_required
 def delete_post_view(request, post_id):
@@ -162,3 +164,16 @@ def delete_post_view(request, post_id):
         post.delete()
         return redirect('public_user_posts', nickname=post.author.nickname)
     return render(request, 'post/confirm_delete.html', {'post': post})
+
+def like(request, post_id):
+    user = request.user
+    post = Post.objects.get(id=post_id)
+
+    if user in post.like_users.all():
+        post.like_users.remove(user)
+    else:
+        post.like_users.add(user)
+
+    # 현재 보고 있는 페이지로 redirect(유동적)
+    referer = request.META.get('HTTP_REFERER', '/')
+    return HttpResponseRedirect(referer)
