@@ -4,6 +4,8 @@ from accounts.models import CustomUser
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed
 from django.contrib.auth import get_user_model
 from .models import Post, PostImage
+from django.urls import reverse
+from prompts.models import GeneratedPrompt
 
 User = get_user_model()
 
@@ -50,17 +52,24 @@ def write_post_view(request):
                 'step2': step2,
                 'step3': step3,
             })
+        prompt_id = request.POST.get('prompt_id')
+        prompt_obj = None
+        if prompt_id:
+            try:
+                prompt_obj = GeneratedPrompt.objects.get(id=prompt_id)
+            except GeneratedPrompt.DoesNotExist:
+                prompt_obj = None
         post = Post(
             author=request.user,
             title=request.POST['title'],
             category=request.POST['category'],
             genre=genre,
-            topic=request.POST['topic'],
             step1=step1,
             step2=step2,
             step3=step3,
             final_content=request.POST.get('final_text', ''),
-            is_public='is_public' in request.POST
+            is_public='is_public' in request.POST,
+            prompt=prompt_obj
         )
         post.save()
         # 이미지가 첨부된 경우 PostImage 저장
@@ -99,3 +108,13 @@ def update_cover_image(request, post_id):
         post_image.save()
         return redirect('public_user_posts', nickname=post.author.nickname)
     return HttpResponseNotAllowed(['POST'])
+
+@login_required
+def delete_post_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user != post.author:
+        return HttpResponseForbidden()
+    if request.method == 'POST':
+        post.delete()
+        return redirect('home')
+    return render(request, 'post/confirm_delete.html', {'post': post})

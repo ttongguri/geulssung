@@ -6,6 +6,6 @@ import random
 def random_prompts(request):
     style = request.GET.get('style')
     genre = style  # style과 genre가 동일하게 쓰이는 구조
-    prompts = list(GeneratedPrompt.objects.filter(style=genre).values_list('content', flat=True))
+    prompts = list(GeneratedPrompt.objects.filter(style=genre).values('id', 'content'))
     selected = random.sample(prompts, min(4, len(prompts)))
     return JsonResponse({'prompts': selected})
