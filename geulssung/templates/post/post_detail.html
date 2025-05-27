@@ -1,4 +1,4 @@
-<!-- templates/post/post_detail.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,14 +7,42 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Gaegu:wght@700&display=swap" rel="stylesheet">
   <style>
-    /* @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap'); */
-    body { font-family: 'Gowun Batang', serif; }
-    .gaegu{
-      font-family: 'Gaegu', cursive;
+    body { font-family: 'Gowun Batang', serif; background-color: #FFF9F2; color: #493E3E; }
+    .gaegu{ font-family: 'Gaegu', cursive; }
+    .rounded-xl { border-radius: 1rem !important; }
+    .shadow-xl { box-shadow: 0 8px 24px 0 rgba(73,62,62,0.08), 0 1.5px 4px 0 rgba(73,62,62,0.08) !important; }
+    .card {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px 0 rgba(73,62,62,0.08), 0 1.5px 4px 0 rgba(73,62,62,0.08);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .card-title {
+      font-weight: bold;
+      font-size: 2rem;
+      color: #493E3E;
+    }
+    .card-meta {
+      color: #8d7b68;
+      font-size: 1rem;
+    }
+    .blurred-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('{% static "images/바다만 덩그러니2.png" %}');
+      background-size: cover;
+      background-position: center;
+      filter: blur(4px) brightness(0.95);
+      z-index: -10;
     }
   </style>
 </head>
 <body class="bg-[#FFF9F2] min-h-screen p-8 relative">
+  <div class="blurred-bg"></div>
   <!-- 헤더 오른쪽 상단 네비게이션 -->
   <div class="absolute top-6 right-8 text-sm space-x-4">
     {% if user.is_authenticated %}
@@ -27,7 +55,7 @@
   </div>
 
   <!-- 상세보기 섹션 -->
-  <div id="detail-content" class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow mt-16">
+  <div id="detail-content" class="max-w-3xl mx-auto card mt-16">
     <!-- 장르(한글) 및 주제 -->
     <p class="text-sm text-gray-600 mb-4">
       {% if post.genre == 'poem' %}
@@ -41,13 +69,16 @@
       {% else %}
         {{post.genre}}
       {% endif %}
-      | {{ post.topic }}</p>
+      {# | {{ post.topic }} #}
+    </p>
 
     <!-- 제목 -->
-    <h1 class="text-3xl font-bold text-[#493E3E] mb-2">{{ post.title }}</h1>
+    <h1 class="card-title mb-2">{{ post.title }}</h1>
 
     <!-- 작성자 및 작성일 -->
     <p class="text-sm text-gray-600 mb-6">by {{ post.author.nickname }} | {{ post.created_at|date:"Y.m.d H:i" }}</p>
+    {# <div class="mb-4"><span class="font-semibold">글감:</span> {{ post.topic }}</div> #}
+    <div class="mb-4"><span class="font-semibold">글감:</span> {{ post.prompt.content|default:"-" }}</div>
 
     <!-- 스텝 전체 토글 버튼 -->
     <button onclick="toggleSteps()"
@@ -75,7 +106,7 @@
     <hr>
 
     <!-- 최종 글 내용 -->
-    <div class="prose mt-8">
+    <div class="prose mt-8" style="color:#493E3E;">
       <p class="font-bold text-xl">🧩 글줄기</p>
       <p class="mt-2">{{ post.final_content|linebreaks }}</p>
     </div>
@@ -101,16 +132,41 @@
     <p id="visibility-message" class="mt-3 text-sm text-black-600">이 글은 공개됩니다.</p>
 
     <!-- 유저페이지 이동 버튼 -->
-    <div class="flex justify-center space-x-4 mt-8">
-      <a href="{% url 'home' %}" 
-        class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
+    <div class="flex justify-end space-x-4 mt-8">
+      <a href="{% url 'home' %}"
+        class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
         홈으로 이동
       </a>
-      <a href="{% url 'public_user_posts' post.author.nickname %}" 
-        class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
+      <a href="{% url 'public_user_posts' post.author.nickname %}"
+        class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
         글자국으로 이동
       </a>
+      {% if user.is_authenticated and user == post.author %}
+        <button type="button" onclick="openDeleteModal()" class="px-6 py-3 bg-red-400 hover:bg-red-600 text-white font-bold rounded-full shadow-lg transition">삭제</button>
+      {% endif %}
     </div>
+    {% if user.is_authenticated and user == post.author %}
+      <!-- 삭제 확인 모달 -->
+      <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-xl shadow-xl text-center">
+          <h2 class="text-2xl font-bold mb-6 text-[#493E3E]">정말로 이 게시글을 삭제하시겠습니까?</h2>
+          <p class="mb-8 text-gray-700">삭제하면 복구할 수 없습니다.</p>
+          <form id="deleteForm" method="post" action="{% url 'delete_post' post.id %}">
+            {% csrf_token %}
+            <button type="submit" class="px-6 py-3 bg-red-400 hover:bg-red-600 text-white font-bold rounded-full shadow-lg transition">삭제</button>
+            <button type="button" onclick="closeDeleteModal()" class="ml-4 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-[#493E3E] font-bold rounded-full transition">취소</button>
+          </form>
+        </div>
+      </div>
+      <script>
+        function openDeleteModal() {
+          document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        function closeDeleteModal() {
+          document.getElementById('deleteModal').classList.add('hidden');
+        }
+      </script>
+    {% endif %}
 
     <!-- 수정 섹션 (숨김) -->
     <div id="edit-section" class="hidden max-w-3xl mx-auto bg-white p-6 rounded-xl shadow mt-16">
@@ -154,6 +210,5 @@
       });
     });
   </script>
-
 </body>
 </html>

@@ -29,6 +29,9 @@ urlpatterns = [
     path("geulssung/accounts/", include("accounts.urls")), # /geulssung/accounts/
     path("geulssung/post/<str:nickname>/", views.public_posts_by_user, name="public_user_posts"),  # /geulssung/post/nickname
     path("geulssung/update-cover-image/<int:post_id>/", views.update_cover_image, name="update_cover_image"),
+    path("geulssung/explore/", views.explore_view, name="explore"),
+    path("geulssung/delete/<int:post_id>/", views.delete_post_view, name="delete_post"),
+    path("prompts/", include("prompts.urls")),  # 글감 API 연결
 ]
 
 if settings.DEBUG:
