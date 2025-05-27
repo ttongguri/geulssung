@@ -67,7 +67,7 @@
 
         <div id="prompt-box" class="mb-6" style="display: none;">
           <p class="font-semibold text-[#493E3E] mb-2">🧠 오늘의 글감을 골라보세요</p>
-          <div id="prompt-options" class="grid grid-cols-2 gap-4"></div>
+          <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
           <input type="hidden" name="topic" id="selectedPrompt">
         </div>
 
@@ -180,7 +180,7 @@
       });
   
       // 글감 다시 로드
-      showPrompts(category);
+      showPrompts();
       checkFormReady();
       updateSummaryBox();
     }
@@ -201,37 +201,40 @@
       document.getElementById("prompt-box").style.display = "none";
   
       const category = document.querySelector('input[name="category"]:checked')?.value;
-      if (category) showPrompts(category);
+      if (category) showPrompts();
   
       checkFormReady();
       updateSummaryBox();
     }
   
-    function showPrompts(categoryOrGenre) {
-      const promptBox = document.getElementById("prompt-box");
-      const promptOptions = document.getElementById("prompt-options");
-      const hiddenInput = document.getElementById("selectedPrompt");
-  
-      const promptMap = {
-        emotion: ["사라진 우산", "낙엽이 흔들린 날", "밤의 정류장", "우유 한 방울"],
-        logic: ["디지털 감시", "전세 사기", "청소년 투표권", "야근은 의무인가"]
+    function showPrompts() {
+      const genreInput = document.querySelector('input[name="genre"]:checked');
+      if (!genreInput) return;
+      const genreMap = {
+        essay: "에세이",
+        poem: "시",
+        column: "칼럼",
+        analysis: "분석글"
       };
-  
-      const prompts = promptMap[categoryOrGenre] || [];
-      promptOptions.innerHTML = "";
-      hiddenInput.value = "";
-      document.getElementById('step1NextBtn').classList.add('opacity-50', 'pointer-events-none');
-  
-      prompts.forEach(prompt => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6]";
-        btn.textContent = prompt;
-        btn.onclick = () => selectPrompt(btn, prompt);
-        promptOptions.appendChild(btn);
-      });
-  
-      promptBox.style.display = "block";
+      const genre = genreMap[genreInput.value];
+
+      fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
+        .then(res => res.json())
+        .then(data => {
+          const promptOptions = document.getElementById("prompt-options");
+          promptOptions.innerHTML = "";
+          document.getElementById("selectedPrompt").value = "";
+          document.getElementById('step1NextBtn').classList.add('opacity-50', 'pointer-events-none');
+          data.prompts.forEach(prompt => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6]";
+            btn.textContent = prompt;
+            btn.onclick = () => selectPrompt(btn, prompt);
+            promptOptions.appendChild(btn);
+          });
+          document.getElementById("prompt-box").style.display = "block";
+        });
     }
   
     function selectPrompt(button, prompt) {
