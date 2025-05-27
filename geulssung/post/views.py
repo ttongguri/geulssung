@@ -127,3 +127,21 @@ def delete_post_view(request, post_id):
         post.delete()
         return redirect('public_user_posts', nickname=post.author.nickname)
     return render(request, 'post/confirm_delete.html', {'post': post})
+
+# 글 공개/비공개 기능입니다
+@login_required
+def toggle_post_visibility(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.author:
+        return redirect('post_detail', post_id=post.id)  # 권한 없음
+
+    if request.method == 'POST':
+        visibility = request.POST.get('visibility')
+        if visibility == 'public':
+            post.is_public = True
+        elif visibility == 'private':
+            post.is_public = False
+        post.save()
+
+    return redirect('post_detail', post_id=post.id)
