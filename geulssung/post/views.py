@@ -1,11 +1,51 @@
+import os
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from accounts.models import CustomUser
-from django.http import HttpResponseForbidden, HttpResponseNotAllowed
+from django.http import HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
 from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import csrf_exempt
+import google.generativeai as gemini
+from dotenv import load_dotenv
 from .models import Post, PostImage
 
+load_dotenv()
+gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 User = get_user_model()
+
+# chatbot
+genre_prompts = {
+    "poem": "당신은 시를 잘 쓰도록 도와주는 시 전문 작문 도우미입니다.",
+    "essay": "당신은 감성적이고 따뜻한 에세이를 도와주는 작문 도우미입니다.",
+    "column": "당신은 논리적이고 시사적인 칼럼을 잘 쓰도록 돕는 전문가입니다.",
+    "analysis": "당신은 데이터와 통계 기반의 분석글을 쓰도록 도와주는 분석 전문가입니다.",
+    "default": "당신은 사용자 글쓰기를 돕는 친절한 도우미입니다."
+}
+
+def write_view(request):
+    return render(request, "write_form.html")
+
+@csrf_exempt
+def chat_view(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user_input = data.get("message", "")
+        genre = data.get("genre", "default")
+        system_prompt = genre_prompts.get(genre, genre_prompts["default"])
+        reply = generate_gemini_reply(system_prompt, user_input)
+        return JsonResponse({"reply": reply})
+    return JsonResponse({"error": "Invalid method"}, status=405)
+
+def generate_gemini_reply(system_prompt, user_input):
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        chat = model.start_chat(history=[{"role": "user", "parts": [system_prompt]}])
+        response = chat.send_message(user_input)
+        return response.text
+    except Exception as e:
+        return f"오류 발생: {e}"
 
 # /test로 연결 되는 테스트 페이지 입니다.
 def test_page_view(request):
