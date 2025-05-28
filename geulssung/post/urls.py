@@ -8,6 +8,7 @@ urlpatterns = [
     path('<int:post_id>/', views.post_detail, name='post_detail'),
     path('geulssunglog/<str:nickname>/', views.public_posts_by_user, name='public_user_posts'),
     path('geulssung/', views.write_view, name='write'),
+    # hj - chat 추가
     path('geulssung/chat', views.chat_view, name='chat'),
 ]
 

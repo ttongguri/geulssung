@@ -40,6 +40,7 @@ class Post(models.Model):
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # hj - 좋아요
     # 이 글에 좋아요 누른 사람
     like_users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
