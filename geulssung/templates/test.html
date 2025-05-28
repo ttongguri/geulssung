@@ -3,6 +3,12 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  
+  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
+    <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
+    <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
+  </div>
+
   <title>글바다 🌍</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -10,10 +16,10 @@
     body { font-family: 'Gowun Batang', serif; }
   </style>
 </head>
-<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10">
+<body class="bg-[#ffffff] min-h-screen text-[#493E3E] p-10">
 
   <!-- 🔝 고정 상단바 -->
-  <!-- <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50"> -->
+  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
     <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
     <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
   </div>
@@ -23,10 +29,9 @@
     <h1 class="text-4xl font-bold mb-2 text-center">🌍 글바다</h1>
     
     <br>
-    <br>
 
     <!-- 🗂 구독글 상자 -->
-    <div class="text-xl font-bold text-[#493E3E] ml-2 mb-2">구독글</div>
+    <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">구독글</div>
 
     <!-- 📦 카드 3개 -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -46,61 +51,37 @@
     <br>
     <br>
 
-    <div class="max-w-6xl mx-auto flex flex-wrap justify-center gap-4 mt-10">
-      <a href="{% url 'explore' %}" 
-      class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg text-green-600 hover:bg-green-50 transition">
-      전체
-      </a>
-      <a href="{% url 'explore' %}?category=column" 
-      class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg text-[#333] hover:bg-gray-100 transition">
-      칼럼
-      </a>
-      <a href="{% url 'explore' %}?category=analysis" 
-      class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg text-[#333] hover:bg-gray-100 transition">
-      분석글
-      </a>
-      <a href="{% url 'explore' %}?category=essay" 
-      class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg text-[#333] hover:bg-gray-100 transition">
-      에세이
-      </a>
-      <a href="{% url 'explore' %}?category=poem" 
-      class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg text-[#333] hover:bg-gray-100 transition">
-      시
-      </a>
+    <div class="border-t border-gray-500 w-full my-6"></div>
+      <div class="max-w-6xl mx-auto flex justify-center gap-12 text-lg text-[#333] px-4">
+        <a href="{% url 'explore' %}" class="text-green-600 font-semibold">전체</a>
+        <a href="{% url 'explore' %}?category=column" class="hover:text-green-600 transition">칼럼</a>
+        <a href="{% url 'explore' %}?category=analysis" class="hover:text-green-600 transition">분석글</a>
+        <a href="{% url 'explore' %}?category=essay" class="hover:text-green-600 transition">에세이</a>
+        <a href="{% url 'explore' %}?category=poem" class="hover:text-green-600 transition">시</a>
+      </div>
+      <div class="border-t border-gray-500 w-full my-6"></div>
     </div>
-
     <br>
 
     <!-- <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">좋아요 랭킹글</div> -->
     <br>
-    <br>
 
 <!-- 양쪽 나눠진 콘텐츠 -->
     <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 relative mt-6">
-<!-- 왼쪽 콘텐츠 -->
-    <div class="space-y-4">
-  <!-- 제목 텍스트만 따로 -->
-      <div class="text-xl font-bold text-[#493E3E] ml-2 mb-2">좋아요 랭킹글</div>
-
-  <!-- 내용 담을 수 있는 큰 상자 -->
-      <div class="bg-white rounded-xl shadow p-6 w-full">
-    <!-- 여기에 내용 들어갈 수 있음 -->
-        <p class="text-gray-700">아직 좋아요 랭킹 콘텐츠가 준비되지 않았습니다.</p>
+  <!-- 왼쪽 콘텐츠 -->
+      <div class="space-y-4">
+        <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">좋아요 랭킹글</div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
       </div>
-    </div>
-
-<!-- 오른쪽 콘텐츠 -->
-    <div class="space-y-4">
-  <!-- 제목 텍스트만 따로 -->
-      <div class="text-xl font-bold text-[#493E3E] ml-2 mb-2">최신글</div>
-
-  <!-- 내용 담을 수 있는 큰 상자 -->
-      <div class="bg-white rounded-xl shadow p-6 w-full">
-    <!-- 여기에 내용 들어갈 수 있음 -->
-        <p class="text-gray-700">아직 최신글 콘텐츠가 준비되지 않았습니다.</p>
+  <!-- 오른쪽 콘텐츠 -->
+      <div class="space-y-4">
+        <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">최신글</div>
       </div>
-    </div>
-
   <!-- 중앙 세로선 -->
       <div class="hidden md:block absolute left-1/2 top-0 h-full border-l border-gray-300"></div>
     </div>
