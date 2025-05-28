@@ -1,93 +1,76 @@
-<<<<<<< HEAD
-=======
-<!-- templates/explore.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  
-  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
-    <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
-    <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
-  </div>
-
-  <title>글바다 🌍</title>
+  <title>글썽글썽 회원가입</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
-    body { font-family: 'Gowun Batang', serif; }
+    @font-face {
+    font-family: 'Ownglyph_corncorn-Rg';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap');
+    body {
+      font-family: 'Ownglyph_corncorn-Rg', 'Gaegu', cursive;
+      background-image: url('/static/images/clean_sea_header.png'); /* 바다 이미지 경로 */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .form-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 5rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      max-width: 440px;
+      width: 70%;
+      text-align: center;
+    }
+    .form-input {
+      width: 80%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 4rem;
+      border: 1px solid #ccc;
+      font-family: 'Ownglyph_corncorn-Rg', 'Gaegu', cursive;
+    }
+    .form-button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #fbd6b5;
+      border-radius: 2rem;
+      font-weight: bold;
+      color: #493E3E;
+    }
+    .form-button:hover {
+      background-color: #f9c69e;
+    }
   </style>
 </head>
-<body class="bg-[#ffffff] min-h-screen text-[#493E3E] p-10">
-
-  <!-- 🔝 고정 상단바 -->
-  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
-    <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
-    <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
-  </div>
-  <br>
-
-  <div class="max-w-6xl mx-auto pt-10">
-    <h1 class="text-4xl font-bold mb-2 text-center">🌍 글바다</h1>
-    
-    <br>
-
-    <!-- 🗂 구독글 상자 -->
-    <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">구독글</div>
-
-    <!-- 📦 카드 3개 -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-      {% for i in "123" %}
-      <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden">
-        <!-- 이미지 영역 (임시) -->
-        <div class="aspect-video bg-gray-200"></div>
-
-        <!-- 하단 정보 -->
-        <div class="p-4 flex justify-between items-center">
-          <span class="text-sm text-gray-600">제목 자리</span>
-          <span class="text-xl text-pink-400">♥</span>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    <br>
-    <br>
-
-    <div class="border-t border-gray-500 w-full my-6"></div>
-      <div class="max-w-6xl mx-auto flex justify-center gap-12 text-lg text-[#333] px-4">
-        <a href="{% url 'explore' %}" class="text-green-600 font-semibold">전체</a>
-        <a href="{% url 'explore' %}?category=column" class="hover:text-green-600 transition">칼럼</a>
-        <a href="{% url 'explore' %}?category=analysis" class="hover:text-green-600 transition">분석글</a>
-        <a href="{% url 'explore' %}?category=essay" class="hover:text-green-600 transition">에세이</a>
-        <a href="{% url 'explore' %}?category=poem" class="hover:text-green-600 transition">시</a>
-      </div>
-      <div class="border-t border-gray-500 w-full my-6"></div>
-    </div>
-    <br>
-
-    <!-- <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">좋아요 랭킹글</div> -->
-    <br>
-
-<!-- 양쪽 나눠진 콘텐츠 -->
-    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 relative mt-6">
-  <!-- 왼쪽 콘텐츠 -->
-      <div class="space-y-4">
-        <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">좋아요 랭킹글</div>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-      </div>
-  <!-- 오른쪽 콘텐츠 -->
-      <div class="space-y-4">
-        <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">최신글</div>
-      </div>
-  <!-- 중앙 세로선 -->
-      <div class="hidden md:block absolute left-1/2 top-0 h-full border-l border-gray-300"></div>
-    </div>
-
+<body>
+  <div class="form-container">
+    <h2 class="text-4xl mb-2">✍️ 글썽글썽 회원가입</h2>
+    <p class="text-sm mb-4 text-[#6B5B5B]">글썽이와 함께 할 준비 되셨나요?</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="text" name="username" placeholder="아이디" class="form-input" required>
+      <input type="text" name="nickname" placeholder="닉네임" class="form-input" required>
+      <input type="email" name="email" placeholder="이메일" class="form-input" required>
+      <input type="password" name="password1" placeholder="비밀번호" class="form-input" required>
+      <input type="password" name="password2" placeholder="비밀번호 확인" class="form-input" required>
+      <button type="submit" class="form-button">가입하기</button>
+    </form>
+    <p class="mt-4 text-sm text-gray-600">
+      이미 계정이 있으신가요? <a href="{% url 'login' %}" class="underline">로그인하기</a>
+    </p>
   </div>
 </body>
 </html>
