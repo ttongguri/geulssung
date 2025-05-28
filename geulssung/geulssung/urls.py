@@ -19,6 +19,7 @@ from django.urls import path, include
 from post import views
 from django.conf import settings
 from django.conf.urls.static import static
+from post.views import chat_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +30,8 @@ urlpatterns = [
     path("geulssung/accounts/", include("accounts.urls")),
     path("geulssung/post/", include("post.urls")),
     path("prompts/", include("prompts.urls")),
+    path("geulssung/chat", chat_view, name="chat"),
+    path('like/<int:post_id>/', views.like, name='like'),
 ]
 
 if settings.DEBUG:

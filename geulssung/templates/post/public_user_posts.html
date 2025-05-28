@@ -33,13 +33,13 @@
   </style>
 </head>
 <body class="bg-[#bae6fd] min-h-screen p-10 text-[#493E3E]">
-
   <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
     <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
     <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
   </div>
   <div class="h-14"></div>
   <div class="max-w-6xl mx-auto mt-8">
+
     <!-- 상단 제목 -->
     <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국 📂</h1>
     <br>
@@ -67,6 +67,27 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
         <div class="relative card overflow-hidden">
+
+          <!-- 좋아요 버튼 위치 -->
+          {% if user != post.author %}
+            <form action="{% url 'like' post.id %}" method="post" class="absolute top-3 right-3 z-10">
+              {% csrf_token %}
+              <button type="submit" title="좋아요" class="text-red-400 hover:text-red-600 text-xl">
+                {% if user in post.like_users.all %}
+                  ❤️
+                {% else %}
+                  🤍
+                {% endif %}
+                <span class="text-sm align-middle">({{ post.like_users.count }})</span>
+              </button>
+            </form>
+          {% else %}
+            <!-- 자기 글일 경우 좋아요 수만 표시 -->
+            <div class="absolute top-3 right-3 z-10 text-red-400 text-xl">
+              ❤️ <span class="text-sm align-middle">({{ post.like_users.count }})</span>
+            </div>
+          {% endif %}
+
           <a href="{% url 'post_detail' post_id=post.id %}">
             <!-- 🖼 대표 이미지 -->
             {% if post.postimage %}

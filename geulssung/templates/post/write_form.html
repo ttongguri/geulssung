@@ -28,6 +28,17 @@
       pointer-events: none;
     }
   </style>
+
+
+  <!-- hj - chatbot 창 추가
+  <script src="{% static 'js/chatbot.js' %}"></script>
+  <div id="chat-box-wrapper" class="fixed bottom-24 right-4 w-80 z-50">
+    <button onclick="toggleChat()" class="w-full bg-[#bae6fd] text-[#493E3E] font-bold py-2 rounded-t-xl transition">
+      💬 챗봇 열기 / 닫기
+    </button>
+  </div> -->
+
+
 </head>
     <body class="relative bg-[#FFF9F2] min-h-screen pb-24 p-8 background"></div>
     </body>
@@ -51,7 +62,9 @@
 
   <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6 mt-24">
     <form method="post" action="" enctype="multipart/form-data">
+      <!-- hj: csrf token 삽입 -->
       {% csrf_token %}
+
 
       <div class="step" id="step-1">
         <div class="mb-6">
