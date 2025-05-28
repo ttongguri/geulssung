@@ -22,17 +22,14 @@ from django.conf.urls.static import static
 from post.views import chat_view
 
 urlpatterns = [
-    path("geulssung/", views.home_view, name="home"),  # /geulssung/
-    path("geulssung/test/", views.test_page_view, name="test"), #/geulssung/test/
     path('admin/', admin.site.urls),
-    path("geulssung/write/", views.write_post_view, name="write"),  # /geulssung/write
-    path("geulssung/post/<int:post_id>", views.post_detail_view, name="post_detail"),  # /geulssung/post/1
-    path("geulssung/post/<str:nickname>/", views.public_posts_by_user, name="public_user_posts"),  # /geulssung/post/nickname
-    path("geulssung/accounts/", include("accounts.urls")), # /geulssung/accounts/
-    path("geulssung/update-cover-image/<int:post_id>/", views.update_cover_image, name="update_cover_image"),
+    path("geulssung/", views.home_view, name="home"),
+    path("geulssung/test/", views.test_page_view, name="test"),
+    path("geulssung/write/", views.write_post_view, name="write"),
     path("geulssung/explore/", views.explore_view, name="explore"),
-    path("geulssung/delete/<int:post_id>/", views.delete_post_view, name="delete_post"),
-    path("prompts/", include("prompts.urls")),  # 글감 API 연결
+    path("geulssung/accounts/", include("accounts.urls")),
+    path("geulssung/post/", include("post.urls")),
+    path("prompts/", include("prompts.urls")),
     path("geulssung/chat", chat_view, name="chat"),
     path('like/<int:post_id>/', views.like, name='like'),
 ]

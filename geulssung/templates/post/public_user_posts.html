@@ -44,6 +44,25 @@
     <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국 📂</h1>
     <br>
 
+    {% if user.is_authenticated and user.id != author.id %}
+      <div class="mb-6">
+        <button id="follow-btn"
+                data-user-id="{{ author.id }}"
+                class="px-4 py-2 font-bold rounded-full shadow transition
+                       {% if is_following %}
+                         bg-red-300 hover:bg-red-400
+                       {% else %}
+                         bg-blue-300 hover:bg-blue-400
+                       {% endif %}">
+          {% if is_following %}
+            언팔로우
+          {% else %}
+            구독
+          {% endif %}
+        </button>
+      </div>
+    {% endif %}
+
     <!-- 게시글 카드 리스트 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
@@ -113,5 +132,28 @@
 
   </div>
 
+  <script>
+    const followBtn = document.getElementById('follow-btn');
+    if (followBtn) {
+      followBtn.addEventListener('click', async function () {
+        const userId = this.dataset.userId;
+  
+        const response = await fetch("/geulssung/accounts/follow/", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `user_id=${userId}`,
+        });
+  
+        const result = await response.json();
+  
+        if (result.status === 'followed' || result.status === 'unfollowed') {
+          location.reload();
+        }
+      });
+    }
+  </script>  
 </body>
 </html>

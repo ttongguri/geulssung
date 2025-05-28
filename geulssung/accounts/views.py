@@ -1,6 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, login, authenticate
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import Follow
+from django.http import JsonResponse
+
 
 User = get_user_model()
 
@@ -56,3 +61,22 @@ def logout_view(request):
     logout(request)
     return redirect('login')  # 로그아웃 후 로그인 페이지로 이동
 
+
+#팔로우 기능
+@require_POST
+@login_required
+def follow(request):
+    target_id = request.POST.get('user_id')
+    target_user = User.objects.get(id=target_id)
+
+    if request.user == target_user:
+        return JsonResponse({'error': '자기 자신은 팔로우할 수 없습니다.'}, status=400)
+
+    follow, created = Follow.objects.get_or_create(
+        follower=request.user, following=target_user
+    )
+
+    if not created:
+        follow.delete()
+        return JsonResponse({'status': 'unfollowed'})
+    return JsonResponse({'status': 'followed'})

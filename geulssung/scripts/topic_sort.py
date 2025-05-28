@@ -1,5 +1,3 @@
-# scripts/crawl_and_group_issues.py
-
 import time
 import random
 import json
