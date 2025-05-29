@@ -2,6 +2,7 @@ import os
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from accounts.models import CustomUser
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
 from django.contrib.auth import get_user_model
@@ -32,7 +33,7 @@ def test_page_view(request):
 
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
-    return render(request, "hj_main_test.html")
+    return render(request, "base.html")
 
 # 글쓰기(POST) 처리 및 폼 렌더링. 장르별로 단계별 입력값을 저장합니다.
 @login_required
@@ -223,18 +224,23 @@ def toggle_post_visibility(request, post_id):
     return redirect('post_detail', post_id=post.id)
 
 # 좋아요 토글 기능: 이미 좋아요면 취소, 아니면 추가
+@require_POST
+@login_required
 def like(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
     user = request.user
-    post = Post.objects.get(id=post_id)
 
     if user in post.like_users.all():
         post.like_users.remove(user)
+        status = 'unliked'
     else:
         post.like_users.add(user)
+        status = 'liked'
 
-    # 현재 보고 있는 페이지로 redirect(유동적)
-    referer = request.META.get('HTTP_REFERER', '/')
-    return HttpResponseRedirect(referer)
+    return JsonResponse({
+        'status': status,
+        'count': post.like_users.count(),
+    })
 
 # Gemini 기반 글쓰기 도우미 챗봇 API 엔드포인트입니다.
 @csrf_exempt
