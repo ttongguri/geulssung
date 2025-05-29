@@ -48,7 +48,8 @@
       border-radius: 9999px;
       font-size: 1.2rem;
       font-weight: bold;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease, opacity 0.2s;
+      pointer-events: auto;
     }
 
     .scroll-btn:hover {
@@ -73,36 +74,40 @@
 
   <div class="max-w-6xl mx-auto pt-20">
     <h1 class="text-4xl font-bold mb-2 text-center">🌍 글바다</h1>
-    <br>
 
     <!-- 구독글 섹션 -->
     <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">내 구독글</div>
 
     <div>
-      <div class="scroll-wrapper group" id="scrollWrapper">
-        <div class="scroll-track" id="scrollTrack">
-          {% for post in subscribed_posts %}
-          <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden w-64 flex-shrink-0">
-            <img src="{{ post.get_cover_url }}" class="w-full h-40 object-cover" />
-            <div class="p-4">
-              <div class="text-xs text-gray-400 mb-1">
-                {# 장르 한글 표시 #}
-                {% if post.genre == 'poem' %}시
-                {% elif post.genre == 'column' %}칼럼
-                {% elif post.genre == 'essay' %}에세이
-                {% elif post.genre == 'analysis' %}분석글
-                {% else %}{{ post.genre }}
-                {% endif %}
+      <div class="relative group" style="width:100%">
+        <!-- 좌우 버튼 (마우스 오버 시만 보임) -->
+        <button id="scrollLeftBtn" class="scroll-btn scroll-left opacity-0 group-hover:opacity-100 transition-opacity duration-200">◀</button>
+        <div class="scroll-wrapper" id="scrollWrapper">
+          <div class="scroll-track" id="scrollTrack">
+            {% for post in subscribed_posts %}
+            <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden w-64 flex-shrink-0">
+              <img src="{{ post.get_cover_url }}" class="w-full h-40 object-cover" />
+              <div class="p-4">
+                <div class="text-xs text-gray-400 mb-1">
+                  {# 장르 한글 표시 #}
+                  {% if post.genre == 'poem' %}시
+                  {% elif post.genre == 'column' %}칼럼
+                  {% elif post.genre == 'essay' %}에세이
+                  {% elif post.genre == 'analysis' %}분석글
+                  {% else %}{{ post.genre }}
+                  {% endif %}
+                </div>
+                <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
+                <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
+                <a href="{% url 'post_detail' post.id %}" class="text-blue-500 text-sm mt-2 inline-block hover:underline">보러가기 →</a>
               </div>
-              <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
-              <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
-              <a href="{% url 'post_detail' post.id %}" class="text-blue-500 text-sm mt-2 inline-block hover:underline">보러가기 →</a>
             </div>
+            {% empty %}
+            <p class="text-center text-gray-500">아직 구독한 글이 없어요 🥲</p>
+            {% endfor %}
           </div>
-          {% empty %}
-          <p class="text-center text-gray-500">아직 구독한 글이 없어요 🥲</p>
-          {% endfor %}
         </div>
+        <button id="scrollRightBtn" class="scroll-btn scroll-right opacity-0 group-hover:opacity-100 transition-opacity duration-200">▶</button>
       </div>
     </div>
 
@@ -133,13 +138,31 @@
 
   <!-- 스크립트 -->
   <script>
-    // 마우스 오버 시 스크롤바 표시, 벗어나면 숨김
+    // 마우스 오버 시 스크롤바와 버튼 표시, 벗어나면 숨김
     const scrollWrapper = document.getElementById('scrollWrapper');
-    scrollWrapper.addEventListener('mouseenter', function() {
+    const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+    const scrollRightBtn = document.getElementById('scrollRightBtn');
+    const scrollArea = scrollWrapper.parentElement; // group div
+
+    scrollArea.addEventListener('mouseenter', function() {
       scrollWrapper.classList.add('show-scrollbar');
+      scrollLeftBtn.classList.remove('opacity-0');
+      scrollRightBtn.classList.remove('opacity-0');
+      scrollLeftBtn.classList.add('opacity-100');
+      scrollRightBtn.classList.add('opacity-100');
     });
-    scrollWrapper.addEventListener('mouseleave', function() {
+    scrollArea.addEventListener('mouseleave', function() {
       scrollWrapper.classList.remove('show-scrollbar');
+      scrollLeftBtn.classList.remove('opacity-100');
+      scrollRightBtn.classList.remove('opacity-100');
+      scrollLeftBtn.classList.add('opacity-0');
+      scrollRightBtn.classList.add('opacity-0');
+    });
+    scrollLeftBtn.addEventListener('click', function() {
+      scrollWrapper.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+    scrollRightBtn.addEventListener('click', function() {
+      scrollWrapper.scrollBy({ left: 300, behavior: 'smooth' });
     });
   </script>
 </body>
