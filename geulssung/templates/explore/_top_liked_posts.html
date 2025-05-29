@@ -1,0 +1,24 @@
+{# 좋아요 랭킹(주간) 리스트 UI 템플릿 #}
+<div class="space-y-4">
+  <div class="flex items-center justify-between mb-6">
+    <div class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg">
+      이번주 좋아요 랭킹👑
+    </div>
+    <span class="text-xs text-gray-400 ml-4">{{ ranking_period }} 집계</span>
+  </div>
+  {% if top_liked_posts %}
+    <ul class="bg-white rounded-lg shadow p-6 space-y-4">
+      {% for post in top_liked_posts|slice:":5" %}
+        <li class="flex justify-between items-center border-b last:border-b-0 pb-4 text-lg">
+          <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate w-2/4 text-xl">
+            {{ post.title }}
+          </a>
+          <span class="text-gray-600 font-medium w-1/4 text-center truncate">{{ post.author.nickname }}</span>
+          <span class="text-lg text-pink-600 font-bold w-1/6 text-right">❤️ {{ post.like_count }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-center text-gray-500">아직 좋아요를 받은 글이 없습니다! 좋은 글을 찾아주세요!</p>
+  {% endif %}
+</div> 

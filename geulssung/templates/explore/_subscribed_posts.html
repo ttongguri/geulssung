@@ -1,0 +1,41 @@
+{# 구독글(팔로우한 유저의 최신글) 스크롤 카드 영역 템플릿 #}
+<style>
+  .scroll-btn {
+    font-size: 2.2rem !important;
+    padding: 0.7rem 1.2rem !important;
+    border-width: 2.5px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+</style>
+<div>
+  <div class="relative group" style="width:100%">
+    <!-- 좌우 버튼 (마우스 오버 시만 보임) -->
+    <button id="scrollLeftBtn" class="scroll-btn scroll-left opacity-0 group-hover:opacity-100 transition-opacity duration-200">◀</button>
+    <div class="scroll-wrapper" id="scrollWrapper">
+      <div class="scroll-track" id="scrollTrack">
+        {% for post in subscribed_posts %}
+        <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden w-64 flex-shrink-0">
+          <img src="{{ post.get_cover_url }}" class="w-full h-40 object-cover" />
+          <div class="p-4">
+            <div class="text-xs text-gray-400 mb-1">
+              {# 장르 한글 표시 #}
+              {% if post.genre == 'poem' %}시
+              {% elif post.genre == 'column' %}칼럼
+              {% elif post.genre == 'essay' %}에세이
+              {% elif post.genre == 'analysis' %}분석글
+              {% else %}{{ post.genre }}
+              {% endif %}
+            </div>
+            <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
+            <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
+            <a href="{% url 'post_detail' post.id %}" class="text-blue-500 text-sm mt-2 inline-block hover:underline">헤엄치기 🏊‍♂️</a>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-gray-500">아직 구독한 글이 없어요 🥲</p>
+        {% endfor %}
+      </div>
+    </div>
+    <button id="scrollRightBtn" class="scroll-btn scroll-right opacity-0 group-hover:opacity-100 transition-opacity duration-200">▶</button>
+  </div>
+</div> 

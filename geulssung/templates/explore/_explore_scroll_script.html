@@ -1,0 +1,29 @@
+{# 구독글 스크롤/버튼 동작을 위한 JS 스크립트 템플릿 #}
+<script>
+  // 마우스 오버 시 스크롤바와 버튼 표시, 벗어나면 숨김
+  const scrollWrapper = document.getElementById('scrollWrapper');
+  const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+  const scrollRightBtn = document.getElementById('scrollRightBtn');
+  const scrollArea = scrollWrapper.parentElement; // group div
+
+  scrollArea.addEventListener('mouseenter', function() {
+    scrollWrapper.classList.add('show-scrollbar');
+    scrollLeftBtn.classList.remove('opacity-0');
+    scrollRightBtn.classList.remove('opacity-0');
+    scrollLeftBtn.classList.add('opacity-100');
+    scrollRightBtn.classList.add('opacity-100');
+  });
+  scrollArea.addEventListener('mouseleave', function() {
+    scrollWrapper.classList.remove('show-scrollbar');
+    scrollLeftBtn.classList.remove('opacity-100');
+    scrollRightBtn.classList.remove('opacity-100');
+    scrollLeftBtn.classList.add('opacity-0');
+    scrollRightBtn.classList.add('opacity-0');
+  });
+  scrollLeftBtn.addEventListener('click', function() {
+    scrollWrapper.scrollBy({ left: -300, behavior: 'smooth' });
+  });
+  scrollRightBtn.addEventListener('click', function() {
+    scrollWrapper.scrollBy({ left: 300, behavior: 'smooth' });
+  });
+</script> 

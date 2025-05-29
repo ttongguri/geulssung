@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Django 관리 명령어 진입점(프로젝트 실행/관리용)
 """Django's command-line utility for administrative tasks."""
 import os
 import sys

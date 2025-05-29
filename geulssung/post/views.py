@@ -12,7 +12,9 @@ from .models import Post, PostImage
 from django.urls import reverse
 from prompts.models import GeneratedPrompt
 from django.http import HttpResponseRedirect
-from django.db.models import Max
+from django.db.models import Max, Count
+from django.utils import timezone
+from datetime import timedelta
 
 # hj - gemini_api_key 삽입
 load_dotenv()
@@ -20,19 +22,19 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 User = get_user_model()
 
+# 글쓰기 폼 페이지를 렌더링합니다.
 def write_view(request):
     return render(request, "write_form.html")
 
-
-# /test로 연결 되는 테스트 페이지 입니다.
+# 테스트용 페이지를 렌더링합니다.
 def test_page_view(request):
     return render(request, "test.html")
 
-# /geulssung으로 연결 되는 메인 페이지 입니다.
+# 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
     return render(request, "hj_main_test.html")
 
-# /geulssung/write로 연결 되는 글쓰기 페이지 입니다.
+# 글쓰기(POST) 처리 및 폼 렌더링. 장르별로 단계별 입력값을 저장합니다.
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
@@ -93,12 +95,12 @@ def write_post_view(request):
         return redirect('post_detail', post_id=post.id)
     return render(request, 'post/write_form.html')
 
-# 글 상세 페이지입니다.
+# 글 상세 페이지를 렌더링합니다.
 def post_detail_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     return render(request, 'post/post_detail.html', {'post': post})
 
-# 유저 글 보기 페이지입니다.
+# 특정 유저의 공개글/전체글 목록을 보여줍니다.
 def public_posts_by_user(request, nickname):
     author = get_object_or_404(User, nickname=nickname)
     # 로그인한 사용자가 해당 nickname의 주인일 때는 모든 글, 아니면 공개글만
@@ -116,7 +118,7 @@ def public_posts_by_user(request, nickname):
         'is_following': is_following,
     })
 
-# 커버 이미지 업데이트 기능입니다
+# 글의 커버 이미지를 업로드/수정합니다.
 @login_required
 def update_cover_image(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -130,6 +132,15 @@ def update_cover_image(request, post_id):
         return redirect('public_user_posts', nickname=post.author.nickname)
     return HttpResponseNotAllowed(['POST'])
 
+# 이번 주(월~일) 시작/끝 datetime을 반환합니다.
+def get_week_range():
+    now = timezone.now()
+    start_of_week = now - timedelta(days=now.weekday())
+    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
+    return start_of_week, end_of_week
+
+# 탐색(글바다) 페이지: 구독글, 좋아요 랭킹, 최신글 등 메인 탐색 기능을 제공합니다.
 def explore_view(request):
     subscribed_posts = []
 
@@ -148,11 +159,41 @@ def explore_view(request):
 
         subscribed_posts = Post.objects.filter(id__in=latest_ids).select_related('author')
 
-    return render(request, 'post/explore.html', {
-        'subscribed_posts': subscribed_posts
-    })
+    # 좋아요 TOP5 영역: 이번 주 월~일 집계
+    genre_filter = request.GET.get('category')  # URL 파라미터 ?category=column 등
+    week_start, week_end = get_week_range()
+    filter_kwargs = {
+        'is_public': True,
+        'created_at__gte': week_start,
+        'created_at__lte': week_end,
+    }
+    if genre_filter:
+        filter_kwargs['genre'] = genre_filter
 
-# 글 삭제 기능입니다
+    top_liked_posts = (
+        Post.objects
+        .filter(**filter_kwargs)
+        .annotate(like_count=Count('like_users'))
+        .order_by('-like_count', '-created_at')[:10]
+    )
+
+    # 최신글 (카테고리 필터 적용, 최신순 10개)
+    latest_posts = (
+        Post.objects
+        .filter(is_public=True, **({'genre': genre_filter} if genre_filter else {}))
+        .order_by('-created_at')[:10]
+    )
+
+    context = {
+        'subscribed_posts': subscribed_posts,
+        'top_liked_posts': top_liked_posts,
+        'latest_posts': latest_posts,
+        'selected_genre': genre_filter,
+        'ranking_period': f"{week_start.strftime('%Y-%m-%d')} ~ {week_end.strftime('%Y-%m-%d')}",
+    }
+    return render(request, 'explore/explore.html', context)
+
+# 글 삭제 기능: 본인 글만 삭제할 수 있습니다.
 @login_required
 def delete_post_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -163,7 +204,7 @@ def delete_post_view(request, post_id):
         return redirect('public_user_posts', nickname=post.author.nickname)
     return render(request, 'post/confirm_delete.html', {'post': post})
 
-# 글 공개/비공개 기능입니다
+# 글 공개/비공개 전환 기능입니다.
 @login_required
 def toggle_post_visibility(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -181,7 +222,7 @@ def toggle_post_visibility(request, post_id):
 
     return redirect('post_detail', post_id=post.id)
 
-# 좋아요 기능
+# 좋아요 토글 기능: 이미 좋아요면 취소, 아니면 추가
 def like(request, post_id):
     user = request.user
     post = Post.objects.get(id=post_id)
@@ -195,15 +236,7 @@ def like(request, post_id):
     referer = request.META.get('HTTP_REFERER', '/')
     return HttpResponseRedirect(referer)
 
-
-# hj - chatbot
-genre_prompts = {
-    "poem": "당신은 시를 잘 쓰도록 도와주는 시 전문 작문 도우미입니다.",
-    "essay": "당신은 감성적이고 따뜻한 에세이를 도와주는 작문 도우미입니다.",
-    "column": "당신은 논리적이고 시사적인 칼럼을 잘 쓰도록 돕는 전문가입니다.",
-    "analysis": "당신은 데이터와 통계 기반의 분석글을 쓰도록 도와주는 분석 전문가입니다.",
-    "default": "당신은 사용자 글쓰기를 돕는 친절한 도우미입니다."
-}
+# Gemini 기반 글쓰기 도우미 챗봇 API 엔드포인트입니다.
 @csrf_exempt
 def chat_view(request):
     if request.method == "POST":
@@ -215,6 +248,7 @@ def chat_view(request):
         return JsonResponse({"reply": reply})
     return JsonResponse({"error": "Invalid method"}, status=405)
 
+# Gemini API를 호출해 답변을 생성합니다.
 def generate_gemini_reply(system_prompt, user_input):
     try:
         model = gemini.GenerativeModel("gemini-1.5-flash")
