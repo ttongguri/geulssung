@@ -55,7 +55,21 @@
   </div>
 
   <!-- 상세보기 섹션 -->
-  <div id="detail-content" class="max-w-3xl mx-auto card mt-16">
+  <div id="detail-content" class="max-w-3xl mx-auto card mt-16 relative">
+    <!-- 카드(흰 박스) 우측 상단 좋아요 버튼 -->
+    <div class="absolute top-6 right-8 z-10">
+      <button type="button"
+              id="like-btn"
+              class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1"
+              data-post-id="{{ post.id }}">
+        {% if user in post.like_users.all %}
+          <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
+        {% else %}
+          <span class="heart">🤍</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
+        {% endif %}
+      </button>
+    </div>
+
     <!-- 장르(한글) 및 주제 -->
     <p class="text-sm text-gray-600 mb-4">
       {% if post.genre == 'poem' %}
@@ -112,42 +126,21 @@
     </div>
     <br>
     <hr>
-    {% if user == post.author %}
-      <form method="post" action="{% url 'toggle_post_visibility' post.id %}"
-            class="mt-8">
-        {% csrf_token %}
-        <div class="flex space-x-8">
-          {% if not post.is_public %}
-            <input type="hidden" name="visibility" value="public">
-            <button type="submit"
-                    class="px-6 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-              발행
-            </button>
-          {% else %}
-            <input type="hidden" name="visibility" value="private">
-            <button type="submit"
-                    class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-[#493E3E] rounded-full font-bold transition">
-              발행취소
-            </button>
-          {% endif %}
-        </div>
-      </form>
-    {% endif %}
-
-
-    <!-- 유저페이지 이동 버튼 -->
-    <div class="flex justify-end space-x-4 mt-8">
-      <a href="{% url 'home' %}"
-        class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-        홈으로 이동
-      </a>
-      <a href="{% url 'public_user_posts' post.author.nickname %}"
-        class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-        글자국으로 이동
-      </a>
-      {% if user.is_authenticated and user == post.author %}
-        <button type="button" onclick="openDeleteModal()" class="px-6 py-3 bg-red-400 hover:bg-red-600 text-white font-bold rounded-full shadow-lg transition">삭제</button>
-      {% endif %}
+    <div class="flex items-center mt-8">
+      <div class="flex-1 flex justify-center mt-6 space-x-20">
+        <a href="{% url 'home' %}"
+          class="px-8 py-4 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold text-lg transition">
+          홈으로🏠
+        </a>
+        <a href="{% url 'public_user_posts' post.author.nickname %}"
+          class="px-8 py-4 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold text-lg transition">
+          글자국🐾
+        </a>
+        <a href="{% url 'explore' %}"
+          class="px-8 py-4 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold text-lg transition">
+          글바다🌊
+        </a>
+      </div>
     </div>
     {% if user.is_authenticated and user == post.author %}
       <!-- 삭제 확인 모달 -->
@@ -192,6 +185,39 @@
         </div>
       </form>
     </div>
+
+    <!-- 홈/글자국/글바다 버튼 -->
+    <div class="flex items-center mt-4">
+      <!-- 좌측/가운데 비움 -->
+      <div class="flex-1"></div>
+      <div class="flex-1"></div>
+      <!-- 우측: 발행/발행취소, 삭제 -->
+      <div class="flex-1 flex justify-end space-x-2">
+        {% if user == post.author %}
+          <div class="flex justify-end mt-8 space-x-2">
+            <form method="post" action="{% url 'toggle_post_visibility' post.id %}" class="inline">
+              {% csrf_token %}
+              {% if not post.is_public %}
+                <input type="hidden" name="visibility" value="public">
+                <button type="submit"
+                        class="px-4 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold text-sm transition">
+                  발행
+                </button>
+              {% else %}
+                <input type="hidden" name="visibility" value="private">
+                <button type="submit"
+                        class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-[#493E3E] rounded-full font-bold text-sm transition">
+                  발행취소
+                </button>
+              {% endif %}
+            </form>
+            <button type="button" onclick="openDeleteModal()" class="px-4 py-2 bg-red-400 hover:bg-red-600 text-white font-bold rounded-full shadow-lg text-sm transition">
+              삭제
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
   </div>
 
   <script>
@@ -213,6 +239,27 @@
           : '이 글은 나만 볼 수 있습니다.';
       });
     });
+
+    const likeBtn = document.getElementById('like-btn');
+    if (likeBtn) {
+      likeBtn.addEventListener('click', async function () {
+        const postId = this.dataset.postId;
+        const response = await fetch("{% url 'like' post.id %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        });
+        const data = await response.json();
+        if (data.status === 'liked') {
+          this.querySelector('.heart').textContent = '❤️';
+        } else if (data.status === 'unliked') {
+          this.querySelector('.heart').textContent = '🤍';
+        }
+        this.querySelector('.like-count').textContent = `(${data.count})`;
+      });
+    }
   </script>
 </body>
 </html>
