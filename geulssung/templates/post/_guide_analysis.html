@@ -49,22 +49,3 @@
     <button type="button" onclick="nextStep()" class="bg-[#7dd3fc] px-4 py-2 rounded-full">다음 →</button>
   </div>
 </div>
-
-<!-- 유저페이지 이동 버튼: 가운데 정렬, 순서(홈→글자국→글바다) -->
-<div class="flex justify-center space-x-4 mt-8">
-  <a href="{% url 'home' %}"
-    class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-    홈으로
-  </a>
-  <a href="{% url 'public_user_posts' post.author.nickname %}"
-    class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-    글자국
-  </a>
-  <a href="{% url 'explore' %}"
-    class="px-6 py-3 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">
-    글바다
-  </a>
-  {% if user.is_authenticated and user == post.author %}
-    <button type="button" onclick="openDeleteModal()" class="px-6 py-3 bg-red-400 hover:bg-red-600 text-white font-bold rounded-full shadow-lg transition">삭제</button>
-  {% endif %}
-</div>
