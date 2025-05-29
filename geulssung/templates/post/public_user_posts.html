@@ -40,7 +40,6 @@
   <div class="h-14"></div>
   <div class="max-w-6xl mx-auto mt-8">
 
-    <!-- 상단 제목 -->
     <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국🐾</h1>
     <br>
 
@@ -63,7 +62,6 @@
       </div>
     {% endif %}
 
-    <!-- 게시글 카드 리스트 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
         <div class="relative card overflow-hidden">
@@ -76,22 +74,29 @@
             {% endif %}
           </a>
 
-          <!-- 제목 -->
-          <div class="flex items-center justify-between mb-2">
-            <h1 class="card-title">{{ post.title }}</h1>
-            {% if user.is_authenticated and user != post.author %}
-              <button type="button"
-                      id="like-btn"
-                      class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1 ml-4"
-                      data-post-id="{{ post.id }}">
-                {% if user in post.like_users.all %}
+          <!-- 좋아요 버튼 (제목 위) -->
+          <div class="flex justify-start mt-2 mb-1">
+            {% if user.is_authenticated %}
+              {% if user == post.author %}
+                <div class="like-btn text-red-400 text-2xl font-bold opacity-50 flex items-center gap-1 pointer-events-none">
                   <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
-                {% else %}
-                  <span class="heart">🤍</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
-                {% endif %}
-              </button>
+                </div>
+              {% else %}
+                <button type="button"
+                        class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1"
+                        data-post-id="{{ post.id }}">
+                  {% if user in post.like_users.all %}
+                    <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
+                  {% else %}
+                    <span class="heart">🤍</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
+                  {% endif %}
+                </button>
+              {% endif %}
             {% endif %}
           </div>
+
+          <!-- 제목 -->
+          <h2 class="card-title truncate text-left mb-2">{{ post.title }}</h2>
 
           <!-- 메타 정보 -->
           <div class="pt-2">
@@ -115,7 +120,6 @@
 
   </div>
 
-  <!-- JS -->
   <script>
     const followBtn = document.getElementById('follow-btn');
     if (followBtn) {
