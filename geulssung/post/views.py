@@ -158,7 +158,7 @@ def explore_view(request):
             .values_list('latest_id', flat=True)
         )
 
-        subscribed_posts = Post.objects.filter(id__in=latest_ids).select_related('author')
+        subscribed_posts = Post.objects.filter(id__in=latest_ids).select_related('author').order_by('-created_at')
 
     # 좋아요 TOP5 영역: 이번 주 월~일 집계
     genre_filter = request.GET.get('category')  # URL 파라미터 ?category=column 등
