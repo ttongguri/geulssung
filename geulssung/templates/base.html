@@ -63,7 +63,7 @@
     {% if user.is_authenticated %}
       <a href="{% url 'write' %}" class="theme-box text-center text-sm rounded-full">
     {% else %}
-      <a href="{% url 'signup' %}" class="theme-box text-center text-sm rounded-full">
+      <a href="{% url 'login' %}" class="theme-box text-center text-sm rounded-full">
     {% endif %}
         <div class="text-3xl mb-1">💧</div>
         <h2 class="text-lg font-bold">글방울</h2>
@@ -73,7 +73,7 @@
     {% if user.is_authenticated %}
       <a href="{% url 'public_user_posts' nickname=user.nickname %}" class="theme-box text-center text-sm rounded-full">
     {% else %}
-      <a href="{% url 'signup' %}" class="theme-box text-center text-sm rounded-full">
+      <a href="{% url 'login' %}" class="theme-box text-center text-sm rounded-full">
     {% endif %}
         <div class="text-3xl mb-1">🐾</div>
         <h2 class="text-lg font-bold">글자국</h2>

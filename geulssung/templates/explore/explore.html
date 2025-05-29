@@ -67,11 +67,8 @@
 </head>
 <body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10">
   <!-- 상단 네비게이션 -->
-  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
-    <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
-    <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
-  </div>
-
+  {% include "nav_bar.html" %}
+  
   <div class="max-w-6xl mx-auto pt-20">
     <h1 class="text-4xl font-bold mb-2 text-center">🌍 글바다</h1>
 

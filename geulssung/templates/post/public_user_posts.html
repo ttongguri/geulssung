@@ -56,10 +56,7 @@
 </style>
 </head>
 <body class="bg-[#bae6fd] min-h-screen p-10 text-[#493E3E]">
-  <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50">
-    <a href="{% url 'write' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">✍️ 글쓰러 가기</a>
-    <a href="{% url 'home' %}" class="bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">🏠 홈으로</a>
-  </div>
+  {% include "nav_bar.html" %}
   <div class="h-14"></div>
   <div class="max-w-6xl mx-auto mt-8">
 

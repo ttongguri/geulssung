@@ -10,33 +10,41 @@
 <div>
   <div class="relative group" style="width:100%">
     <!-- 좌우 버튼 (마우스 오버 시만 보임) -->
-    <button id="scrollLeftBtn" class="scroll-btn scroll-left opacity-0 group-hover:opacity-100 transition-opacity duration-200">◀</button>
-    <div class="scroll-wrapper" id="scrollWrapper">
-      <div class="scroll-track" id="scrollTrack">
-        {% for post in subscribed_posts %}
-        <a href="{% url 'post_detail' post.id %}">
-        <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden w-64 flex-shrink-0">
-          <img src="{{ post.get_cover_url }}" class="w-full h-40 object-cover" />
-          <div class="p-4">
-            <div class="text-xs text-gray-400 mb-1">
-              {# 장르 한글 표시 #}
-              {% if post.genre == 'poem' %}시
-              {% elif post.genre == 'column' %}칼럼
-              {% elif post.genre == 'essay' %}에세이
-              {% elif post.genre == 'analysis' %}분석글
-              {% else %}{{ post.genre }}
-              {% endif %}
+    {% if user.is_authenticated %}
+      <button id="scrollLeftBtn" class="scroll-btn scroll-left opacity-0 group-hover:opacity-100 transition-opacity duration-200">◀</button>
+      <div class="scroll-wrapper" id="scrollWrapper">
+        <div class="scroll-track" id="scrollTrack">
+          {% for post in subscribed_posts %}
+          <a href="{% url 'post_detail' post.id %}">
+          <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden w-64 flex-shrink-0">
+            <img src="{{ post.get_cover_url }}" class="w-full h-40 object-cover" />
+            <div class="p-4">
+              <div class="text-xs text-gray-400 mb-1">
+                {# 장르 한글 표시 #}
+                {% if post.genre == 'poem' %}시
+                {% elif post.genre == 'column' %}칼럼
+                {% elif post.genre == 'essay' %}에세이
+                {% elif post.genre == 'analysis' %}분석글
+                {% else %}{{ post.genre }}
+                {% endif %}
+                </div>
+                <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
+                <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
               </div>
-              <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
-              <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
-            </div>
-          </a>
+            </a>
+          </div>
+          {% empty %}
+          <p class="text-center text-gray-500">아직 구독한 글이 없어요</p>
+          {% endfor %}
         </div>
-        {% empty %}
-        <p class="text-center text-gray-500">아직 구독한 글이 없어요</p>
-        {% endfor %}
       </div>
-    </div>
-    <button id="scrollRightBtn" class="scroll-btn scroll-right opacity-0 group-hover:opacity-100 transition-opacity duration-200">▶</button>
+      <button id="scrollRightBtn" class="scroll-btn scroll-right opacity-0 group-hover:opacity-100 transition-opacity duration-200">▶</button>
+    {% else %}
+      <div class="flex justify-center items-center py-12">
+        <a href="{% url 'login' %}" class="px-8 py-4 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-full text-lg shadow-lg transition">
+          로그인하고 구독글을 확인해보세요!
+        </a>
+      </div>
+    {% endif %}
   </div>
 </div> 
