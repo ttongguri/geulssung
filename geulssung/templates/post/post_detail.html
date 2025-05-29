@@ -40,6 +40,29 @@
       z-index: -10;
     }
   </style>
+
+<style>
+  .like-float {
+    position: absolute;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #f87171; /* 빨간색 */
+    animation: fadeUp 0.8s ease-out forwards;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  @keyframes fadeUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+</style>
 </head>
 <body class="bg-[#FFF9F2] min-h-screen p-8 relative">
   <div class="blurred-bg"></div>
@@ -245,24 +268,43 @@
 
     const likeBtn = document.getElementById('like-btn');
     if (likeBtn) {
-      likeBtn.addEventListener('click', async function () {
-        const postId = this.dataset.postId;
-        const response = await fetch("{% url 'like' post.id %}", {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-            "X-Requested-With": "XMLHttpRequest"
-          }
-        });
-        const data = await response.json();
-        if (data.status === 'liked') {
-          this.querySelector('.heart').textContent = '❤️';
-        } else if (data.status === 'unliked') {
-          this.querySelector('.heart').textContent = '🤍';
-        }
-        this.querySelector('.like-count').textContent = `(${data.count})`;
-      });
-    }
+  likeBtn.addEventListener('click', async function () {
+    const postId = this.dataset.postId;
+    const response = await fetch("{% url 'like' post.id %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+    const data = await response.json();
+    const heart = this.querySelector('.heart');
+    const count = this.querySelector('.like-count');
+
+    // 하트 애니메이션 float 생성
+    const float = document.createElement('div');
+    float.classList.add('like-float');
+    float.textContent = data.status === 'liked' ? '+1' : '-1';
+
+    // 버튼 기준 위치
+    const rect = this.getBoundingClientRect();
+    float.style.left = `${this.offsetLeft + 20}px`;
+    float.style.top = `${this.offsetTop - 10}px`;
+
+    // 카드에 삽입 (버튼 바로 위 부모 기준)
+    this.parentElement.appendChild(float);
+
+    // 일정 시간 뒤 제거
+    setTimeout(() => {
+      float.remove();
+    }, 800);
+
+    // 하트, 카운트 갱신
+    heart.textContent = data.status === 'liked' ? '❤️' : '🤍';
+    count.textContent = `(${data.count})`;
+  });
+}
   </script>
 </body>
 </html>
