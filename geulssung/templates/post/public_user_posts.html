@@ -76,21 +76,22 @@
             {% endif %}
           </a>
 
-          <!-- 좋아요 버튼 -->
-          <div class="flex justify-start mt-2 mb-1">
-            <button type="button"
-                    class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1"
-                    data-post-id="{{ post.id }}">
-              {% if user in post.like_users.all %}
-                <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
-              {% else %}
-                <span class="heart">🤍</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
-              {% endif %}
-            </button>
-          </div>
-
           <!-- 제목 -->
-          <h2 class="card-title truncate text-left mb-2">{{ post.title }}</h2>
+          <div class="flex items-center justify-between mb-2">
+            <h1 class="card-title">{{ post.title }}</h1>
+            {% if user.is_authenticated and user != post.author %}
+              <button type="button"
+                      id="like-btn"
+                      class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1 ml-4"
+                      data-post-id="{{ post.id }}">
+                {% if user in post.like_users.all %}
+                  <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
+                {% else %}
+                  <span class="heart">🤍</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
+                {% endif %}
+              </button>
+            {% endif %}
+          </div>
 
           <!-- 메타 정보 -->
           <div class="pt-2">
