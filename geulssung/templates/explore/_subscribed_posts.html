@@ -14,6 +14,7 @@
     <div class="scroll-wrapper" id="scrollWrapper">
       <div class="scroll-track" id="scrollTrack">
         {% for post in subscribed_posts %}
+        <a href="{% url 'post_detail' post.id %}">
         <div class="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden w-64 flex-shrink-0">
           <img src="{{ post.get_cover_url }}" class="w-full h-40 object-cover" />
           <div class="p-4">
@@ -25,11 +26,11 @@
               {% elif post.genre == 'analysis' %}분석글
               {% else %}{{ post.genre }}
               {% endif %}
+              </div>
+              <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
+              <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
             </div>
-            <div class="text-sm text-gray-600 truncate">{{ post.title }}</div>
-            <div class="text-xs text-gray-400">{{ post.author.nickname }} · {{ post.created_at|date:"Y-m-d" }}</div>
-            <a href="{% url 'post_detail' post.id %}" class="text-blue-500 text-sm mt-2 inline-block hover:underline">헤엄치기 🏊‍♂️</a>
-          </div>
+          </a>
         </div>
         {% empty %}
         <p class="text-center text-gray-500">아직 구독한 글이 없어요</p>
