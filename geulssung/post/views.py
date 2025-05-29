@@ -12,6 +12,7 @@ from .models import Post, PostImage
 from django.urls import reverse
 from prompts.models import GeneratedPrompt
 from django.http import HttpResponseRedirect
+from django.db.models import Max
 
 # hj - gemini_api_key 삽입
 load_dotenv()
@@ -130,7 +131,26 @@ def update_cover_image(request, post_id):
     return HttpResponseNotAllowed(['POST'])
 
 def explore_view(request):
-    return render(request, 'post/explore.html')  # templates/explore.html 위치에 파일이 있어야 함
+    subscribed_posts = []
+
+    if request.user.is_authenticated:
+        # 내가 팔로우한 유저 ID 리스트
+        following_ids = request.user.following_set.values_list('following_id', flat=True)
+
+        # 유저별 가장 최신 글 ID 뽑기
+        latest_ids = (
+            Post.objects
+            .filter(author_id__in=following_ids, is_public=True)
+            .values('author_id')
+            .annotate(latest_id=Max('id'))
+            .values_list('latest_id', flat=True)
+        )
+
+        subscribed_posts = Post.objects.filter(id__in=latest_ids).select_related('author')
+
+    return render(request, 'post/explore.html', {
+        'subscribed_posts': subscribed_posts
+    })
 
 # 글 삭제 기능입니다
 @login_required

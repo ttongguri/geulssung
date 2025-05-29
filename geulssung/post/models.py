@@ -40,8 +40,7 @@ class Post(models.Model):
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # hj - 좋아요
-    # 이 글에 좋아요 누른 사람
+    # 좋아요 기능
     like_users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='like_posts',
@@ -49,6 +48,12 @@ class Post(models.Model):
 
     def __str__(self):
         return f"[{self.get_genre_display()}] {self.title} by {self.author.nickname}"
+
+    def get_cover_url(self):
+        try:
+            return self.postimage.image.url
+        except (PostImage.DoesNotExist, ValueError):
+            return '/static/images/피그민.png'  # static 경로 기준
 
 # 게시글 이미지 모델
 class PostImage(models.Model):
@@ -58,5 +63,3 @@ class PostImage(models.Model):
 
     def __str__(self):
         return f"{self.post.title}의 표지 이미지"
-
-    
