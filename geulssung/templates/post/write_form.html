@@ -23,7 +23,7 @@
     }
   </style>
 </head>
-<body class="relative bg-[#FFF9F2] min-h-screen pt-28 pb-28 px-8 background">
+<body class="relative bg-[#FFF9F2] min-h-screen pt-4 pb-4 px-4 background">
   <style>
     .background{
       background-image: url('{% static "images/바다만 덩그러니2.png" %}'); 
@@ -32,39 +32,39 @@
       background-repeat: no-repeat;
     }
   </style>
-  <!-- 상단 네비게이션 -->
-    {% include "nav_bar.html" %}
-
-<!-- 🧭 전체 레이아웃 wrapper -->
-<div class="relative min-h-[90vh]">
-
-  <!-- 왼쪽: 가이드 (접기 가능) -->
-<div id="guide-sidebar" class="absolute left-0 top-0 w-[480px] h-full bg-white rounded-xl shadow overflow-hidden transition-all duration-300">
-  <div class="sticky top-0 bg-white z-10 px-4 pt-4 pb-2 border-b">
-    <div class="flex items-center justify-between">
-      <div>
+<!-- 전체 래퍼 -->
+<div class="bg-white max-w-[1220px] h-[90vh] mx-auto mt-8 rounded-xl shadow-lg overflow-hidden flex">
+  
+    <!-- 왼쪽: 가이드 사이드바 -->
+    <aside id="guide-sidebar"
+           class="w-[480px] border-r border-gray-200 flex flex-col">
+      <!-- 헤더 -->
+      <div class="sticky top-0 bg-white z-10 px-6 py-4 border-b">
         <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
         <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
       </div>
-      
-    </div>
-  </div>
-  <div id="guide-scrollable" class="overflow-y-auto px-4 pb-6" style="max-height: calc(90vh - 70px);"></div>
-</div>
-
-
- <!-- <!-- 오른쪽: 글쓰기 영역 (항상 가운데 고정) -->
-  <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-[720px] bg-white rounded-xl shadow p-6">
-  <!-- ✅ 여기에 버튼 이동 -->
-  <div class="flex justify-end">
-    <button id="toggleGuideBtn" onclick="toggleGuide()" class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
-      📚 가이드 접기
-    </button>
-  </div>
-  <form method="post" action="" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="hidden" name="character" id="character-input" value="">
-    <div id="step-1" class="step-form">
+      <!-- 스크롤 영역 -->
+      <div id="guide-scrollable"
+           class="flex-1 overflow-y-auto px-6 py-4">
+        <!-- 가이드 콘텐츠 삽입 -->
+      </div>
+    </aside>
+  
+    <!-- 오른쪽: 글쓰기 메인 -->
+    <main id="writing-area"
+          class="flex-1 p-6 overflow-y-auto">
+      <div class="flex justify-end mb-4">
+        <button id="toggleGuideBtn"
+                onclick="toggleGuide()"
+                class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
+          📚 가이드 접기
+        </button>
+      </div>
+      <form method="post" action="" enctype="multipart/form-data" class="h-full flex flex-col">
+        {% csrf_token %}
+        <input type="hidden" name="character" id="character-input" value="">
+  
+        <div id="step-1" class="step-form flex-1">
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
         <div class="flex gap-4">
@@ -144,6 +144,8 @@
     </form>
   </div>
 </div>
+
+
 
 <!-- ✨ 숨겨진 가이드 템플릿 저장소 -->
 <div id="guide-template-container" class="hidden">
