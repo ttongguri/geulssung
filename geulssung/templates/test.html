@@ -1,77 +1,143 @@
-{# 테스트용 임시 페이지 템플릿 #}
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>글썽글썽 회원가입</title>
+  <meta charset="UTF-8" />
+  <title>글쓰기 ✍️</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @font-face {
-    font-family: 'Ownglyph_corncorn-Rg';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    }
-    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap');
-    body {
-      font-family: 'Ownglyph_corncorn-Rg', 'Gaegu', cursive;
-      background-image: url('/static/images/clean_sea_header.png'); /* 바다 이미지 경로 */
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      min-height: 100vh;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-    .form-container {
-      background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 5rem;
-      padding: 2.5rem 2rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      max-width: 440px;
-      width: 70%;
-      text-align: center;
-    }
-    .form-input {
-      width: 80%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      border-radius: 4rem;
-      border: 1px solid #ccc;
-      font-family: 'Ownglyph_corncorn-Rg', 'Gaegu', cursive;
-    }
-    .form-button {
-      width: 100%;
-      padding: 0.75rem;
-      background-color: #fbd6b5;
-      border-radius: 2rem;
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body { font-family: 'Gowun Batang', serif; }
+    .step-nav-btn {
+      padding: 6px 12px;
+      border-radius: 9999px;
       font-weight: bold;
       color: #493E3E;
+      background-color: #ffffff;
+      border: 1px solid black;
+      opacity: 0.6;
+      transition: all 0.2s ease;
     }
-    .form-button:hover {
-      background-color: #f9c69e;
+    .step-nav-btn.active {
+      background-color: #bae6fd;
+      border: 1px solid black;
+      opacity: 1;
+    }
+    .step-nav-btn.disabled {
+      opacity: 0.3;
+      pointer-events: none;
     }
   </style>
 </head>
-<body>
-  <div class="form-container">
-    <h2 class="text-4xl mb-2">✍️ 글썽글썽 회원가입</h2>
-    <p class="text-sm mb-4 text-[#6B5B5B]">글썽이와 함께 할 준비 되셨나요?</p>
-    <form method="post">
-      {% csrf_token %}
-      <input type="text" name="username" placeholder="아이디" class="form-input" required>
-      <input type="text" name="nickname" placeholder="닉네임" class="form-input" required>
-      <input type="email" name="email" placeholder="이메일" class="form-input" required>
-      <input type="password" name="password1" placeholder="비밀번호" class="form-input" required>
-      <input type="password" name="password2" placeholder="비밀번호 확인" class="form-input" required>
-      <button type="submit" class="form-button">가입하기</button>
-    </form>
-    <p class="mt-4 text-sm text-gray-600">
-      이미 계정이 있으신가요? <a href="{% url 'login' %}" class="underline">로그인하기</a>
-    </p>
+<body class="relative bg-[#FFF9F2] min-h-screen pb-24 p-8">
+  <style>
+    .background {
+      background-image: url('{% static "images/바다만 덩그러니2.png" %}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  </style>
+
+  <!-- 네비게이션 -->
+  <div id="step-nav" class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-center gap-4 z-50">
+    <button class="step-nav-btn" onclick="goToStep(1)">1. 글감</button>
+    <button class="step-nav-btn" onclick="goToStep(2)">2. 글줄기</button>
+    <button type="button" onclick="toggleGuides()" class="step-nav-btn">💧 도움말</button>
+    <a href="{% url 'home' %}" class="step-nav-btn ml-auto">🏠 홈으로</a>
   </div>
+
+  <!-- 메인 폼 -->
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="flex gap-6 max-w-7xl mx-auto mt-24">
+
+      <!-- 왼쪽: 글감 선택 + 가이드 -->
+      <div class="w-1/2 bg-white shadow-xl rounded-xl p-6 space-y-6">
+        {% include "post/write_form_left.html" %}
+      </div>
+
+      <!-- 오른쪽: 글쓰기 -->
+      <div class="w-1/2 bg-white shadow-xl rounded-xl p-6 space-y-6">
+        <div id="step-2" class="step" style="display: none;">
+          <div>
+            <label class="block font-semibold mb-1">커버 이미지 (선택)</label>
+            <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
+            <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] px-3 py-2 rounded-full text-sm">커버 선택</button>
+            <div id="coverImagePreviewContainer" class="mt-4 hidden">
+              <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">제목</label>
+            <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
+          </div>
+
+          <div>
+            <p class="font-bold text-lg mb-2">🧩 글줄기</p>
+            <textarea name="final_text" rows="10" class="w-full border px-4 py-3 rounded-md shadow-sm" required></textarea>
+          </div>
+
+          <div class="flex justify-between">
+            <button type="button" onclick="goToStep(1)" class="bg-gray-200 px-4 py-2 rounded-full">← 이전</button>
+            <button type="submit" class="bg-[#bae6fd] px-6 py-3 rounded-full font-bold text-[#493E3E]">제출하기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    let currentStep = 1;
+    let currentGenre = null;
+    const genreMap = {
+      essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글"
+    };
+    let promptCache = {};
+
+    function goToStep(step) {
+      document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+      document.getElementById(`step-${step}`)?.style.display = 'block';
+      currentStep = step;
+      updateStepNav();
+    }
+
+    function updateStepNav() {
+      document.querySelectorAll(".step-nav-btn").forEach((btn, idx) => {
+        btn.classList.toggle("active", idx + 1 === currentStep);
+      });
+    }
+
+    function showCoverPreview(e) {
+      const file = e.target.files[0];
+      const img = document.getElementById('coverImagePreview');
+      const container = document.getElementById('coverImagePreviewContainer');
+      if (file) {
+        const reader = new FileReader();
+        container.style.display = 'block';
+        reader.onload = e => img.src = e.target.result;
+        reader.readAsDataURL(file);
+      } else {
+        container.style.display = 'none';
+        img.src = '';
+      }
+    }
+
+    function toggleGuides() {
+      const box = document.getElementById("guides-combined");
+      box.classList.toggle("hidden");
+      const genre = document.querySelector('input[name="genre"]:checked')?.value;
+      if (!genre) return;
+      ['poem', 'essay', 'column', 'analysis'].forEach(id => {
+        const g = document.getElementById(`guide-${id}`);
+        if (g) g.hidden = (box.classList.contains("hidden") || id !== genre);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      goToStep(1);
+    });
+  </script>
 </body>
 </html>
