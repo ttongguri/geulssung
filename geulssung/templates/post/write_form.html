@@ -51,6 +51,8 @@
   <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6 mt-24">
     <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
+      <!-- 5/30추가 -->
+      <input type="hidden" name="character" id="character-input" value=""> 
 
       <div class="step" id="step-1">
         <div class="mb-6">
@@ -232,6 +234,11 @@
       document.getElementById("selectedPrompt").value = "";
       document.getElementById("prompt-options").innerHTML = "";
       document.getElementById("prompt-box").style.display = "none";
+
+      // ✅ character 값 설정
+      document.getElementById("character-input").value = category;
+
+
       ['column', 'analysis', 'essay', 'poem'].forEach(id => {
         const guide = document.getElementById(`guide-${id}`);
         if (guide) guide.style.display = "none";
@@ -378,5 +385,15 @@
       });
     });
   </script>  
+
+      <!-- hj - chatbot 창 추가 -->
+  <div id="chat-box-wrapper" class="fixed bottom-24 right-4 w-[400px] z-50">
+    <button onclick="toggleChat()" class="w-full bg-[#bae6fd] text-[#493E3E] font-bold py-2 rounded-t-xl transition">
+      💬 챗봇 열기 / 닫기
+    </button>
+    </div>
+  </div>
+
+  <script src="{% static 'js/chatbot.js' %}"></script>
 </body>
 </html>
