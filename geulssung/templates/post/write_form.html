@@ -45,55 +45,6 @@
       <div>
         <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
         <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
-  <div class="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6 space-y-6 mt-24">
-    <form method="post" action="" enctype="multipart/form-data">
-      {% csrf_token %}
-      <!-- 5/30추가 -->
-      <input type="hidden" name="character" id="character-input" value=""> 
-
-      <div class="step" id="step-1">
-        <div class="mb-6">
-          <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="category" value="emotion" onchange="showGenres(this.value)"> F감성 글썽이</label>
-            <label><input type="radio" name="category" value="logic" onchange="showGenres(this.value)"> T감성 말썽이</label>
-          </div>
-        </div>
-
-        <div class="mb-6" id="genre-emotion" style="display:none;">
-          <p class="font-semibold text-[#493E3E]">형식을 골라보세요 (글썽이)</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="genre" value="essay" onchange="showGuide(this.value)"> 에세이</label>
-            <label><input type="radio" name="genre" value="poem" onchange="showGuide(this.value)"> 시</label>
-          </div>
-        </div>
-
-        <div class="mb-6" id="genre-logic" style="display:none;">
-          <p class="font-semibold text-[#493E3E]">형식을 골라보세요 (말썽이)</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="genre" value="column" onchange="showGuide(this.value)"> 칼럼</label>
-            <label><input type="radio" name="genre" value="analysis" onchange="showGuide(this.value)"> 분석글</label>
-          </div>
-        </div>
-
-        <div id="prompt-box" class="mb-6" style="display: none;">
-          <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
-            🧠 오늘의 글감을 골라보세요
-            <button type="button" id="refreshPromptsBtn" class="ml-2 px-2 py-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]" style="vertical-align:middle;">
-              🔄 새로운 글감
-            </button>
-          </p>
-          <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
-          <input type="hidden" name="topic" id="selectedPrompt">
-          <input type="hidden" name="prompt_id" id="selectedPromptId">
-        </div>
-
-        <div class="flex justify-between mt-4">
-          <span></span>
-          <button type="button" id="step1NextBtn" onclick="nextStep()" class="bg-[#7dd3fc] text-[black] font-bold px-4 py-2 rounded-full opacity-50 pointer-events-none">
-            다음 →
-          </button>
-        </div>
       </div>
       
     </div>
@@ -112,6 +63,7 @@
   </div>
   <form method="post" action="" enctype="multipart/form-data">
     {% csrf_token %}
+    <input type="hidden" name="character" id="character-input" value="">
     <div id="step-1" class="step-form">
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
@@ -210,6 +162,7 @@
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
     document.getElementById("guide-scrollable").innerHTML = "";
+    document.getElementById("character-input").value = category;
   }
 
   function showGuide(value) {
@@ -348,13 +301,23 @@ function prevStep() {
 }
 
 </script>
-
-<!-- hj - chatbot 창 추가 -->
+<!-- ✨ 챗봇 박스 -->
 <div id="chat-box-wrapper" class="fixed bottom-24 right-4 w-[400px] z-50">
     <button onclick="toggleChat()" class="w-full bg-[#bae6fd] text-[#493E3E] font-bold py-2 rounded-t-xl transition">
       💬 챗봇 열기 / 닫기
     </button>
+    <div id="chat-box-content" class="hidden h-[400px] overflow-y-auto px-4 py-3">
+      <p class="text-sm text-gray-500">챗봇 로딩 중입니다...</p>
     </div>
+  </div>
+  
+  <script>
+    function toggleChat() {
+      const chatBox = document.getElementById("chat-box-content");
+      chatBox.classList.toggle("hidden");
+    }
+  </script>
+  
   <script src="{% static 'js/chatbot.js' %}"></script>
 </body>
 </html>
