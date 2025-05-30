@@ -2,142 +2,302 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>글쓰기 ✍️</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
     body { font-family: 'Gowun Batang', serif; }
-    .step-nav-btn {
-      padding: 6px 12px;
-      border-radius: 9999px;
+    .guide-toggle summary {
       font-weight: bold;
+      cursor: pointer;
       color: #493E3E;
-      background-color: #ffffff;
-      border: 1px solid black;
-      opacity: 0.6;
-      transition: all 0.2s ease;
+      margin-bottom: 0.5rem;
     }
-    .step-nav-btn.active {
-      background-color: #bae6fd;
-      border: 1px solid black;
-      opacity: 1;
-    }
-    .step-nav-btn.disabled {
-      opacity: 0.3;
-      pointer-events: none;
+    .guide-toggle {
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      background-color: #fff;
     }
   </style>
 </head>
-<body class="relative bg-[#FFF9F2] min-h-screen pb-24 p-8">
+<body class="relative bg-[#FFF9F2] min-h-screen pt-28 pb-28 px-8 background">
   <style>
-    .background {
-      background-image: url('{% static "images/바다만 덩그러니2.png" %}');
-      background-size: cover;
-      background-position: center;
+    .background{
+      background-image: url('{% static "images/바다만 덩그러니2.png" %}'); 
+      background-size: cover; 
+      background-position: center; 
       background-repeat: no-repeat;
     }
   </style>
+  <!-- 상단 네비게이션 -->
+    {% include "nav_bar.html" %}
 
-  <!-- 네비게이션 -->
-  <div id="step-nav" class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-center gap-4 z-50">
-    <button class="step-nav-btn" onclick="goToStep(1)">1. 글감</button>
-    <button class="step-nav-btn" onclick="goToStep(2)">2. 글줄기</button>
-    <button type="button" onclick="toggleGuides()" class="step-nav-btn">💧 도움말</button>
-    <a href="{% url 'home' %}" class="step-nav-btn ml-auto">🏠 홈으로</a>
-  </div>
+<!-- 🧭 전체 레이아웃 wrapper -->
+<div class="relative min-h-[90vh]">
 
-  <!-- 메인 폼 -->
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="flex gap-6 max-w-7xl mx-auto mt-24">
-
-      <!-- 왼쪽: 글감 선택 + 가이드 -->
-      <div class="w-1/2 bg-white shadow-xl rounded-xl p-6 space-y-6">
-        {% include "post/write_form_left.html" %}
+  <!-- 왼쪽: 가이드 (접기 가능) -->
+<div id="guide-sidebar" class="absolute left-0 top-0 w-[480px] h-full bg-white rounded-xl shadow overflow-hidden transition-all duration-300">
+  <div class="sticky top-0 bg-white z-10 px-4 pt-4 pb-2 border-b">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
+        <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
       </div>
+      
+    </div>
+  </div>
+  <div id="guide-scrollable" class="overflow-y-auto px-4 pb-6" style="max-height: calc(90vh - 70px);"></div>
+</div>
 
-      <!-- 오른쪽: 글쓰기 -->
-      <div class="w-1/2 bg-white shadow-xl rounded-xl p-6 space-y-6">
-        <div id="step-2" class="step" style="display: none;">
-          <div>
-            <label class="block font-semibold mb-1">커버 이미지 (선택)</label>
-            <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
-            <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] px-3 py-2 rounded-full text-sm">커버 선택</button>
-            <div id="coverImagePreviewContainer" class="mt-4 hidden">
-              <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg" />
-            </div>
-          </div>
 
-          <div>
-            <label class="block font-semibold mb-1">제목</label>
-            <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
-          </div>
-
-          <div>
-            <p class="font-bold text-lg mb-2">🧩 글줄기</p>
-            <textarea name="final_text" rows="10" class="w-full border px-4 py-3 rounded-md shadow-sm" required></textarea>
-          </div>
-
-          <div class="flex justify-between">
-            <button type="button" onclick="goToStep(1)" class="bg-gray-200 px-4 py-2 rounded-full">← 이전</button>
-            <button type="submit" class="bg-[#bae6fd] px-6 py-3 rounded-full font-bold text-[#493E3E]">제출하기</button>
-          </div>
+ <!-- <!-- 오른쪽: 글쓰기 영역 (항상 가운데 고정) -->
+  <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-[720px] bg-white rounded-xl shadow p-6">
+  <!-- ✅ 여기에 버튼 이동 -->
+  <div class="flex justify-end">
+    <button id="toggleGuideBtn" onclick="toggleGuide()" class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
+      📚 가이드 접기
+    </button>
+  </div>
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div id="step-1" class="step-form">
+      <div class="mb-6">
+        <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
+        <div class="flex gap-4">
+          <label><input type="radio" name="category" value="emotion" onchange="showGenres(this.value)"> F감성 글썽이</label>
+          <label><input type="radio" name="category" value="logic" onchange="showGenres(this.value)"> T감성 말썽이</label>
         </div>
       </div>
+
+      <div class="mb-6" id="genre-emotion" style="display:none;">
+        <p class="font-semibold text-[#493E3E]">형식을 골라보세요 (글썽이)</p>
+        <div class="flex gap-4">
+          <label><input type="radio" name="genre" value="essay" onchange="showGuide(this.value)"> 에세이</label>
+          <label><input type="radio" name="genre" value="poem" onchange="showGuide(this.value)"> 시</label>
+        </div>
+      </div>
+
+      <div class="mb-6" id="genre-logic" style="display:none;">
+        <p class="font-semibold text-[#493E3E]">형식을 골라보세요 (말썽이)</p>
+        <div class="flex gap-4">
+          <label><input type="radio" name="genre" value="column" onchange="showGuide(this.value)"> 칼럼</label>
+          <label><input type="radio" name="genre" value="analysis" onchange="showGuide(this.value)"> 분석글</label>
+        </div>
+      </div>
+
+      <div id="prompt-box" class="mb-6" style="display: none;">
+        <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
+          🧠 오늘의 글감을 골라보세요
+          <button type="button" id="refreshPromptsBtn" class="ml-2 px-2 py-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
+            🔄 새로운 글감
+          </button>
+        </p>
+        <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
+        <input type="hidden" name="topic" id="selectedPrompt">
+        <input type="hidden" name="prompt_id" id="selectedPromptId">
+      </div>
+      <div class="flex justify-end mt-6">
+        <button type="button" id="nextBtn" onclick="nextStep()" class="bg-[#bae6fd] px-4 py-2 rounded-full">
+          다음 →
+        </button>
+      </div>
+
     </div>
-  </form>
+    <div id="step-2" class="step-form">
 
-  <script>
-    let currentStep = 1;
-    let currentGenre = null;
-    const genreMap = {
-      essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글"
-    };
-    let promptCache = {};
+      <div class="mb-6">
+        <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
+        <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
+        <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-2 rounded-full border">
+          커버 사진 선택
+        </button>
+        <div id="coverImagePreviewContainer" class="mt-4 hidden">
+          <p class="text-sm text-[#bae6fd] font-semibold mb-1">미리보기:</p>
+          <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg border" />
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block font-semibold text-[black] mb-1">제목</label>
+        <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
+      </div>
+      
+      <div class="mb-8">
+        <p class="font-bold text-[black] text-lg mb-2">🧩 글줄기</p>
+        <p class="text-sm text-gray-700 mb-3">한/두/세 방울에 쓴 내용을 바탕으로 글을 정리해보세요</p>
+        <textarea name="final_text" rows="10" class="w-full border px-4 py-3 rounded-md shadow-sm" required></textarea>
+      </div>
 
-    function goToStep(step) {
-      document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
-      document.getElementById(`step-${step}`)?.style.display = 'block';
-      currentStep = step;
-      updateStepNav();
+      <div class="flex justify-between mt-6">
+        <button type="button" id="prevBtn" onclick="prevStep()" class="bg-gray-200 px-4 py-2 rounded-full">
+          ← 이전
+        </button>
+        <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+          제출하기
+        </button>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
+
+<!-- ✨ 숨겨진 가이드 템플릿 저장소 -->
+<div id="guide-template-container" class="hidden">
+  {% include "post/guide_combined.html" %}
+</div>
+
+<script>
+  let promptCache = {};
+  let currentGenre = null;
+
+  function showGenres(category) {
+    document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    document.getElementById("guide-scrollable").innerHTML = "";
+  }
+
+  function showGuide(value) {
+    const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+    currentGenre = genreMap[value];
+    fetchPrompts(currentGenre, renderPrompts);
+    showGuideSidebar(value);
+  }
+
+  function showGuideSidebar(genre) {
+    const templateId = `guide-template-${genre}`;
+    const guideContainer = document.getElementById("guide-template-container");
+    const scrollable = document.getElementById("guide-scrollable");
+    const temp = guideContainer?.querySelector(`#${templateId}`);
+    if (temp && scrollable) {
+      scrollable.innerHTML = temp.innerHTML;
+    } else {
+      console.warn("가이드 로딩 실패:", genre);
     }
+  }
 
-    function updateStepNav() {
-      document.querySelectorAll(".step-nav-btn").forEach((btn, idx) => {
-        btn.classList.toggle("active", idx + 1 === currentStep);
+  function fetchPrompts(genre, callback, forceRefresh = false) {
+    if (!forceRefresh && promptCache[genre]) {
+      if (callback) callback();
+      return;
+    }
+    fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
+      .then(res => res.json())
+      .then(data => {
+        promptCache[genre] = data.prompts;
+        if (callback) callback();
       });
-    }
+  }
 
-    function showCoverPreview(e) {
-      const file = e.target.files[0];
-      const img = document.getElementById('coverImagePreview');
-      const container = document.getElementById('coverImagePreviewContainer');
-      if (file) {
-        const reader = new FileReader();
-        container.style.display = 'block';
-        reader.onload = e => img.src = e.target.result;
-        reader.readAsDataURL(file);
-      } else {
-        container.style.display = 'none';
-        img.src = '';
-      }
+  function renderPrompts() {
+    const genreInput = document.querySelector('input[name="genre"]:checked');
+    if (!genreInput) return;
+    const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+    const genre = genreMap[genreInput.value];
+    const prompts = promptCache[genre] || [];
+    const promptOptions = document.getElementById("prompt-options");
+    promptOptions.innerHTML = "";
+    document.getElementById("selectedPrompt").value = "";
+    if (!prompts.length) {
+      promptOptions.innerHTML = "<div class='text-gray-400'>글감이 없습니다.</div>";
+      return;
     }
-
-    function toggleGuides() {
-      const box = document.getElementById("guides-combined");
-      box.classList.toggle("hidden");
-      const genre = document.querySelector('input[name="genre"]:checked')?.value;
-      if (!genre) return;
-      ['poem', 'essay', 'column', 'analysis'].forEach(id => {
-        const g = document.getElementById(`guide-${id}`);
-        if (g) g.hidden = (box.classList.contains("hidden") || id !== genre);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      goToStep(1);
+    prompts.forEach(prompt => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6] h-12 flex items-center";
+      btn.textContent = prompt.content;
+      btn.setAttribute("data-id", prompt.id);
+      btn.onclick = () => selectPrompt(btn, prompt.content, prompt.id);
+      promptOptions.appendChild(btn);
     });
-  </script>
+    document.getElementById("prompt-box").style.display = "block";
+  }
+
+  function selectPrompt(button, prompt, promptId) {
+    document.querySelectorAll('.prompt-option').forEach(btn => {
+      btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    });
+    button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    document.getElementById('selectedPrompt').value = prompt;
+    document.getElementById('selectedPromptId').value = promptId;
+  }
+
+  function showCoverPreview(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('coverImagePreviewContainer');
+    const previewImage = document.getElementById('coverImagePreview');
+    if (file) {
+      const reader = new FileReader();
+      previewContainer.style.display = 'block';
+      reader.onload = function (e) {
+        previewImage.setAttribute('src', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewContainer.style.display = 'none';
+      previewImage.setAttribute('src', '');
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("refreshPromptsBtn").onclick = function () {
+      if (!currentGenre) return;
+      fetchPrompts(currentGenre, renderPrompts, true);
+    };
+    showStep(1);
+  });
+
+  let isGuideVisible = true;
+
+  function toggleGuide() {
+    const guide = document.getElementById('guide-sidebar');
+    const toggleBtn = document.getElementById('toggleGuideBtn');
+
+    if (isGuideVisible) {
+      guide.classList.add('hidden');
+      toggleBtn.innerText = '📖 가이드 펼치기';
+    } else {
+      guide.classList.remove('hidden');
+      toggleBtn.innerText = '📚 가이드 접기';
+    }
+
+    isGuideVisible = !isGuideVisible;
+  }
+  let currentStep = 1;
+
+function showStep(step) {
+  document.querySelectorAll('.step-form').forEach((el, idx) => {
+    el.classList.toggle('hidden', idx + 1 !== step);
+  });
+
+  document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
+  document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
+
+  currentStep = step;
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    showStep(2);
+  } else {
+    // 2단계에서 다음 누르면 submit
+    document.querySelector("form").submit();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+</script>
 </body>
 </html>
