@@ -110,7 +110,7 @@ def post_detail_view(request, post_id):
     # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
     if request.method == "POST" and "evaluate" in request.POST:
         evaluate_post_with_gemini(post.id)
-        return redirect("post_detail", post_id=post.id)
+        return redirect(f"{reverse('post_detail', kwargs={'post_id': post.id})}?evaluated=1")
 
     # 평가 결과 불러오기
     evaluation = PostEvaluation.objects.filter(post=post).first()
