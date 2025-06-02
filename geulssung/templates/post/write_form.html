@@ -91,10 +91,15 @@
 
       <div id="prompt-box" class="mb-6" style="display: none;">
         <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
-          🧠 오늘의 글감을 골라보세요
-          <button type="button" id="refreshPromptsBtn" class="ml-2 px-2 py-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
-            🔄 새로운 글감
-          </button>
+          📖 오늘의 글감을 골라보세요
+        <p class="text-xs text-gray-500 italic mb-4">
+          오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a> 오늘의 이슈 뉴스 데이터를 기반으로 매일 오전 9시에 초기화돼요 🕘
+        </p>
+        <button type="button"
+          id="refreshPromptsBtn"
+          class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
+          🔄 새로운 글감
+        </button>
         </p>
         <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
         <input type="hidden" name="topic" id="selectedPrompt">
