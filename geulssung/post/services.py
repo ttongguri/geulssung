@@ -45,7 +45,11 @@ def evaluate_post_with_gemini(post_id: int) -> dict:
     post = get_object_or_404(Post, id=post_id)
     text = post.final_content
     writing_type = getattr(post, "writing_type", None)
-    prompt_text = getattr(post.prompt, "content", "(글감 없음)")
+    prompt_text = (  
+        getattr(post.prompt, "content", None)
+        or getattr(post, "custom_prompt", None)
+        or "(글감 없음)"
+        )
 
     # ── 1) 평가 기준 구성 ──
     base = BASE_CRITERIA.get(writing_type, [

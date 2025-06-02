@@ -36,6 +36,7 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
         related_name="referenced_posts"
     )
+    custom_prompt = models.CharField(max_length=300, null=True, blank=True)  # ✅ 자유 글감 저장용
 
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -125,7 +125,16 @@
       </div>
       <div class="w-full flex flex-col md:flex-row md:items-center md:justify-between mb-2">
         <p class="text-sm text-gray-600">by {{ post.author.nickname }} | {{ post.created_at|date:"Y.m.d H:i" }}</p>
-        <div class="text-xs text-gray-500 mt-1 md:mt-0"><span class="font-semibold">글감:</span> {{ post.prompt.content|default:"-" }}</div>
+        <div class="text-xs text-gray-500 mt-1 md:mt-0">
+          <span class="font-semibold">글감:</span>
+          {% if post.prompt %}
+            {{ post.prompt.content }}
+          {% elif post.custom_prompt %}
+            {{ post.custom_prompt }}
+          {% else %}
+            -
+          {% endif %}
+        </div>        
       </div>
       <div class="w-full flex flex-row items-center gap-2 mb-4">
         <span class="px-3 py-1 bg-[#f9dcc4] text-[#493E3E] rounded-full text-xs font-bold">

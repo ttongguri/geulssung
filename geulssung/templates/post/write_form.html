@@ -99,14 +99,29 @@
         <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
         <input type="hidden" name="topic" id="selectedPrompt">
         <input type="hidden" name="prompt_id" id="selectedPromptId">
-      </div>
-      <div class="flex justify-end mt-6">
-        <button type="button" id="nextBtn" onclick="nextStep()" class="bg-[#bae6fd] px-4 py-2 rounded-full">
-          다음 →
-        </button>
-      </div>
+     
 
-    </div>
+       <!-- ✏️ 자유 글감 직접 입력 -->
+        <div class="mt-4">
+        <label for="customPrompt" class="block mb-1 text-sm font-medium text-[#493E3E]">또는 직접 글감을 입력해보세요</label>
+        <input type="text"
+              name="custom_prompt"
+              id="customPrompt"
+              class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
+              placeholder="자유롭게 기록하고 싶은 글감을 입력해주세요!" />
+        </div>
+
+        <!-- 선택된 글감 값을 저장 -->
+        <input type="hidden" name="topic" id="selectedPrompt">
+        <input type="hidden" name="prompt_id" id="selectedPromptId">
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button type="button" id="nextBtn" onclick="nextStep()" class="bg-[#bae6fd] px-4 py-2 rounded-full">
+            다음 →
+          </button>
+        </div>
+      </div>
     <div id="step-2" class="step-form">
 
       <div class="mb-6">

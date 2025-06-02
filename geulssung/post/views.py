@@ -39,7 +39,6 @@ def test_page_view(request):
 def home_view(request):
     return render(request, "base.html")
 
-# 글쓰기(POST) 처리 및 폼 렌더링. 장르별로 단계별 입력값을 저장합니다.
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
@@ -62,7 +61,8 @@ def write_post_view(request):
             step3 = request.POST.get('poem_step3', '')
         else:
             step1 = step2 = step3 = ''
-        # 필수값 누락 등으로 저장 실패 시 기존 값 유지
+
+        # 필수값 누락 시 기존 값 유지
         if not request.POST.get('title') or not genre or not request.POST.get('category'):
             return render(request, 'post/write_form.html', {
                 'selected_category': request.POST.get('category', ''),
@@ -74,13 +74,18 @@ def write_post_view(request):
                 'step2': step2,
                 'step3': step3,
             })
+
+        # 글감 처리
         prompt_id = request.POST.get('prompt_id')
+        custom_prompt = request.POST.get('custom_prompt', '').strip()
         prompt_obj = None
+
         if prompt_id:
             try:
                 prompt_obj = GeneratedPrompt.objects.get(id=prompt_id)
             except GeneratedPrompt.DoesNotExist:
                 prompt_obj = None
+
         post = Post(
             author=request.user,
             title=request.POST['title'],
@@ -91,13 +96,17 @@ def write_post_view(request):
             step3=step3,
             final_content=request.POST.get('final_text', ''),
             is_public='is_public' in request.POST,
-            prompt=prompt_obj
+            prompt=prompt_obj,
+            custom_prompt=custom_prompt if not prompt_obj else None  # ✅ 둘 다 넣지 않도록 분기
         )
         post.save()
-        # 이미지가 첨부된 경우 PostImage 저장
+
+        # 이미지 첨부
         if 'cover_image' in request.FILES:
             PostImage.objects.create(post=post, image=request.FILES['cover_image'])
+
         return redirect('post_detail', post_id=post.id)
+
     return render(request, 'post/write_form.html')
 
 
