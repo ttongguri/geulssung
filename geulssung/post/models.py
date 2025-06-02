@@ -36,6 +36,7 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
         related_name="referenced_posts"
     )
+    custom_prompt = models.CharField(max_length=300, null=True, blank=True)  # ✅ 자유 글감 저장용
 
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -63,3 +64,18 @@ class PostImage(models.Model):
 
     def __str__(self):
         return f"{self.post.title}의 표지 이미지"
+
+# 게시글 평가 모델
+class PostEvaluation(models.Model):
+    post = models.OneToOneField(
+        Post,
+        on_delete=models.CASCADE,
+        related_name="evaluation"
+    )
+    score = models.IntegerField(null=True, blank=True)      # 0~100 정수
+    good = models.TextField(null=True, blank=True)           # 이전의 feedback_pro
+    improve = models.TextField(null=True, blank=True)        # 이전의 feedback_con
+    evaluated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.post.title} 평가 결과"

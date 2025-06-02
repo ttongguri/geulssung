@@ -16,6 +16,10 @@ from django.http import HttpResponseRedirect
 from django.db.models import Max, Count
 from django.utils import timezone
 from datetime import timedelta
+from accounts.models import Follow
+from .services import evaluate_post_with_gemini
+from .models import PostEvaluation
+
 
 # hj - gemini_api_key 삽입
 load_dotenv()
@@ -35,7 +39,6 @@ def test_page_view(request):
 def home_view(request):
     return render(request, "base.html")
 
-# 글쓰기(POST) 처리 및 폼 렌더링. 장르별로 단계별 입력값을 저장합니다.
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
@@ -58,7 +61,8 @@ def write_post_view(request):
             step3 = request.POST.get('poem_step3', '')
         else:
             step1 = step2 = step3 = ''
-        # 필수값 누락 등으로 저장 실패 시 기존 값 유지
+
+        # 필수값 누락 시 기존 값 유지
         if not request.POST.get('title') or not genre or not request.POST.get('category'):
             return render(request, 'post/write_form.html', {
                 'selected_category': request.POST.get('category', ''),
@@ -70,13 +74,18 @@ def write_post_view(request):
                 'step2': step2,
                 'step3': step3,
             })
+
+        # 글감 처리
         prompt_id = request.POST.get('prompt_id')
+        custom_prompt = request.POST.get('custom_prompt', '').strip()
         prompt_obj = None
+
         if prompt_id:
             try:
                 prompt_obj = GeneratedPrompt.objects.get(id=prompt_id)
             except GeneratedPrompt.DoesNotExist:
                 prompt_obj = None
+
         post = Post(
             author=request.user,
             title=request.POST['title'],
@@ -87,37 +96,77 @@ def write_post_view(request):
             step3=step3,
             final_content=request.POST.get('final_text', ''),
             is_public='is_public' in request.POST,
-            prompt=prompt_obj
+            prompt=prompt_obj,
+            custom_prompt=custom_prompt if not prompt_obj else None  # ✅ 둘 다 넣지 않도록 분기
         )
         post.save()
-        # 이미지가 첨부된 경우 PostImage 저장
+
+        # 이미지 첨부
         if 'cover_image' in request.FILES:
             PostImage.objects.create(post=post, image=request.FILES['cover_image'])
+
         return redirect('post_detail', post_id=post.id)
+
     return render(request, 'post/write_form.html')
 
+
+
 # 글 상세 페이지를 렌더링합니다.
+@login_required
 def post_detail_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    return render(request, 'post/post_detail.html', {'post': post})
+
+    # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
+    if request.method == "POST" and "evaluate" in request.POST:
+        evaluate_post_with_gemini(post.id)
+        return redirect(f"{reverse('post_detail', kwargs={'post_id': post.id})}?evaluated=1")
+
+    # 평가 결과 불러오기
+    evaluation = PostEvaluation.objects.filter(post=post).first()
+    is_author = request.user == post.author
+
+    return render(request, "post/post_detail.html", {
+        "post": post,
+        "evaluation": evaluation,
+        "is_author": is_author,
+    })
 
 # 특정 유저의 공개글/전체글 목록을 보여줍니다.
 def public_posts_by_user(request, nickname):
     author = get_object_or_404(User, nickname=nickname)
-    # 로그인한 사용자가 해당 nickname의 주인일 때는 모든 글, 아니면 공개글만
+
+    # 로그인한 사용자가 해당 nickname 주인일 경우 → 전체 글
     if request.user.is_authenticated and request.user.nickname == nickname:
         posts = Post.objects.filter(author=author).order_by('-created_at')
     else:
         posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
+
+    # 팔로잉 여부 체크 (다른 사람 프로필일 때만)
     is_following = False
     if request.user.is_authenticated and request.user != author:
-        from accounts.models import Follow
         is_following = Follow.objects.filter(follower=request.user, following=author).exists()
+
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
         'is_following': is_following,
     })
+
+# 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
+@login_required
+def evaluate_post_ajax(request, post_id):
+    if request.method == "POST":
+        post = get_object_or_404(Post, id=post_id)
+        if request.user != post.author:
+            return JsonResponse({"error": "권한이 없습니다."}, status=403)
+
+        result = evaluate_post_with_gemini(post.id)
+        return JsonResponse({
+            "score": result["score"],
+            "good": result["good"],
+            "improve": result["improve"]
+        })
+    return JsonResponse({"error": "잘못된 요청입니다."}, status=400)
 
 # 글의 커버 이미지를 업로드/수정합니다.
 @login_required
@@ -222,6 +271,8 @@ def toggle_post_visibility(request, post_id):
         post.save()
 
     return redirect('post_detail', post_id=post.id)
+
+
 
 # 좋아요 토글 기능: 이미 좋아요면 취소, 아니면 추가
 @require_POST
