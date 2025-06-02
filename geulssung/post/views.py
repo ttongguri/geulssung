@@ -16,6 +16,10 @@ from django.http import HttpResponseRedirect
 from django.db.models import Max, Count
 from django.utils import timezone
 from datetime import timedelta
+from accounts.models import Follow
+from .services import evaluate_post_with_gemini
+from .models import PostEvaluation
+
 
 # hj - gemini_api_key 삽입
 load_dotenv()
@@ -96,23 +100,43 @@ def write_post_view(request):
         return redirect('post_detail', post_id=post.id)
     return render(request, 'post/write_form.html')
 
+
+
 # 글 상세 페이지를 렌더링합니다.
+@login_required
 def post_detail_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    return render(request, 'post/post_detail.html', {'post': post})
+
+    # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
+    if request.method == "POST" and "evaluate" in request.POST:
+        evaluate_post_with_gemini(post.id)
+        return redirect("post_detail", post_id=post.id)
+
+    # 평가 결과 불러오기
+    evaluation = PostEvaluation.objects.filter(post=post).first()
+    is_author = request.user == post.author
+
+    return render(request, "post/post_detail.html", {
+        "post": post,
+        "evaluation": evaluation,
+        "is_author": is_author,
+    })
 
 # 특정 유저의 공개글/전체글 목록을 보여줍니다.
 def public_posts_by_user(request, nickname):
     author = get_object_or_404(User, nickname=nickname)
-    # 로그인한 사용자가 해당 nickname의 주인일 때는 모든 글, 아니면 공개글만
+
+    # 로그인한 사용자가 해당 nickname 주인일 경우 → 전체 글
     if request.user.is_authenticated and request.user.nickname == nickname:
         posts = Post.objects.filter(author=author).order_by('-created_at')
     else:
         posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
+
+    # 팔로잉 여부 체크 (다른 사람 프로필일 때만)
     is_following = False
     if request.user.is_authenticated and request.user != author:
-        from accounts.models import Follow
         is_following = Follow.objects.filter(follower=request.user, following=author).exists()
+
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
@@ -222,6 +246,8 @@ def toggle_post_visibility(request, post_id):
         post.save()
 
     return redirect('post_detail', post_id=post.id)
+
+
 
 # 좋아요 토글 기능: 이미 좋아요면 취소, 아니면 추가
 @require_POST
