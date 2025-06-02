@@ -76,15 +76,16 @@ def write_post_view(request):
             })
 
         # 글감 처리
-        prompt_id = request.POST.get('prompt_id')
-        custom_prompt = request.POST.get('custom_prompt', '').strip()
         prompt_obj = None
+        prompt_id_raw = request.POST.get('prompt_id', '').strip()
 
-        if prompt_id:
+        if prompt_id_raw.isdigit():
             try:
-                prompt_obj = GeneratedPrompt.objects.get(id=prompt_id)
+                prompt_obj = GeneratedPrompt.objects.get(id=int(prompt_id_raw))
             except GeneratedPrompt.DoesNotExist:
                 prompt_obj = None
+
+        custom_prompt = request.POST.get('custom_prompt', '').strip()
 
         post = Post(
             author=request.user,
@@ -97,7 +98,7 @@ def write_post_view(request):
             final_content=request.POST.get('final_text', ''),
             is_public='is_public' in request.POST,
             prompt=prompt_obj,
-            custom_prompt=custom_prompt if not prompt_obj else None  # ✅ 둘 다 넣지 않도록 분기
+            custom_prompt=custom_prompt if not prompt_obj else None
         )
         post.save()
 
@@ -108,6 +109,7 @@ def write_post_view(request):
         return redirect('post_detail', post_id=post.id)
 
     return render(request, 'post/write_form.html')
+
 
 
 

@@ -68,6 +68,7 @@
       <form method="post" action="" enctype="multipart/form-data" class="h-full flex flex-col">
         {% csrf_token %}
         <input type="hidden" name="character" id="character-input" value="">
+        <input type="hidden" name="custom_prompt" id="customPromptHidden">
   
         <div id="step-1" class="step-form flex-1">
       <div class="mb-6">
@@ -188,15 +189,15 @@
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
-    // guide-scrollable 비울 때 글감 표시 영역 유지
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
     const scrollable = document.getElementById("guide-scrollable");
-    const promptDisplay = document.getElementById("selected-prompt-display");
-    scrollable.innerHTML = "";
-    if (promptDisplay) {
-      scrollable.appendChild(promptDisplay);
-      promptDisplay.classList.add("hidden"); // 장르 바꿀 때는 글감 표시 숨김
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
     }
     document.getElementById("character-input").value = category;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
   }
 
   function showGuide(value) {
@@ -212,12 +213,11 @@
     const scrollable = document.getElementById("guide-scrollable");
     const temp = guideContainer?.querySelector(`#${templateId}`);
     if (temp && scrollable) {
-      // 글감 표시 영역은 유지하고, 가이드만 교체
-      const promptDisplay = document.getElementById("selected-prompt-display");
-      scrollable.innerHTML = "";
-      if (promptDisplay) {
-        scrollable.appendChild(promptDisplay);
+      // selected-prompt-display는 남기고, 나머지 guide-scrollable 자식 모두 삭제
+      while (scrollable.children.length > 1) {
+        scrollable.removeChild(scrollable.lastChild);
       }
+      // 가이드 템플릿 삽입
       const guideDiv = document.createElement("div");
       guideDiv.innerHTML = temp.innerHTML;
       scrollable.appendChild(guideDiv);
@@ -278,6 +278,14 @@
     // hidden input에 값 저장
     document.getElementById('selectedPrompt').value = prompt;
     document.getElementById('selectedPromptId').value = promptId;
+
+    // custom_prompt 처리
+    const customPromptHidden = document.getElementById('customPromptHidden');
+    if (promptId === "custom") {
+      customPromptHidden.value = prompt;
+    } else {
+      customPromptHidden.value = "";
+    }
 
     // 왼쪽 사이드바에 글감 표시
     const displayBox = document.getElementById("selected-prompt-display");
