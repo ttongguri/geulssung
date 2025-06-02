@@ -143,6 +143,22 @@ def public_posts_by_user(request, nickname):
         'is_following': is_following,
     })
 
+# 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
+@login_required
+def evaluate_post_ajax(request, post_id):
+    if request.method == "POST":
+        post = get_object_or_404(Post, id=post_id)
+        if request.user != post.author:
+            return JsonResponse({"error": "권한이 없습니다."}, status=403)
+
+        result = evaluate_post_with_gemini(post.id)
+        return JsonResponse({
+            "score": result["score"],
+            "good": result["good"],
+            "improve": result["improve"]
+        })
+    return JsonResponse({"error": "잘못된 요청입니다."}, status=400)
+
 # 글의 커버 이미지를 업로드/수정합니다.
 @login_required
 def update_cover_image(request, post_id):
