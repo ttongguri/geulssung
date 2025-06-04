@@ -55,6 +55,15 @@
       </button>
     </form>
 
+    <!-- 구글 로그인 버튼 -->
+    <div class="mt-6">
+      <a href="/geulssung/accounts/auth/google/login/" 
+      class="flex items-center justify-center gap-2 w-full py-2 rounded-full bg-white border border-gray-300 shadow-sm hover:shadow-md transition">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5" />
+        <span class="text-sm font-semibold text-gray-700">구글 계정으로 로그인</span>
+      </a>   
+    </div>
+
     <p class="text-xs text-center text-gray-400 mt-6">
       이미 계정이 있으신가요?
       <a href="{% url 'login' %}" class="underline text-[#493E3E] font-semibold">로그인하기</a>

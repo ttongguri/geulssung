@@ -27,11 +27,12 @@ urlpatterns = [
     path("geulssung/test/", views.test_page_view, name="test"),
     path("geulssung/write/", views.write_post_view, name="write"),
     path("geulssung/explore/", views.explore_view, name="explore"),
-    path("geulssung/accounts/", include("accounts.urls")),
+    path("geulssung/accounts/", include("accounts.urls")),      # 사용자 계정 관련 URL
+    path("geulssung/accounts/auth/", include("allauth.urls")),  # allauth 소셜 로그인 URL
     path("geulssung/post/", include("post.urls")),
     path("prompts/", include("prompts.urls")),
     path("geulssung/chat", chat_view, name="chat"),
-    path('like/<int:post_id>/', views.like, name='like'),
+    path("like/<int:post_id>/", views.like, name="like"),
 ]
 
 if settings.DEBUG:

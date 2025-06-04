@@ -5,6 +5,8 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import Follow
 from django.http import JsonResponse
+from .models import CustomUser
+
 
 
 User = get_user_model()
@@ -80,3 +82,19 @@ def follow(request):
         follow.delete()
         return JsonResponse({'status': 'unfollowed'})
     return JsonResponse({'status': 'followed'})
+
+#닉네임 설정 기능
+@login_required
+def set_nickname(request):
+    if request.user.nickname:
+        return redirect('home')  # 이미 있으면 홈으로
+
+    if request.method == 'POST':
+        nickname = request.POST.get('nickname')
+        if CustomUser.objects.filter(nickname=nickname).exists():
+            return render(request, 'accounts/set_nickname.html', {'error': '이미 사용 중인 닉네임입니다.'})
+        request.user.nickname = nickname
+        request.user.save()
+        return redirect('home')  # 닉네임 설정 완료 후 홈으로 이동
+
+    return render(request, 'accounts/set_nickname.html')
