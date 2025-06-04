@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'post',
     'accounts',
     'prompts',
+    'customizing',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
