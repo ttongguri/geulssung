@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.kakao',
     'allauth.socialaccount.providers.naver',
 ]
 
@@ -66,7 +67,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_LOGIN_ON_GET=True
@@ -81,6 +82,14 @@ SOCIALACCOUNT_PROVIDERS = {
             'key': ''
         }
     },
+    'kakao': {
+        'APP': {
+            'client_id': os.getenv('KAKAO_CLIENT_ID'),
+            'secret': '',
+            'key': ''
+        },
+    },
+
     'naver': {
         'APP': {
             'client_id': os.getenv('NAVER_CLIENT_ID'),
