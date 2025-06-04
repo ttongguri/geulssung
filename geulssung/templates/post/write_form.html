@@ -47,6 +47,10 @@
       <!-- 스크롤 영역 -->
       <div id="guide-scrollable"
            class="flex-1 overflow-y-auto px-6 py-4">
+        <!-- 선택한 글감 표시 영역 -->
+        <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+          선택한 글감: <span id="selected-prompt-text"></span>
+        </div>
         <!-- 가이드 콘텐츠 삽입 -->
       </div>
     </aside>
@@ -64,6 +68,7 @@
       <form method="post" action="" enctype="multipart/form-data" class="h-full flex flex-col">
         {% csrf_token %}
         <input type="hidden" name="character" id="character-input" value="">
+        <input type="hidden" name="custom_prompt" id="customPromptHidden">
   
         <div id="step-1" class="step-form flex-1">
       <div class="mb-6">
@@ -93,32 +98,35 @@
       <div id="prompt-box" class="mb-6" style="display: none;">
         <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
           📖 오늘의 글감을 골라보세요
+          <button type="button"
+            id="refreshPromptsBtn"
+            class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
+            🔄 새로운 글감
+          </button>
+          <button type="button"
+            id="customPromptBtn"
+            class="ml-2 px-2 py-1 mb-1 rounded bg-[#fef08a] text-black text-xs border border-[#fde68a]">
+            ✏️ 직접 입력
+          </button>
+        </p>
         <p class="text-xs text-gray-500 italic mb-4">
           오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
         </p>
-        <button type="button"
-          id="refreshPromptsBtn"
-          class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
-          🔄 새로운 글감
-        </button>
-        </p>
         <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
+        <!-- ✏️ 자유 글감 직접 입력 (토글) -->
+        <div id="customPromptInputBox" class="mt-2 hidden">
+          <input type="text"
+            id="customPromptInput"
+            class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
+            placeholder="기록하고 싶은 글감을 자유롭게 입력해주세요!"
+            maxlength="100"
+          />
+          <button type="button" id="customPromptSelectBtn" class="mt-2 bg-[#bae6fd] px-3 py-1 rounded">선택</button>
+        </div>
+
+        <!-- 선택된 글감 값을 저장 -->
         <input type="hidden" name="topic" id="selectedPrompt">
         <input type="hidden" name="prompt_id" id="selectedPromptId">
-     
-
-       <!-- ✏️ 자유 글감 직접 입력 -->
-        <div class="mt-4">
-        <label for="customPrompt" class="block mb-1 text-sm font-medium text-[#493E3E]">또는 직접 글감을 입력해보세요</label>
-        <input type="text"
-              name="custom_prompt"
-              id="customPrompt"
-              class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
-              placeholder="기록하고 싶은 글감을 자유롭게 입력해주세요!" />
-        </div>
-        <!-- 선택된 글감 값을 저장 (중복 제거) -->
-        <!-- <input type="hidden" name="topic" id="selectedPrompt"> -->
-        <!-- <input type="hidden" name="prompt_id" id="selectedPromptId"> -->
         </div>
 
         <div class="flex justify-end mt-6">
@@ -183,8 +191,15 @@
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
-    document.getElementById("guide-scrollable").innerHTML = "";
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const scrollable = document.getElementById("guide-scrollable");
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
+    }
     document.getElementById("character-input").value = category;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
   }
 
   function showGuide(value) {
@@ -200,7 +215,14 @@
     const scrollable = document.getElementById("guide-scrollable");
     const temp = guideContainer?.querySelector(`#${templateId}`);
     if (temp && scrollable) {
-      scrollable.innerHTML = temp.innerHTML;
+      // selected-prompt-display는 남기고, 나머지 guide-scrollable 자식 모두 삭제
+      while (scrollable.children.length > 1) {
+        scrollable.removeChild(scrollable.lastChild);
+      }
+      // 가이드 템플릿 삽입
+      const guideDiv = document.createElement("div");
+      guideDiv.innerHTML = temp.innerHTML;
+      scrollable.appendChild(guideDiv);
     } else {
       console.warn("가이드 로딩 실패:", genre);
     }
@@ -245,14 +267,19 @@
   }
 
   function selectPrompt(button, prompt, promptId) {
+    // 버튼 색상 초기화
     document.querySelectorAll('.prompt-option').forEach(btn => {
       btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
     });
-    button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+
+    // 선택된 버튼 하이라이트 (버튼일 때만)
+    if (button && button.classList) {
+      button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    }
+
+    // hidden input에 값 저장
     document.getElementById('selectedPrompt').value = prompt;
     document.getElementById('selectedPromptId').value = promptId;
-    // 자유 글감 입력란 비우기
-    document.getElementById('customPrompt').value = "";
   }
 
   function showCoverPreview(event) {
@@ -277,6 +304,27 @@
       if (!currentGenre) return;
       fetchPrompts(currentGenre, renderPrompts, true);
     };
+    document.getElementById("customPromptBtn").onclick = function () {
+      const box = document.getElementById("customPromptInputBox");
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) {
+        document.getElementById("customPromptInput").focus();
+      }
+    };
+    document.getElementById("customPromptSelectBtn").onclick = function () {
+      const value = document.getElementById("customPromptInput").value.trim();
+      if (value) {
+        selectPrompt(null, value, "custom");
+        document.getElementById("customPromptInputBox").classList.add("hidden");
+        document.getElementById("customPromptInput").value = "";
+      }
+    };
+    document.getElementById("customPromptInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("customPromptSelectBtn").click();
+      }
+    });
     showStep(1);
     // 자유 글감 입력 시 prompt_id 비우기
     const customPromptInput = document.getElementById('customPrompt');
