@@ -116,10 +116,9 @@
               class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
               placeholder="기록하고 싶은 글감을 자유롭게 입력해주세요!" />
         </div>
-
-        <!-- 선택된 글감 값을 저장 -->
-        <input type="hidden" name="topic" id="selectedPrompt">
-        <input type="hidden" name="prompt_id" id="selectedPromptId">
+        <!-- 선택된 글감 값을 저장 (중복 제거) -->
+        <!-- <input type="hidden" name="topic" id="selectedPrompt"> -->
+        <!-- <input type="hidden" name="prompt_id" id="selectedPromptId"> -->
         </div>
 
         <div class="flex justify-end mt-6">
@@ -252,6 +251,8 @@
     button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
     document.getElementById('selectedPrompt').value = prompt;
     document.getElementById('selectedPromptId').value = promptId;
+    // 자유 글감 입력란 비우기
+    document.getElementById('customPrompt').value = "";
   }
 
   function showCoverPreview(event) {
@@ -277,6 +278,20 @@
       fetchPrompts(currentGenre, renderPrompts, true);
     };
     showStep(1);
+    // 자유 글감 입력 시 prompt_id 비우기
+    const customPromptInput = document.getElementById('customPrompt');
+    if (customPromptInput) {
+      customPromptInput.addEventListener('input', function() {
+        if (this.value.trim() !== "") {
+          document.getElementById('selectedPrompt').value = this.value;
+          document.getElementById('selectedPromptId').value = "";
+          // 버튼 선택 해제
+          document.querySelectorAll('.prompt-option').forEach(btn => {
+            btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+          });
+        }
+      });
+    }
   });
 
   let isGuideVisible = true;
