@@ -280,6 +280,22 @@
     // hidden input에 값 저장
     document.getElementById('selectedPrompt').value = prompt;
     document.getElementById('selectedPromptId').value = promptId;
+
+    // --- 글감 사이드바에 표시 ---
+    const displayBox = document.getElementById('selected-prompt-display');
+    const displayText = document.getElementById('selected-prompt-text');
+    if (prompt && displayBox && displayText) {
+      displayText.textContent = prompt;
+      displayBox.classList.remove('hidden');
+    }
+
+    // custom_prompt 처리
+    const customPromptHidden = document.getElementById('customPromptHidden');
+    if (promptId === "custom") {
+      customPromptHidden.value = prompt;
+    } else {
+      customPromptHidden.value = "";
+    }
   }
 
   function showCoverPreview(event) {
@@ -317,6 +333,13 @@
         selectPrompt(null, value, "custom");
         document.getElementById("customPromptInputBox").classList.add("hidden");
         document.getElementById("customPromptInput").value = "";
+        // --- 글감 사이드바에 표시 ---
+        const displayBox = document.getElementById('selected-prompt-display');
+        const displayText = document.getElementById('selected-prompt-text');
+        if (displayBox && displayText) {
+          displayText.textContent = value;
+          displayBox.classList.remove('hidden');
+        }
       }
     };
     document.getElementById("customPromptInput").addEventListener("keydown", function(e) {
@@ -340,6 +363,9 @@
         }
       });
     }
+    // 초기화 시 글감 표시 영역 숨기기
+    const displayBox = document.getElementById('selected-prompt-display');
+    if (displayBox) displayBox.classList.add('hidden');
   });
 
   let isGuideVisible = true;
@@ -385,7 +411,6 @@ function prevStep() {
     showStep(currentStep - 1);
   }
 }
-
 </script>
 <!-- ✨ 챗봇 박스 -->
 <div id="chat-box-wrapper" class="fixed bottom-24 right-4 w-[400px] z-50">
