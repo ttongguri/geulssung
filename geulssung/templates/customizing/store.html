@@ -1,4 +1,3 @@
-{# customizing/templates/customizing/store.html #}
 {% load static %}
 
 <!DOCTYPE html>
@@ -148,8 +147,8 @@
     <!-- 1. 크레딧 정보 (기존 로직 유지) -->
     <div class="credit-info">
       <p>
-        안녕하세요, <strong>{{ request.user.username }}</strong>님!<br>
-        현재 보유 크레딧: <span id="user-credit">50</span> 점
+        안녕하세요, <strong>{{ user.nickname }}</strong>님!<br>
+        현재 보유 크레딧: <span id="user-credit">{{ user.credit }}</span> 점
       </p>
     </div>
 
