@@ -7,7 +7,7 @@ from django.conf import settings
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=20, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True)
-    nickname = models.CharField(max_length=30, null=False, blank=True, default="사용자")
+    nickname = models.CharField(max_length=30, null=True, blank=True, unique=True)
     def __str__(self):
         return self.nickname
 
