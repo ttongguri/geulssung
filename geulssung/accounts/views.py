@@ -103,4 +103,4 @@ def set_nickname(request):
 def login_redirect_view(request):
     if not request.user.nickname:
         return redirect('set_nickname')
-    return redirect('home')
+    return redirect('home')  
