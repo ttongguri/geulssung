@@ -1,0 +1,29 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>내 아이템</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans p-8">
+  <h1 class="text-3xl font-bold mb-6">🧳 내가 보유한 아이템</h1>
+
+  {% if owned_items %}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {% for ui in owned_items %}
+        <div class="bg-white p-4 rounded shadow text-center">
+          <img src="{% static ui.item.image_path %}" alt="{{ ui.item.name }}" class="w-32 mx-auto mb-2">
+          <p class="text-sm text-gray-600">{{ ui.item.character.name }} - {{ ui.item.get_part_code_display }}</p>
+          {% if ui.equipped %}
+            <span class="text-green-500 font-semibold">착용 중</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-gray-500">보유한 아이템이 없습니다.</p>
+  {% endif %}
+</body>
+</html>

@@ -44,6 +44,13 @@
     {% if user.is_authenticated %}
       <span>{{ user.nickname }}님</span>
       <a href="{% url 'logout' %}" class="underline hover:text-gray-600">로그아웃</a>
+
+      <div class="mt-2">
+        <a href="{% url 'user_owned_items' %}"
+           class="inline-block bg-white/70 text-sm px-3 py-1 rounded-full shadow hover:bg-white/90 transition">
+          🎨 캐릭터 꾸미러 가기
+        </a>
+      </div>
     {% else %}
       <a href="{% url 'login' %}" class="underline hover:text-gray-600">로그인</a>
       <a href="{% url 'signup' %}" class="underline hover:text-gray-600">회원가입</a>
