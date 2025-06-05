@@ -1,0 +1,36 @@
+<!-- customize_avatar.html -->
+<h1 class="text-2xl font-bold mb-4">🎨 아바타 꾸미기</h1>
+
+<div class="flex flex-col items-center">
+  <!-- 캐릭터 영역 -->
+  <img src="{% static 'images/avatar_base.png' %}" alt="내 아바타" class="w-32 h-auto mb-4" />
+
+  <!-- 탭 -->
+  <div class="flex space-x-4 mb-4">
+    <button class="py-1 px-4 rounded-full bg-gray-200">몸</button>
+    <button class="py-1 px-4 rounded-full bg-[#00c9a7] text-white">의상</button>
+    <button class="py-1 px-4 rounded-full bg-gray-200">액세서리</button>
+  </div>
+
+  <!-- 의상 선택 -->
+  <div class="w-full max-w-lg bg-white p-4 rounded-xl shadow">
+    <div class="flex space-x-2 text-sm font-semibold border-b pb-2 mb-3">
+      <span class="text-[#00c9a7] border-b-2 border-[#00c9a7]">상의</span>
+      <span class="text-gray-400">하의</span>
+      <span class="text-gray-400">신발</span>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2">
+      {% for item in top_items %}
+        <div class="border p-2 rounded hover:ring-2 ring-[#00c9a7] transition">
+          <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full">
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <button class="text-sm text-gray-400 hover:underline">초기화 하기</button>
+      <button class="bg-[#00c9a7] text-white px-6 py-2 rounded-full text-sm font-semibold">저장하기</button>
+    </div>
+  </div>
+</div>

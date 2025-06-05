@@ -14,3 +14,7 @@ def user_owned_items_view(request):
     return render(request, 'customizing/user_owned_items.html', {
         'owned_items': owned_items,
     })
+
+def customize_avatar_view(request):
+    top_items = Item.objects.filter(part_code='TOP')  # 필요에 따라 수정
+    return render(request, 'customize_avatar.html', {'top_items': top_items})
