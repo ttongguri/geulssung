@@ -1,3 +1,16 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from .models import UserItem
 
-# Create your views here.
+# 캐릭터 소유 아이템 확인
+@login_required
+def user_owned_items_view(request):
+    owned_items = (
+        UserItem.objects
+        .filter(user=request.user, owned=True)
+        .select_related('item__character')
+        .order_by('item__character__name', 'item__part_code')
+    )
+    return render(request, 'customizing/user_owned_items.html', {
+        'owned_items': owned_items,
+    })

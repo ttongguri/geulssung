@@ -33,6 +33,7 @@ urlpatterns = [
     path("prompts/", include("prompts.urls")),
     path("geulssung/chat", chat_view, name="chat"),
     path("like/<int:post_id>/", views.like, name="like"),
+    path("geulssung/customizing/", include("customizing.urls")),
 ]
 
 if settings.DEBUG:
