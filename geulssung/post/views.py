@@ -33,7 +33,7 @@ def write_view(request):
 
 # 테스트용 페이지를 렌더링합니다.
 def test_page_view(request):
-    return render(request, "test.html")
+    return render(request, "store.html")
 
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):

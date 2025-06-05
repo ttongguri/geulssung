@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글쓰기 도우미 상점</title>
+  <style>
+    body {
+      font-family: '맑은 고딕', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .credit-info {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    .step-container {
+      margin-bottom: 3rem;
+    }
+    .hidden {
+      display: none;
+    }
+    /* 캐릭터 선택 버튼 */
+    .char-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      margin-right: 1rem;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .char-btn.active {
+      background-color: #2ecc71;
+    }
+    /* 카테고리 버튼 */
+    .category-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      margin-right: 0.5rem;
+      margin-bottom: 1rem;
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .category-btn.active {
+      background-color: #4a90e2;
+      color: white;
+    }
+    /* 아이템 리스트(컨테이너) */
+    .item-list {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    /* 아이템 카드 */
+    .item {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 200px;
+      height: 350px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 이미지(정사각) */
+    .item-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;     /* 정사각 비율 유지 (200×200px) */
+      object-fit: cover;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .item-name {
+      font-weight: bold;
+      margin: 0.5rem 0 0.25rem 0;
+      padding: 0 0.5rem;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .item-price {
+      color: #e74c3c;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .buy-button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      margin-top: auto;        /* 버튼을 카드 하단으로 정렬 */
+      margin-bottom: 0.5rem;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .buy-button:disabled {
+      background-color: #ccc;
+      cursor: default;
+    }
+    
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>글쓰기 도우미 상점</h1>
+  </header>
+
+  <main>
+    <!-- 1. 크레딧 정보 -->
+    <div class="credit-info">
+      <p>안녕하세요, 사용자님! 현재 보유 크레딧: <span id="user-credit">50</span> 점</p>
+      <button id="get-credit-btn" class="char-btn" style="background-color:#2ecc71;">
+        오늘의 크레딧 받기
+      </button>
+    </div>
+
+    <!-- 2. 캐릭터 선택 -->
+    <div id="step-character" class="step-container">
+      <h2>1단계. 캐릭터를 선택하세요</h2>
+      <button id="btn-gulsseong" class="char-btn" onclick="showStore('gulsseong')">글썽이 선택</button>
+      <button id="btn-malsseong" class="char-btn" onclick="showStore('malsseong')">말썽이 선택</button>
+    </div>
+
+    <!-- 3-1. 글썽이 상점 -->
+    <section id="store-gulsseong" class="step-container hidden">
+      <h2>2단계. 글썽이 카테고리</h2>
+      <!-- 카테고리 버튼 -->
+      <div>
+        <button class="category-btn" data-char="gulsseong" data-cat="glasses" onclick="selectCategory(this)">
+          수경
+        </button>
+        <button class="category-btn" data-char="gulsseong" data-cat="clothes" onclick="selectCategory(this)">
+          옷
+        </button>
+        <button class="category-btn" data-char="gulsseong" data-cat="accessories" onclick="selectCategory(this)">
+          악세서리
+        </button>
+      </div>
+
+      <!-- 모든 아이템을 하나로 묶고, 각 아이템에 data-cat 속성 부여 -->
+      <div class="item-list" id="gulsseong-items">
+        <!-- 수경 카테고리 아이템 -->
+        <article class="item" data-cat="glasses" style="display: none;">
+          <div class="item-name">화염의 수경</div>
+          <div class="item-price">120 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="glasses" style="display: none;">
+          <div class="item-name">멋쟁이 수경</div>
+          <div class="item-price">100 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="glasses" style="display: none;">
+          <div class="item-name">엄청난 수경</div>
+          <div class="item-price">150 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+
+        <!-- 옷 카테고리 아이템 -->
+        <article class="item" data-cat="clothes" style="display: none;">
+          <div class="item-name">봄날의 잠수복</div>
+          <div class="item-price">200 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="clothes" style="display: none;">
+          <div class="item-name">멋쟁이 잠수복</div>
+          <div class="item-price">180 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="clothes" style="display: none;">
+          <div class="item-name">오리 잠수복</div>
+          <div class="item-price">160 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+
+        <!-- 악세서리 카테고리 아이템 -->
+        <article class="item" data-cat="accessories" style="display: none;">
+          <div class="item-name">오리발</div>
+          <div class="item-price">80 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="accessories" style="display: none;">
+          <div class="item-name">조개가방</div>
+          <div class="item-price">90 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3-2. 말썽이 상점 -->
+    <section id="store-malsseong" class="step-container hidden">
+      <h2>2단계. 말썽이 카테고리</h2>
+      <!-- 카테고리 버튼 -->
+      <div>
+        <button class="category-btn" data-char="malsseong" data-cat="head" onclick="selectCategory(this)">
+          머리
+        </button>
+        <button class="category-btn" data-char="malsseong" data-cat="clothes" onclick="selectCategory(this)">
+          옷
+        </button>
+        <button class="category-btn" data-char="malsseong" data-cat="accessories" onclick="selectCategory(this)">
+          악세서리
+        </button>
+      </div>
+
+      <!-- 모든 아이템을 하나로 묶고, 각 아이템에 data-cat 속성 부여 -->
+      <div class="item-list" id="malsseong-items">
+        <!-- 머리 카테고리 아이템 -->
+        <article class="item" data-cat="head" style="display: none;">
+          <div class="item-name">잭 머리</div>
+          <div class="item-price">110 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="head" style="display: none;">
+          <div class="item-name">멋진 모자</div>
+          <div class="item-price">100 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="head" style="display: none;">
+          <div class="item-name">해적 두건</div>
+          <div class="item-price">130 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+
+        <!-- 옷 카테고리 아이템 -->
+        <article class="item" data-cat="clothes" style="display: none;">
+          <div class="item-name">잭 옷</div>
+          <div class="item-price">180 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="clothes" style="display: none;">
+          <div class="item-name">선원 옷</div>
+          <div class="item-price">170 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+
+        <!-- 악세서리 카테고리 아이템 -->
+        <article class="item" data-cat="accessories" style="display: none;">
+          <div class="item-name">보물상자</div>
+          <div class="item-price">140 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="accessories" style="display: none;">
+          <div class="item-name">빛나는 칼</div>
+          <div class="item-price">120 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+        <article class="item" data-cat="accessories" style="display: none;">
+          <div class="item-name">나무 칼</div>
+          <div class="item-price">90 크레딧</div>
+          <button class="buy-button">구매하기</button>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ==== 하루 한 번 크레딧 지급 로직 ====
+    const creditSpan = document.getElementById('user-credit');
+    const getCreditBtn = document.getElementById('get-credit-btn');
+
+    function hasReceivedToday() {
+      const lastDate = localStorage.getItem('lastCreditDate');
+      const today = new Date().toISOString().slice(0, 10);
+      return lastDate === today;
+    }
+    function giveCredit() {
+      if (hasReceivedToday()) {
+        alert('오늘 이미 크레딧을 받으셨습니다.');
+        return;
+      }
+      let currentCredit = parseInt(creditSpan.textContent, 10) || 0;
+      currentCredit += 10;
+      creditSpan.textContent = currentCredit;
+      localStorage.setItem('lastCreditDate', new Date().toISOString().slice(0, 10));
+      alert('오늘의 크레딧이 지급되었습니다!');
+    }
+    getCreditBtn.addEventListener('click', giveCredit);
+
+    // ==== 캐릭터 선택 함수 ====
+    function showStore(char) {
+      // 1) 캐릭터 버튼 active 해제 → 선택된 캐릭터만 active
+      document.getElementById('btn-gulsseong').classList.remove('active');
+      document.getElementById('btn-malsseong').classList.remove('active');
+      if (char === 'gulsseong') {
+        document.getElementById('btn-gulsseong').classList.add('active');
+      } else {
+        document.getElementById('btn-malsseong').classList.add('active');
+      }
+
+      // 2) 두 캐릭터 상점 섹션 모두 숨기기
+      document.getElementById('store-gulsseong').classList.add('hidden');
+      document.getElementById('store-malsseong').classList.add('hidden');
+
+      // 3) 모든 카테고리 버튼 active 해제
+      document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+
+      // 4) 모든 item(article) 요소 숨기기
+      document.querySelectorAll('.item').forEach(item => item.style.display = 'none');
+
+      // 5) 선택된 캐릭터 상점만 보이도록
+      document.getElementById(`store-${char}`).classList.remove('hidden');
+    }
+
+    // ==== 카테고리 선택 함수 ====
+    function selectCategory(btn) {
+      const char = btn.getAttribute('data-char');  // "gulsseong" 또는 "malsseong"
+      const cat  = btn.getAttribute('data-cat');   // "glasses", "clothes", "accessories", "head" 등
+
+      // 1) 같은 캐릭터 내 모든 카테고리 버튼 active 해제 → 클릭된 버튼만 active
+      document.querySelectorAll(`#store-${char} .category-btn`)
+              .forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // 2) 해당 캐릭터의 item-container(#gulsseong-items 또는 #malsseong-items) 찾기
+      const itemContainer = document.getElementById(`${char}-items`);
+      if (!itemContainer) return;
+
+      // 3) 모든 아이템(article.item)을 순회하며 data-cat 비교 → show / hide
+      itemContainer.querySelectorAll('.item').forEach(item => {
+        if (item.getAttribute('data-cat') === cat) {
+          // flex 레이아웃이라면 'flex', block 레이아웃이라면 'block' 등으로 사용
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // ==== 구매 버튼 클릭 로직 ====
+    document.querySelectorAll('.buy-button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const priceText = this.parentElement.querySelector('.item-price').textContent;
+        const price = parseInt(priceText.replace(/[^\d]/g, ''), 10);
+        let currentCredit = parseInt(creditSpan.textContent, 10) || 0;
+        if (currentCredit < price) {
+          alert('크레딧이 부족합니다.');
+          return;
+        }
+        currentCredit -= price;
+        creditSpan.textContent = currentCredit;
+        alert('아이템을 구매하셨습니다!');
+        // 실제 서비스라면 서버 API 호출 후 처리하세요.
+      });
+    });
+  </script>
+</body>
+</html>
