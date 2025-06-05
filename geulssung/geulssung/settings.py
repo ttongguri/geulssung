@@ -63,7 +63,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-LOGIN_REDIRECT_URL = '/geulssung/accounts/set_nickname/'  # 최초 로그인 시 닉네임 설정으로 보내자
+LOGIN_REDIRECT_URL = '/geulssung/accounts/login/redirect/'  # 최초 로그인 시 닉네임 설정으로 보내자
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None

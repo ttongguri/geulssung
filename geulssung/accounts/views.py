@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Follow
 from django.http import JsonResponse
 from .models import CustomUser
-
+from django.contrib.auth import logout
 
 
 User = get_user_model()
@@ -58,13 +58,10 @@ def login_view(request):
 
     return render(request, 'accounts/login.html')
 
-from django.contrib.auth import logout
-
 #로그아웃 기능
 def logout_view(request):
     logout(request)
     return redirect('login')  # 로그아웃 후 로그인 페이지로 이동
-
 
 #팔로우 기능
 @require_POST
@@ -100,3 +97,10 @@ def set_nickname(request):
         return redirect('home')  # 닉네임 설정 완료 후 홈으로 이동
 
     return render(request, 'accounts/set_nickname.html')
+
+
+#로그인 후 닉네임 설정 여부 확인
+def login_redirect_view(request):
+    if not request.user.nickname:
+        return redirect('set_nickname')
+    return redirect('home')

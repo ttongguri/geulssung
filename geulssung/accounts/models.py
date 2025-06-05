@@ -9,7 +9,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     nickname = models.CharField(max_length=30, null=True, blank=True, unique=True)
     def __str__(self):
-        return self.nickname
+        return self.nickname or self.username or self.email or f"User({self.pk})"
 
 # 팔로우 관계 모델: 팔로워-팔로잉 관계 및 생성일 저장
 class Follow(models.Model):
