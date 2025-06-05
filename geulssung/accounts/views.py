@@ -50,6 +50,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            if not user.nickname:
+                return redirect('set_nickname')
             return redirect('home')  # 로그인 후 홈으로 이동
         else:
             return render(request, 'accounts/login.html', {'error': '아이디 또는 비밀번호가 올바르지 않습니다.'})
@@ -86,7 +88,7 @@ def follow(request):
 #닉네임 설정 기능
 @login_required
 def set_nickname(request):
-    if request.user.nickname:
+    if request.user.nickname and request.user.nickname.strip():
         return redirect('home')  # 이미 있으면 홈으로
 
     if request.method == 'POST':

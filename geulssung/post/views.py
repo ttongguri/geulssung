@@ -37,6 +37,8 @@ def test_page_view(request):
 
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
+    if request.user.is_authenticated and not request.user.nickname:
+        return redirect('set_nickname')
     return render(request, "base.html")
 
 @login_required
