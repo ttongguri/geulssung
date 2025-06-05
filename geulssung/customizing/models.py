@@ -24,6 +24,8 @@ class Item(models.Model):
     part_code = models.IntegerField(choices=PART_CHOICES)
     name = models.CharField(max_length=100)  # ex: 'body1', 'glass_red'
     image_path = models.CharField(max_length=255)
+    credit = models.PositiveIntegerField(default=60)
+
 
     def __str__(self):
         return f"{self.character.name} - {self.get_part_code_display()} - {self.name}"
