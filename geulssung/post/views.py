@@ -380,6 +380,7 @@ def generate_gemini_reply(system_prompt, user_input):
     except Exception as e:
         return f"오류 발생: {e}"
 
+
 # Gemini 기반 글쓰기 도우미 챗봇 API 엔드포인트입니다.
 # @csrf_exempt
 # def chat_view(request):

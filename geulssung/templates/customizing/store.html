@@ -1,0 +1,337 @@
+{# customizing/templates/customizing/store.html #}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글쓰기 도우미 상점</title>
+  <style>
+    body {
+      font-family: '맑은 고딕', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .credit-info {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    .step-container{
+      margin-bottom: 3rem;
+    }
+    .hidden {
+      display: none;
+    }
+    /* 캐릭터 선택 버튼 */
+    .char-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      margin-right: 1rem;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .char-btn.active {
+      background-color: #2ecc71;
+    }
+    /* 카테고리 버튼 */
+    .category-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      margin-right: 0.5rem;
+      margin-bottom: 1rem;
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .category-btn.active {
+      background-color: #4a90e2;
+      color: white;
+    }
+    /* 아이템 리스트(컨테이너) */
+    .item-list {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    /* 아이템 카드 */
+    .item {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 200px;
+      height: 350px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0.5rem;
+    }
+
+    /* 이미지(정사각) */
+    .item-image {
+      width: 100%;
+      aspect-ratio: 1/1;  /* 정사각 비율 유지 */
+      object-fit: cover;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .item-name {
+      font-weight: bold;
+      margin: 0.5rem 0 0.25rem 0;
+      font-size: 1rem;
+      flex-shrink: 0;
+      word-break: keep-all;
+    }
+
+    .item-price {
+      color: #e74c3c;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .buy-button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      margin-top: auto;        /* 버튼을 카드 하단으로 정렬 */
+      margin-bottom: 0.5rem;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .buy-button:disabled {
+      background-color: #ccc;
+      cursor: default;
+    }
+
+    .owned-text {
+      margin-top: auto;
+      margin-bottom: 0.5rem;
+      color: #777;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>글쓰기 도우미 상점</h1>
+  </header>
+
+  <main>
+    <!-- 1. 크레딧 정보 (기존 로직 유지) -->
+    <div class="credit-info">
+      <p>
+        안녕하세요, <strong>{{ request.user.username }}</strong>님!<br>
+        현재 보유 크레딧: <span id="user-credit">50</span> 점
+      </p>
+    </div>
+
+    <!-- 2. 캐릭터 선택 버튼 영역 -->
+    <div id="step-character" class="step-container">
+      <h2>1단계. 캐릭터를 선택하세요</h2>
+      {% comment %}
+        characters 쿼리셋에는 DB에 저장된 Character 모델이름(예: “글썽이”, “말썽이”)이 순서대로 들어있다고 가정
+      {% endcomment %}
+      {% for char in characters %}
+        <button
+          id="btn-{{ char.name }}"
+          class="char-btn"
+          onclick="showStore('{{ char.name }}')"
+        >
+          {{ char.name }} 선택
+        </button>
+      {% endfor %}
+    </div>
+
+    <!-- 3. 캐릭터별 상점 영역 -->
+    {% comment %}
+      characters: Character 객체 리스트
+      all_items: Item 객체 전체
+      owned_item_ids: 현재 user가 owned=True인 item.id의 집합(set)
+    {% endcomment %}
+    {% for char in characters %}
+      <section id="store-{{ char.name }}" class="step-container hidden">
+        <h2>2단계. {{ char.name }} 카테고리</h2>
+
+        {# ─── 3-1) 이 캐릭터(char)에게 해당하는 전체 Item 목록만 뽑아서, part_code별로 나누기 ─── #}
+        {% comment %}
+          part_code=3 ⇒ “안경(수경)”
+          part_code=1 ⇒ “몸체(옷)”
+          part_code=2 ⇒ “가방(액세서리)”
+          -- 여기서는 part_code별 라벨을 직접 명시
+        {% endcomment %}
+
+        <!-- part_code=3 : 수경(안경) -->
+        <div style="margin-top:1rem;">
+          <button
+            class="category-btn"
+            data-char="{{ char.name }}"
+            data-part="3"
+            onclick="selectCategory(this)"
+          >
+            수경
+          </button>
+          <button
+            class="category-btn"
+            data-char="{{ char.name }}"
+            data-part="1"
+            onclick="selectCategory(this)"
+          >
+            옷
+          </button>
+          <button
+            class="category-btn"
+            data-char="{{ char.name }}"
+            data-part="2"
+            onclick="selectCategory(this)"
+          >
+            악세서리
+          </button>
+        </div>
+
+        <!-- 3-2) 아이템 카드 리스트 -->
+        <div class="item-list" id="{{ char.name }}-items">
+          {% for item in all_items %}
+            {% if item.character.id == char.id %}
+              <article class="item" data-cat-part="{{ item.part_code }}" style="display: none;">
+                {# 1) 이미지: item.image_path(예: 'images/gulsseong_glasses1.png') #}
+                <img
+                  src="{% static item.image_path %}"
+                  alt="{{ item.name }}"
+                  class="item-image"
+                />
+
+                {# 2) 아이템명 #}
+                <div class="item-name">{{ item.name }}</div>
+
+                {# 3) 가격(크레딧) #}
+                <div class="item-price">{{ item.credit }} 크레딧</div>
+
+                {# 4) 이미 보유한 아이템이라면 “이미 보유” 텍스트, 아니면 “구매하기” 버튼 #}
+                {% if item.id in owned_item_ids %}
+                  <div class="owned-text">이미 보유한 아이템입니다.</div>
+                {% else %}
+                  <button class="buy-button">구매하기</button>
+                {% endif %}
+              </article>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </main>
+
+  <script>
+    // ==== 하루 한 번 크레딧 지급 로직 (기존과 동일) ====
+    const creditSpan = document.getElementById('user-credit');
+    const getCreditBtn = document.getElementById('get-credit-btn');
+
+    function hasReceivedToday() {
+      const lastDate = localStorage.getItem('lastCreditDate');
+      const today = new Date().toISOString().slice(0, 10);
+      return lastDate === today;
+    }
+    function giveCredit() {
+      if (hasReceivedToday()) {
+        alert('오늘 이미 크레딧을 받으셨습니다.');
+        return;
+      }
+      let currentCredit = parseInt(creditSpan.textContent, 10) || 0;
+      currentCredit += 10;
+      creditSpan.textContent = currentCredit;
+      localStorage.setItem('lastCreditDate', new Date().toISOString().slice(0, 10));
+      alert('오늘의 크레딧이 지급되었습니다!');
+    }
+    getCreditBtn.addEventListener('click', giveCredit);
+
+    // ==== 캐릭터 선택 함수 ====
+    function showStore(charName) {
+      // 1) 모든 캐릭터 버튼 active 해제
+      document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
+      // 2) 클릭된 캐릭터 버튼만 active
+      const clickedBtn = document.getElementById(`btn-${charName}`);
+      if (clickedBtn) clickedBtn.classList.add('active');
+
+      // 3) 모든 캐릭터 상점 섹션(hidden) 처리
+      document.querySelectorAll('section[id^="store-"]').forEach(sec => {
+        sec.classList.add('hidden');
+      });
+
+      // 4) 선택된 캐릭터 섹션만 보여주기
+      const chosenSection = document.getElementById(`store-${charName}`);
+      if (chosenSection) chosenSection.classList.remove('hidden');
+
+      // 5) “카테고리 버튼” 초기 active 제거, 아이템 전부 숨기기
+      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`#store-${charName} .item`).forEach(it => it.style.display = 'none');
+    }
+
+    // ==== 카테고리(부위) 선택 함수 ====
+    function selectCategory(btn) {
+      const charName = btn.getAttribute('data-char');   // ex) “글썽이”
+      const partCode = btn.getAttribute('data-part');    // ex) “3” (문자열)
+
+      // 동일 캐릭터 내 기존 active 제거 후, 현재 버튼만 active
+      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // 해당 캐릭터의 모든 item(article)을 가져와서, data-cat-part와 비교
+      const itemContainer = document.getElementById(`${charName}-items`);
+      if (!itemContainer) return;
+
+      itemContainer.querySelectorAll('.item').forEach(itemEl => {
+        if (itemEl.getAttribute('data-cat-part') === partCode) {
+          // flex 레이아웃으로 보이도록
+          itemEl.style.display = 'flex';
+        } else {
+          itemEl.style.display = 'none';
+        }
+      });
+    }
+
+    // ==== 구매 버튼 클릭 로직 ====
+    document.querySelectorAll('.buy-button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const priceText = this.parentElement.querySelector('.item-price').textContent;
+        const price = parseInt(priceText.replace(/[^\d]/g, ''), 10);
+        let currentCredit = parseInt(creditSpan.textContent, 10) || 0;
+        if (currentCredit < price) {
+          alert('크레딧이 부족합니다.');
+          return;
+        }
+        currentCredit -= price;
+        creditSpan.textContent = currentCredit;
+        alert('아이템을 구매하셨습니다!');
+        // 실제 서비스라면 여기서 Ajax/Post 로 서버에 구매 요청을 보내야 합니다.
+      });
+    });
+  </script>
+</body>
+</html>
