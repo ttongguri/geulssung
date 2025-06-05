@@ -13,15 +13,27 @@
   <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
   
   <div class="text-center cursor-pointer" onclick="showItems()">
-    <div class="flex justify-center items-end gap-8 mb-4">
-        <div class="text-center">
-          <img src="{% static 'images/글썽이.png' %}" alt="글썽이" class="w-24 mx-auto">
-          <p class="text-xs mt-1 text-gray-500">글썽이</p>
+    <div class="flex justify-center items-end gap-6 mb-2">
+    
+    <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
+      <div class="text-center cursor-pointer" onclick="showItems()">
+        <div class="relative w-80 h-80 mx-auto">
+          <!-- 기본 글썽이 -->
+          <img src="{% static 'images/글썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
+
+          <!-- 착용된 아이템들 (equipped=True) -->
+          {% for ui in equipped_items %}
+            <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full">
+          {% endfor %}
         </div>
-        <div class="text-center">
-          <img src="{% static 'images/말썽이.png' %}" alt="말썽이" class="w-24 mx-auto">
-          <p class="text-xs mt-1 text-gray-500">말썽이</p>
-        </div>
+        <p class="text-xs mt-1 text-gray-500">글썽이</p>
+      </div>
+      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
+
+      <!-- 말썽이 캐릭터는 그대로 -->
+      <div class="text-center">
+        <img src="{% static 'images/말썽이.png' %}" alt="말썽이" class="w-24 mx-auto">
+        <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
     </div>
     <br>
@@ -30,58 +42,89 @@
         <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
         <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
         <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
+        <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
     </div>
     <br>
     <br>
+  </div>
 
   <!-- 🔹 보유 아이템 영역 -->
 
-  <div id="item-section" class="hidden mt-6 transition-all duration-300"> 
-
-    {% if owned_items %}
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-        {% for ui in owned_items %}
-          <div class="bg-white p-2 rounded shadow text-center item-card hidden" data-category="{{ ui.item.part_code }}">
-            <img src="{% static ui.item.image_path %}" alt="{{ ui.item.name }}" class="w-32 mx-auto mb-2">
-            <p class="text-sm text-gray-600">{{ ui.item.character.name}} - {{ ui.item.get_part_code_display}}</p>
+  <div id="item-section" class="mt-6 mb-20 transition-all duration-300 flex justify-center">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl">
+      {% for ui in owned_items %}
+      <div class="item-card hidden inline-block text-center"
+            data-category="{% if 'geulssung_body' in ui.item.image_path %}몸체{% elif 'geulssung_bag' in ui.item.image_path %}가방{% elif 'geulssung_glass' in ui.item.image_path %}안경{% else %}기타{% endif %}">
+          <img src="{% static ui.item.image_path %}"
+              onclick="toggleEquip('{{ ui.item.id }}')"
+              class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
+          <p class="text-xs mt-1">
             {% if ui.equipped %}
-              <span class="text-green-500 font-semibold">착용 중</span>
+              <span class="text-green-500">착용 중</span>
+            {% else %}
+              <span class="text-gray-400">미착용</span>
             {% endif %}
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="text-gray-500 text-center">보유한 아이템이 없습니다.</p>
-    {% endif %}
+          </p>
+        </div>
+      {% endfor %}
+    </div>
   </div>
+
+  <script>
+    function showItems() {
+      const section = document.getElementById("item-section");
+      section.classList.remove("hidden");
+    }
+    function toggleEquip(itemId) {
+      fetch(`/my-items/toggle-equip/${itemId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("서버 응답:", data);
+        if (data.success) {
+          location.reload();  // 버튼 상태 갱신
+        } else {
+          alert("처리 중 문제가 발생했습니다.");
+        }
+      });
+    }
+
+    function showAllItems() {
+      document.querySelectorAll(".category-btn").forEach(btn => {
+        btn.classList.remove("bg-[#00C9A7]", "text-white");
+        btn.classList.add("bg-gray-100", "text-gray-500");
+      });
+
+      document.querySelectorAll(".item-card").forEach(card => {
+        card.classList.remove("hidden");
+      });
+    }
+  
+    function activateButton(button, category) {
+      document.querySelectorAll(".category-btn").forEach(btn => {
+        btn.classList.remove("bg-[#00C9A7]", "text-white");
+        btn.classList.add("bg-gray-100", "text-gray-500");
+      });
+  
+      button.classList.remove("bg-gray-100", "text-gray-500");
+      button.classList.add("bg-[#00C9A7]", "text-white");
+  
+      document.querySelectorAll(".item-card").forEach(card => {
+        if (card.dataset.category === category) {
+          card.classList.remove("hidden");
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+    }
+  
+  </script>
 </body>
 </html>
 
-<script>
-  function showItems() {
-    // const section = document.getElementById('item-section');
-    section.classList.remove('hidden');
-    section.scrollIntoView({ behavior: 'smooth' });  // 부드럽게 스크롤
-  }
-  function activateButton(clickedBtn) {
-    document.querySelectorAll('.category-btn').forEach(btn => {
-      btn.classList.remove('bg-[#00C9A7]', 'text-white', 'scale-105');
-      btn.classList.add('bg-gray-100', 'text-gray-500');
-    });
 
-    clickedBtn.classList.remove('bg-gray-100', 'text-gray-500');
-    clickedBtn.classList.add('bg-[#00C9A7]', 'text-white', 'scale-105');
-
-        // 아이템 필터링
-    document.querySelectorAll('.item-card').forEach(card => {
-      const cardCategory = card.dataset.category;
-      if (cardCategory === category) {
-        card.classList.remove('hidden');
-      } else {
-        card.classList.add('hidden');
-      }
-    });
-  
-  }
-</script>
