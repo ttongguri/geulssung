@@ -8,6 +8,8 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=20, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True)
     nickname = models.CharField(max_length=30, null=True, blank=True, unique=True)
+    credit = models.PositiveIntegerField(default=50)
+
     def __str__(self):
         return self.nickname or self.username or self.email or f"User({self.pk})"
 

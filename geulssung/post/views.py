@@ -19,6 +19,8 @@ from datetime import timedelta
 from accounts.models import Follow
 from .services import evaluate_post_with_gemini
 from .models import PostEvaluation
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 # hj - gemini_api_key 삽입
@@ -76,6 +78,9 @@ def write_post_view(request):
                 'step2': step2,
                 'step3': step3,
             })
+        # 보상 조건 체크
+        category = request.POST.get('category')
+        first_today = is_first_post_today(request.user, category)
 
         # 글감 처리
         prompt_obj = None
@@ -108,12 +113,28 @@ def write_post_view(request):
         if 'cover_image' in request.FILES:
             PostImage.objects.create(post=post, image=request.FILES['cover_image'])
 
+        # 크레딧 지급
+        if first_today:
+            reward_credit(request.user, 25)
+            messages.success(request, "🎁 오늘 첫 글! 따개비 25개 채집해왔어요.")
+
+
         return redirect('post_detail', post_id=post.id)
 
     return render(request, 'post/write_form.html')
 
+# 오늘 첫 글 작성 여부 확인
+def is_first_post_today(user, category):
+    return not Post.objects.filter(
+        author=user,
+        category=category,
+        created_at__date=timezone.now().date()
+    ).exists()
 
-
+# 크레딧 지급
+def reward_credit(user, amount):
+    user.credit += amount
+    user.save()
 
 # 글 상세 페이지를 렌더링합니다.
 @login_required
