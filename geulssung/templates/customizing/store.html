@@ -313,7 +313,15 @@
   window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.buy-button').forEach(btn => {
       btn.addEventListener('click', function() {
+        // 가장 가까운 .item 카드 요소 선택
         const article = this.closest('.item');
+        const itemName = article.querySelector('.item-name').textContent;
+
+        // 구매하시겠습니까 버튼
+        if (!confirm(itemName + '을 구매하시겠습니까?')) {
+          return; // '취소' 선택 시 함수 종료 -> 뒤 로직(크레딧 차감+db반영)
+        }
+
         const itemId  = article.getAttribute('data-item-id');
         const price   = parseInt(
           article.querySelector('.item-price').textContent.replace(/[^\d]/g, ''), 10
