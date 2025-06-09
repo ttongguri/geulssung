@@ -1,400 +1,170 @@
-<!-- 글쓰기 도우미 상점 HTML 파일: 주요 기능별 주석 추가 -->
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <title>글쓰기 도우미 상점</title>
-    <style>
-      /* ── 기본 페이지 스타일 ── */
-      body {
-        font-family: '맑은 고딕', sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f9f9f9;
-      }
-      /* ── 헤더 스타일 ── */
-      header {
-        background-color: #4a90e2;
-        color: white;
-        padding: 1rem;
-        text-align: center;
-      }
-      /* ── 메인 컨테이너 스타일 ── */
-      main {
-        padding: 2rem;
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-      /* ── 따개비 정보 영역 스타일 ── */
-      .credit-info {
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-      }
-      /* ── 단계별 컨테이너 스타일 ── */
-      .step-container {
-        margin-bottom: 3rem;
-      }
-      /* ── 숨김 처리용 클래스 ── */
-      .hidden {
-        display: none;
-      }
+<html lang="ko" style="font-size: 80%;">
+<head>
+  <meta charset="UTF-8" />
+  <title>🛒상점</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font -->
+  <style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');</style>
+</head>
 
-      /* ── 캐릭터 선택 버튼 스타일 ── */
-      .char-btn {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        margin-right: 1rem;
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      /* 활성화된 캐릭터 버튼 스타일 */
-      .char-btn.active {
-        background-color: #2ecc71;
-      }
+<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
 
-      /* ── 카테고리 버튼 스타일 ── */
-      .category-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.95rem;
-        margin-right: 0.5rem;
-        margin-bottom: 1rem;
-        background-color: #e0e0e0;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-      /* 활성화된 카테고리 버튼 스타일 */
-      .category-btn.active {
-        background-color: #4a90e2;
-        color: white;
-      }
-
-      /* ── 아이템 리스트 컨테이너 스타일 ── */
-      .item-list {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-top: 1rem;
-      }
-
-      /* ── 아이템 카드 스타일 ── */
-      .item {
-        background-color: white;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 200px;
-        height: 350px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        padding: 0.5rem;
-      }
-
-      /* ── 아이템 이미지 스타일 ── */
-      .item-image {
-        width: 100%;
-        aspect-ratio: 1/1;
-        object-fit: cover;
-        border-bottom: 1px solid #ddd;
-        margin-bottom: 0.5rem;
-        flex-shrink: 0;
-      }
-
-      /* ── 아이템 이름 스타일 ── */
-      .item-name {
-        font-weight: bold;
-        margin: 0.5rem 0 0.25rem 0;
-        font-size: 1rem;
-        flex-shrink: 0;
-        word-break: keep-all;
-      }
-
-      /* ── 아이템 가격 스타일 ── */
-      .item-price {
-        color: #e74c3c;
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
-        flex-shrink: 0;
-      }
-
-      /* ── 구매 버튼 스타일 ── */
-      .buy-button {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        padding: 0.5rem 0.75rem;
-        margin-top: auto;
-        margin-bottom: 0.5rem;
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-      }
-
-      /* ── 이미 보유한 아이템 텍스트 스타일 ── */
-      .owned-text {
-        margin-top: auto;
-        margin-bottom: 0.5rem;
-        color: #777;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-      }
-
-      /* ── 페이지네이션 버튼 스타일 ── */
-      .pagination {
-        margin-top: 1rem;
-        text-align: center;
-      }
-      .page-btn {
-        margin: 0 0.25rem;
-        padding: 0.25rem 0.5rem;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        cursor: pointer;
-        background-color: white;
-      }
-      .page-btn.active {
-        background-color: #4a90e2;
-        color: white;
-        border-color: #4a90e2;
-      }
-
-    </style>
-  </head>
-
-  <body>
-    <header>
-      <h1>글쓰기 도우미 상점</h1>
-    </header>
+  <!-- 상단 네비게이션 -->
+  {% include "nav_bar.html" %}
+  <div class="max-w-6xl mx-auto pt-20">
+    <h1 class="text-4xl font-bold mb-10 text-center">🛒도우미 상점</h1>
 
     <main>
-      <!-- 1. 따개비 정보를 표시하는 영역: 사용자 닉네임과 현재 따개비 출력 -->
-      <div class="credit-info">
-        <p>
+      <!-- User Credit Info -->
+      <div class="bg-white p-6 rounded-lg shadow mb-10">
+        <p class="text-lg">
           안녕하세요, <strong>{{ user.nickname }}</strong>님!<br />
-          현재 보유 따개비:
-          <span id="user-credit">{{ user.credit }}</span> 개
+          현재 보유 따개비: <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개
         </p>
       </div>
 
-      <!-- 2. 1단계: 캐릭터 선택 버튼 영역 -->
-      <div id="step-character" class="step-container">
-        <h2>1단계. 캐릭터를 선택하세요</h2>
-        {% for char in characters %}
-          <!-- 각 캐릭터별 버튼 (클릭 시 showStore 호출) -->
-          <button
-            id="btn-{{ char.name }}"
-            class="char-btn"
-            onclick="showStore('{{ char.name }}')"
-          >
-            {{ char.name }}
-          </button>
-        {% endfor %}
-      </div>
-
-      <!-- 3. 2단계: 선택된 캐릭터별 상점 표시 영역 (초기에는 숨김) -->
-      {% for char in characters %}
-        <section id="store-{{ char.name }}" class="step-container hidden">
-          <h2>2단계. {{ char.name }} 카테고리</h2>
-
-          <!-- 카테고리 버튼 그룹: 전체보기 및 각 부위별 버튼 생성 -->
-          <div style="margin-top: 1rem;">
-            <button class="category-btn" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">
-              전체보기
+      <!-- Step 1: Character Select -->
+      <section id="step-character" class="mb-12">
+        <h2 class="text-xl font-semibold mb-4">도우미를 선택하세요</h2>
+        <div class="flex flex-wrap gap-4">
+          {% for char in characters %}
+            <button id="btn-{{ char.name }}" class="char-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100" onclick="showStore('{{ char.name }}')">
+              {{ char.name }}
             </button>
+          {% endfor %}
+        </div>
+      </section>
 
+      <!-- Step 2: Store Sections -->
+      {% for char in characters %}
+        <section id="store-{{ char.name }}" class="hidden mb-16">
+          <h2 class="text-xl font-semibold mb-4">{{ char.name }} 카테고리</h2>
+
+          <!-- Category Buttons -->
+          <div class="flex flex-wrap gap-4 mb-6">
+            <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
             {% if char.name == '글썽이' %}
-              <!-- 글썽이 전용 부위 버튼 -->
-              <button class="category-btn" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">
-                수트
-              </button>
-              <button class="category-btn" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">
-                수경
-              </button>
-              <button class="category-btn" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">
-                악세서리
-              </button>
-
+              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
+              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
+              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
             {% elif char.name == '말썽이' %}
-              <!-- 말썽이 전용 부위 버튼 -->
-              <button class="category-btn" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">
-                옷
-              </button>
-              <button class="category-btn" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">
-                머리
-              </button>
-              <button class="category-btn" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">
-                악세서리
-              </button>
+              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
+              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
+              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
             {% endif %}
           </div>
 
-          <!-- 아이템 카드 목록: 서버에서 전달된 all_items 중 해당 캐릭터의 아이템만 렌더링 -->
-          <div class="item-list" id="{{ char.name }}-items">
+          <!-- Item Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
             {% for item in all_items %}
               {% if item.character.id == char.id %}
-                <article
-                  class="item"
-                  data-cat-part="{{ item.part_code }}"
-                  data-item-id="{{ item.id }}"
-                  style="display: none;"
-                >
-                  <!-- 이미지, 이름, 가격 표시 -->
-                  <img src="{% static item.image_path %}" alt="{{ item.name }}" class="item-image" />
-                  <div class="item-name">{{ item.name }}</div>
-                  <div class="item-price">{{ item.credit }} 따개비</div>
-
-                  {% if item.id in owned_item_ids %}
-                    <!-- 이미 보유한 아이템인 경우 텍스트 표시 -->
-                    <div class="owned-text">이미 보유한 아이템입니다.</div>
-                  {% else %}
-                    <!-- 미보유 시 구매 버튼 표시 -->
-                    <button class="buy-button">구매하기</button>
-                  {% endif %}
+                <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
+                  <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 object-cover">
+                  <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
+                    <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
+                    {% if item.id in owned_item_ids %}
+                      <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
+                    {% else %}
+                      <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
+                    {% endif %}
+                  </div>
                 </article>
               {% endif %}
             {% endfor %}
           </div>
 
-          <!-- 페이지네이션 컨테이너: selectCategory 함수에서 동적으로 버튼 생성 -->
-          <div class="pagination" id="{{ char.name }}-pagination"></div>
+          <!-- Pagination -->
+          <div class="flex justify-center space-x-2 mt-8" id="{{ char.name }}-pagination"></div>
         </section>
       {% endfor %}
     </main>
+  </div>
 
-    <script>
-      // ── CSRF 토큰 가져오는 헬퍼 함수: Django POST 요청 시 필요
-      function getCookie(name) {
-        let cookieValue = null;
-        document.cookie.split(';').forEach((c) => {
-          c = c.trim();
-          if (c.startsWith(name + '=')) {
-            cookieValue = decodeURIComponent(c.slice(name.length + 1));
-          }
-        });
-        return cookieValue;
-      }
+  <!-- 기능 스크립트 (수정 금지) -->
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) cookieValue = decodeURIComponent(c.slice(name.length + 1));
+      });
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    const creditSpan = document.getElementById('user-credit');
 
-      const csrftoken = getCookie('csrftoken');
-      const creditSpan = document.getElementById('user-credit');
+    function showStore(charName) {
+      document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${charName}`).classList.add('active');
+      document.querySelectorAll('section[id^="store-"]').forEach(sec => sec.classList.add('hidden'));
+      const sec = document.getElementById(`store-${charName}`);
+      sec.classList.remove('hidden');
+      const btns = sec.querySelectorAll('.category-btn');
+      const items = sec.querySelectorAll('.item');
+      btns.forEach(b => b.classList.remove('active'));
+      items.forEach(i => i.style.display = 'none');
+      if (btns.length) selectCategory(btns[0]);
+    }
 
-      // ── 캐릭터 선택 처리 함수: 선택한 캐릭터에 해당하는 상점 섹션을 보여주고 초기 설정
-      function showStore(charName) {
-        // 버튼 상태 업데이트
-        document.querySelectorAll('.char-btn').forEach((btn) => btn.classList.remove('active'));
-        const clickedBtn = document.getElementById(`btn-${charName}`);
-        if (clickedBtn) clickedBtn.classList.add('active');
-
-        // 모든 상점 섹션 숨김
-        document.querySelectorAll('section[id^="store-"]').forEach((sec) => sec.classList.add('hidden'));
-        // 선택된 섹션 보이기
-        const chosenSection = document.getElementById(`store-${charName}`);
-        if (chosenSection) chosenSection.classList.remove('hidden');
-
-        // 내부 카테고리 및 아이템 초기화
-        const btns = chosenSection.querySelectorAll('.category-btn');
-        const items = chosenSection.querySelectorAll('.item');
-        btns.forEach(b => b.classList.remove('active'));
-        items.forEach(it => it.style.display = 'none');
-
-        // 첫 번째 카테고리(전체보기) 자동 선택 호출
-        if (btns.length) selectCategory(btns[0]);
-      }
-
-      // ── 카테고리 선택 처리 함수: 필터링 및 페이지네이션 구현
-      function selectCategory(btn) {
-        const charName = btn.getAttribute('data-char');
-        const partCode = btn.getAttribute('data-part');
-        // 버튼 상태 업데이트
-        document.querySelectorAll(`#store-${charName} .category-btn`).forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        // 필터링: 전체 또는 특정 부위(item.dataset.catPart) 선택
-        const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
-        const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
-        const itemsPerPage = 8;
-        const totalPages = Math.ceil(filtered.length / itemsPerPage);
-        const pagination = document.getElementById(`${charName}-pagination`);
-        let currentPage = 1;
-
-        // 페이지 렌더링 함수: 해당 페이지 범위의 아이템만 표시
-        function renderPage(page) {
-          currentPage = page;
-          allItems.forEach(item => item.style.display = 'none');
-          filtered.forEach((item, idx) => {
-            item.style.display = (idx >= (page-1)*itemsPerPage && idx < page*itemsPerPage) ? 'flex' : 'none';
-          });
-          // 페이지네이션 버튼 생성
-          pagination.innerHTML = '';
-          if (totalPages <= 1) return;
-          for (let i=1; i<= totalPages; i++) {
-            const pbtn = document.createElement('button');
-            pbtn.textContent = i;
-            pbtn.className = 'page-btn';
-            if (i === page) pbtn.classList.add('active');
-            pbtn.addEventListener('click', () => renderPage(i));
-            pagination.appendChild(pbtn);
-          }
+    function selectCategory(btn) {
+      const charName = btn.getAttribute('data-char');
+      const partCode = btn.getAttribute('data-part');
+      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
+      const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
+      const perPage = 8;
+      const pages = Math.ceil(filtered.length / perPage);
+      const pagDiv = document.getElementById(`${charName}-pagination`);
+      function render(page) {
+        allItems.forEach(i => i.style.display = 'none');
+        filtered.forEach((i, idx) => { i.style.display = idx >= (page-1)*perPage && idx < page*perPage ? 'flex' : 'none'; });
+        pagDiv.innerHTML = '';
+        if (pages <= 1) return;
+        for (let i = 1; i <= pages; i++) {
+          const b = document.createElement('button');
+          b.textContent = i;
+          b.className = 'page-btn';
+          if (i === page) b.classList.add('active');
+          b.addEventListener('click', () => render(i));
+          pagDiv.appendChild(b);
         }
-
-        renderPage(1);
       }
+      render(1);
+    }
 
-      // ── 구매 버튼 이벤트 바인딩: 페이지 로드 후 모든 구매 버튼에 클릭 이벤트 등록
-      window.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.buy-button').forEach((btn) => {
-          btn.addEventListener('click', function () {
-            const article = this.closest('.item');
-            const itemName = article.querySelector('.item-name').textContent;
-
-            // 구매 확인 대화상자
-            if (!confirm(`${itemName}을(를) 구매하시겠습니까?`)) {
-              return;
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.buy-button').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const art = this.closest('.item');
+          const nm = art.querySelector('.item-name').textContent;
+          if (!confirm(`${nm}을(를) 구매하시겠습니까?`)) return;
+          const id = art.getAttribute('data-item-id');
+          const price = parseInt(art.querySelector('.item-price').textContent.replace(/[^\d]/g, ''), 10);
+          let cur = parseInt(creditSpan.textContent, 10);
+          if (cur < price) return alert('따개비가 부족합니다.');
+          fetch('{% url "purchase_item" %}', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrftoken },
+            body: new URLSearchParams({ item_id: id })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              creditSpan.textContent = cur - price;
+              const d = document.createElement('div'); d.className = 'owned-text'; d.textContent = '이미 보유한 아이템입니다.';
+              this.replaceWith(d);
+            } else {
+              alert(data.error === 'not_enough_credit' ? '따개비가 부족합니다.' : '이미 보유한 아이템입니다.');
             }
-
-            const itemId = article.getAttribute('data-item-id');
-            const price = parseInt(article.querySelector('.item-price').textContent.replace(/[^\d]/g, ''), 10);
-            let currentCredit = parseInt(creditSpan.textContent, 10);
-
-            // 따개비 부족 처리
-            if (currentCredit < price) {
-              return alert('따개비가 부족합니다.');
-            }
-
-            // Django 뷰 호출로 실제 구매 처리
-            fetch('{% url "purchase_item" %}', {
-              method: 'POST',
-              credentials: 'same-origin',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': csrftoken,
-              },
-              body: new URLSearchParams({ item_id: itemId }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.success) {
-                  // 구매 성공 시 따개비 차감 및 UI 업데이트
-                  creditSpan.textContent = currentCredit - price;
-                  const ownedDiv = document.createElement('div');
-                  ownedDiv.className = 'owned-text';
-                  ownedDiv.textContent = '이미 보유한 아이템입니다.';
-                  this.replaceWith(ownedDiv);
-                } else {
-                  // 에러 처리: 따개비 부족 또는 이미 보유
-                  alert(data.error === 'not_enough_credit' ? '따개비가 부족합니다.' : '이미 보유한 아이템입니다.');
-                }
-              });
           });
         });
       });
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
