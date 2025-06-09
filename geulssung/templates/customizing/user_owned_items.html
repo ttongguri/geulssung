@@ -22,11 +22,11 @@
           <img src="{% static 'images/글썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
 
           <!-- 착용된 아이템들 (equipped=True) -->
-          {% for ui in equipped_items %}
+          <!-- {% for ui in equipped_items %}
             {% if 'geulssung' in ui.item.image_path and ui.equipped %}
               <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-geulssung-{{ ui.item.id }}">
             {% endif %}
-          {% endfor %}
+          {% endfor %} -->
         </div>
         <p class="text-xs mt-1 text-gray-500">글썽이</p>
       </div>
@@ -37,11 +37,11 @@
       <div class="text-center cursor-pointer mt-6" onclick="selectCharacter('malssung')">
         <div class="relative w-80 h-80 mx-auto character-malssung">
           <img src="{% static 'images/말썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
-          {% for ui in equipped_items %}
+          <!-- {% for ui in equipped_items %}
             {% if 'malssung' in ui.item.image_path and ui.equipped %}
               <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-malssung-{{ ui.item.id }}">
             {% endif %}
-          {% endfor %}
+          {% endfor %} -->
         </div>
         <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
@@ -172,11 +172,13 @@
         const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
         const part = partMatch ? partMatch[1] : null;
 
+        const categoryKor = convertPartToKorean(part);
+
         // 기존 동일 부위 이미지 제거
-        if (part) {
-          const oldImg = targetContainer.querySelector(`img[data-part="${part}"]`);
-          if (oldImg) oldImg.remove();
-        }
+        // if (part) {
+        //   const oldImg = targetContainer.querySelector(`img[data-part="${part}"]`);
+        //   if (oldImg) oldImg.remove();
+        // }
 
         // 모든 해당 부위의 아이템 텍스트 상태 미착용으로 초기화
         document.querySelectorAll(".item-card").forEach(card => {
@@ -191,6 +193,9 @@
           }
         });
 
+        const existingImg = targetContainer.querySelector(`img[data-part="${part}"]`);
+        if (existingImg) existingImg.remove();
+
         if (equipped) {
           // 텍스트 업데이트
           statusSpan.innerText = '착용 중';
@@ -203,8 +208,26 @@
           img.className = 'absolute top-0 left-0 z-20 w-full';
           img.setAttribute('data-part', part);
           targetContainer.appendChild(img);
+
+          if (part === 'clothes') {
+            img.classList.add('z-10');
+          } else {
+            img.classList.add('z-20');
+          }
         }
       }
+
+      function convertPartToKorean(part) {
+      switch (part) {
+        case 'body': return '몸체';
+        case 'bag': return '가방';
+        case 'glass': return '안경';
+        case 'acc': return '악세서리';
+        case 'clothes': return '옷';
+        case 'head': return '모자';
+        default: return '';
+      }
+    }
 
   </script>
 </body>
