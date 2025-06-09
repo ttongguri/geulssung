@@ -192,29 +192,32 @@
           <h2>2단계. {{ char.name }} 카테고리</h2>
 
           <div style="margin-top: 1rem;">
-            <button class="category-btn"
-              data-char="{{ char.name }}"
-              data-part="all"
-              onclick="selectCategory(this)">
-              전체보기</button>
-            <button
-              class="category-btn"
-              data-char="{{ char.name }}"
-              data-part="1"
-              onclick="selectCategory(this)">
-              옷</button>
-            <button
-              class="category-btn"
-              data-char="{{ char.name }}"
-              data-part="2"
-              onclick="selectCategory(this)">
-              악세서리</button>
-            <button
-              class="category-btn"
-              data-char="{{ char.name }}"
-              data-part="3"
-              onclick="selectCategory(this)">
-              머리</button>
+            <button class="category-btn" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">
+              전체보기
+            </button>
+
+            {% if char.name == '글썽이' %}
+              <button class="category-btn" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">
+                수트
+              </button>
+              <button class="category-btn" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">
+                수경
+              </button>
+              <button class="category-btn" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">
+                악세서리
+              </button>
+
+            {% elif char.name == '말썽이' %}
+              <button class="category-btn" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">
+                옷
+              </button>
+              <button class="category-btn" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">
+                머리
+              </button>
+              <button class="category-btn" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">
+                악세서리
+              </button>
+            {% endif %}
           </div>
 
           <div class="item-list" id="{{ char.name }}-items">
@@ -314,6 +317,11 @@
 
         function renderPage(page) {
           currentPage = page;
+
+        allItems.forEach(item => {
+          item.style.display = 'none';
+        });
+        
           filtered.forEach((item, idx) => {
             item.style.display = (idx >= (page-1)*itemsPerPage && idx < page*itemsPerPage) ? 'flex' : 'none';
           });
