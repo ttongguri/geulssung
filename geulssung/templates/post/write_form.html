@@ -26,7 +26,7 @@
 <body class="relative bg-[#FFF9F2] min-h-screen pt-4 pb-4 px-4 background">
   <style>
     .background{
-      background-image: url('{% static "images/따듯한 바다.png" %}'); 
+      background-image: url('{% static "images/수정.png" %}'); 
       background-size: cover; 
       background-position: center; 
       background-repeat: no-repeat;
@@ -74,8 +74,8 @@
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
         <div class="flex gap-4">
-          <label><input type="radio" name="category" value="emotion" onchange="showGenres(this.value)"> F감성 글썽이</label>
-          <label><input type="radio" name="category" value="logic" onchange="showGenres(this.value)"> T감성 말썽이</label>
+          <label><input type="radio" name="category" value="emotion" onchange="handleCharacterSelection(this.value)"> F감성 글썽이</label>
+          <label><input type="radio" name="category" value="logic" onchange="handleCharacterSelection(this.value)"> T감성 말썽이</label>
         </div>
       </div>
 
@@ -239,6 +239,28 @@
         promptCache[genre] = data.prompts;
         if (callback) callback();
       });
+  }
+
+  function selectCharacter(type) {
+    const chatbot = document.getElementById('chatbot-character');
+    const img = document.getElementById('chatbot-img');
+
+    // 캐릭터 이미지 변경
+    if (type === 'emotion') {
+      img.src = '/static/images/글썽이.png'; // 글썽이 이미지 경로
+      img.alt = '글썽이';
+    } else if (type === 'logic') {
+      img.src = '/static/images/말썽이.png'; // 말썽이 이미지 경로
+      img.alt = '말썽이';
+    }
+
+    // 챗봇 보여주기
+    chatbot.classList.remove('hidden');
+  }
+
+  function handleCharacterSelection(value) {
+  showGenres(value);        // 기존 기능 복원
+  selectCharacter(value);   // 캐릭터 말풍선 출력
   }
 
   function renderPrompts() {
@@ -412,15 +434,14 @@ function prevStep() {
   }
 }
 </script>
-<!-- ✨ 챗봇 박스 -->
-<div id="chat-box-wrapper" class="fixed bottom-24 right-4 w-[400px] z-50">
-    <button onclick="toggleChat()" class="w-full bg-[#bae6fd] text-[#493E3E] font-bold py-2 rounded-t-xl transition">
-      💬 챗봇 열기 / 닫기
-    </button>
-    <div id="chat-box-content" class="hidden h-[400px] overflow-y-auto px-4 py-3">
-      <p class="text-sm text-gray-500">챗봇 로딩 중입니다...</p>
-    </div>
+
+<!-- 챗봇 캐릭터 및 말풍선 -->
+<div id="chatbot-character" class="fixed bottom-24 right-4 w-[300px] z-50 flex flex-col items-end gap-2 hidden">
+  <div class="bg-white rounded-xl shadow-lg px-4 py-3 text-sm max-w-[250px] text-gray-800">
+    안녕하세요! 글쓰기를 도와드릴게요 😊
   </div>
+  <img id="chatbot-img" src="/static/images/글썽이.png" alt="글썽이" class="w-24 h-auto">
+</div>
   
   <script>
     function toggleChat() {
@@ -430,7 +451,5 @@ function prevStep() {
   </script>
   
   <script src="{% static 'js/chatbot.js' %}"></script>
-
-
 </body>
 </html>
