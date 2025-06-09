@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import UserItem, Character, Item
+from django.views.decorators.http import require_POST
+from django.http              import JsonResponse
 
 # 캐릭터 소유 아이템 확인
 @login_required
@@ -43,3 +45,26 @@ def store_view(request):
         'all_items': all_items,         # 전체 Item
         'owned_item_ids': set(owned_item_ids),  # 빠른 검색을 위해 set으로 넘김
     })
+
+@require_POST
+def purchase_item(request):
+    item_id = request.POST.get('item_id')
+    item = get_object_or_404(Item, id=item_id)
+    user = request.user
+
+    # 이미 보유했는지 검사
+    if UserItem.objects.filter(user=user, item=item).exists():
+        return JsonResponse({'success': False, 'error': 'already_owned'})
+
+    # 크레딧 충분한지 검사
+    if user.credit < item.credit:
+        return JsonResponse({'success': False, 'error': 'not_enough_credit'})
+
+    # 크레딧 차감
+    user.credit -= item.credit
+    user.save()
+
+    # UserItem 생성 (owned=True는 기본값이라면 따로 지정 안 해도 됩니다)
+    UserItem.objects.create(user=user, item=item)
+
+    return JsonResponse({'success': True})

@@ -219,7 +219,7 @@
         <div class="item-list" id="{{ char.name }}-items">
           {% for item in all_items %}
             {% if item.character.id == char.id %}
-              <article class="item" data-cat-part="{{ item.part_code }}" style="display: none;">
+              <article class="item" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
                 {# 1) 이미지: item.image_path(예: 'images/gulsseong_glasses1.png') #}
                 <img
                   src="{% static item.image_path %}"
@@ -248,31 +248,25 @@
   </main>
 
   <script>
-    // ==== 하루 한 번 크레딧 지급 로직 (기존과 동일) ====
-    const creditSpan = document.getElementById('user-credit');
-    const getCreditBtn = document.getElementById('get-credit-btn');
 
-    function hasReceivedToday() {
-      const lastDate = localStorage.getItem('lastCreditDate');
-      const today = new Date().toISOString().slice(0, 10);
-      return lastDate === today;
+    // 1) CSRF 토큰 가져오는 헬퍼
+    function getCookie(name) {
+      let cookieValue = null;
+      document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(c.slice(name.length + 1));
+        }
+      });
+      return cookieValue;
     }
-    function giveCredit() {
-      if (hasReceivedToday()) {
-        alert('오늘 이미 크레딧을 받으셨습니다.');
-        return;
-      }
-      let currentCredit = parseInt(creditSpan.textContent, 10) || 0;
-      currentCredit += 10;
-      creditSpan.textContent = currentCredit;
-      localStorage.setItem('lastCreditDate', new Date().toISOString().slice(0, 10));
-      alert('오늘의 크레딧이 지급되었습니다!');
-    }
-    getCreditBtn.addEventListener('click', giveCredit);
+    const csrftoken = getCookie('csrftoken');
+    const creditSpan = document.getElementById('user-credit');
 
     // ==== 캐릭터 선택 함수 ====
     function showStore(charName) {
       // 1) 모든 캐릭터 버튼 active 해제
+
       document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
       // 2) 클릭된 캐릭터 버튼만 active
       const clickedBtn = document.getElementById(`btn-${charName}`);
@@ -315,22 +309,50 @@
       });
     }
 
-    // ==== 구매 버튼 클릭 로직 ====
+    // 2) DOM이 준비된 뒤에 이벤트 연결
+  window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.buy-button').forEach(btn => {
       btn.addEventListener('click', function() {
-        const priceText = this.parentElement.querySelector('.item-price').textContent;
-        const price = parseInt(priceText.replace(/[^\d]/g, ''), 10);
-        let currentCredit = parseInt(creditSpan.textContent, 10) || 0;
+        const article = this.closest('.item');
+        const itemId  = article.getAttribute('data-item-id');
+        const price   = parseInt(
+          article.querySelector('.item-price').textContent.replace(/[^\d]/g, ''), 10
+        );
+        let currentCredit = parseInt(creditSpan.textContent, 10);
+
         if (currentCredit < price) {
-          alert('크레딧이 부족합니다.');
-          return;
+          return alert('크레딧이 부족합니다.');
         }
-        currentCredit -= price;
-        creditSpan.textContent = currentCredit;
-        alert('아이템을 구매하셨습니다!');
-        // 실제 서비스라면 여기서 Ajax/Post 로 서버에 구매 요청을 보내야 합니다.
+
+        // 3) 서버로 구매 요청
+        fetch("{% url 'purchase_item' %}", {
+          method: 'POST',
+          credentials: 'same-origin',        // 세션 쿠키 전송
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken,        // CSRF 검증
+          },
+          body: new URLSearchParams({ item_id: itemId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // 4) 서버 반영이 성공했을 때만 크레딧 차감·UI 교체
+            creditSpan.textContent = currentCredit - price;
+            const ownedDiv = document.createElement('div');
+            ownedDiv.className   = 'owned-text';
+            ownedDiv.textContent = '이미 보유한 아이템입니다.';
+            this.replaceWith(ownedDiv);
+          } else {
+            alert(data.error === 'not_enough_credit'
+              ? '크레딧이 부족합니다.'
+              : '이미 보유한 아이템입니다.');
+          }
+        })
+        .catch(err => console.error(err));
       });
     });
+  });
   </script>
 </body>
 </html>
