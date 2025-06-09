@@ -27,7 +27,7 @@
         max-width: 1000px;
         margin: 0 auto;
       }
-      /* ── 크레딧 정보 영역 스타일 ── */
+      /* ── 따개비 정보 영역 스타일 ── */
       .credit-info {
         font-size: 1.1rem;
         margin-bottom: 2rem;
@@ -175,12 +175,12 @@
     </header>
 
     <main>
-      <!-- 1. 크레딧 정보를 표시하는 영역: 사용자 닉네임과 현재 크레딧 출력 -->
+      <!-- 1. 따개비 정보를 표시하는 영역: 사용자 닉네임과 현재 따개비 출력 -->
       <div class="credit-info">
         <p>
           안녕하세요, <strong>{{ user.nickname }}</strong>님!<br />
-          현재 보유 크레딧:
-          <span id="user-credit">{{ user.credit }}</span> 점
+          현재 보유 따개비:
+          <span id="user-credit">{{ user.credit }}</span> 개
         </p>
       </div>
 
@@ -249,7 +249,7 @@
                   <!-- 이미지, 이름, 가격 표시 -->
                   <img src="{% static item.image_path %}" alt="{{ item.name }}" class="item-image" />
                   <div class="item-name">{{ item.name }}</div>
-                  <div class="item-price">{{ item.credit }} 크레딧</div>
+                  <div class="item-price">{{ item.credit }} 따개비</div>
 
                   {% if item.id in owned_item_ids %}
                     <!-- 이미 보유한 아이템인 경우 텍스트 표시 -->
@@ -363,9 +363,9 @@
             const price = parseInt(article.querySelector('.item-price').textContent.replace(/[^\d]/g, ''), 10);
             let currentCredit = parseInt(creditSpan.textContent, 10);
 
-            // 크레딧 부족 처리
+            // 따개비 부족 처리
             if (currentCredit < price) {
-              return alert('크레딧이 부족합니다.');
+              return alert('따개비가 부족합니다.');
             }
 
             // Django 뷰 호출로 실제 구매 처리
@@ -381,15 +381,15 @@
               .then((res) => res.json())
               .then((data) => {
                 if (data.success) {
-                  // 구매 성공 시 크레딧 차감 및 UI 업데이트
+                  // 구매 성공 시 따개비 차감 및 UI 업데이트
                   creditSpan.textContent = currentCredit - price;
                   const ownedDiv = document.createElement('div');
                   ownedDiv.className = 'owned-text';
                   ownedDiv.textContent = '이미 보유한 아이템입니다.';
                   this.replaceWith(ownedDiv);
                 } else {
-                  // 에러 처리: 크레딧 부족 또는 이미 보유
-                  alert(data.error === 'not_enough_credit' ? '크레딧이 부족합니다.' : '이미 보유한 아이템입니다.');
+                  // 에러 처리: 따개비 부족 또는 이미 보유
+                  alert(data.error === 'not_enough_credit' ? '따개비가 부족합니다.' : '이미 보유한 아이템입니다.');
                 }
               });
           });
