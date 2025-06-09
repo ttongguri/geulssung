@@ -134,6 +134,26 @@
         font-size: 0.9rem;
         flex-shrink: 0;
       }
+
+      /* 페이지네이션 버튼 */
+      .pagination {
+        margin-top: 1rem;
+        text-align: center;
+      }
+      .page-btn {
+        margin: 0 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        cursor: pointer;
+        background-color: white;
+      }
+      .page-btn.active {
+        background-color: #4a90e2;
+        color: white;
+        border-color: #4a90e2;
+      }
+
     </style>
   </head>
 
@@ -225,6 +245,8 @@
               {% endif %}
             {% endfor %}
           </div>
+
+          <div class="pagination" id="{{ char.name }}-pagination"></div>
         </section>
       {% endfor %}
     </main>
@@ -283,15 +305,31 @@
           .forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // 아이템 표시 로직
-        document.querySelectorAll(`#store-${charName} .item`).forEach(item => {
-          const code = item.dataset.catPart;
-          if (partCode === 'all' || code === partCode) {
-            item.style.display = 'flex';
-          } else {
-            item.style.display = 'none';
+        const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
+        const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
+        const itemsPerPage = 8;
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        const pagination = document.getElementById(`${charName}-pagination`);
+        let currentPage = 1;
+
+        function renderPage(page) {
+          currentPage = page;
+          filtered.forEach((item, idx) => {
+            item.style.display = (idx >= (page-1)*itemsPerPage && idx < page*itemsPerPage) ? 'flex' : 'none';
+          });
+          pagination.innerHTML = '';
+          if (totalPages <= 1) return;
+          for (let i=1; i<= totalPages; i++) {
+            const pbtn = document.createElement('button');
+            pbtn.textContent = i;
+            pbtn.className = 'page-btn';
+            if (i === page) pbtn.classList.add('active');
+            pbtn.addEventListener('click', () => renderPage(i));
+            pagination.appendChild(pbtn);
           }
-        });
+        }
+
+        renderPage(1);
       }
 
       // 구매 버튼 이벤트 바인딩
