@@ -56,7 +56,7 @@ class Post(models.Model):
         except (PostImage.DoesNotExist, ValueError):
             return '/static/images/피그민.png'  # static 경로 기준
 
-# 일일 크레딧 사용 기록
+# 일일 크레딧 지급 기록
 class DailyCreditHistory(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     category = models.CharField(max_length=20)  # 'logic' 또는 'emotion'
