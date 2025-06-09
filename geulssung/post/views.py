@@ -45,6 +45,7 @@ def home_view(request):
         return redirect('set_nickname')
     return render(request, "base.html")
 
+# 글쓰기 폼 페이지를 렌더링합니다.
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
@@ -118,7 +119,18 @@ def write_post_view(request):
         reward_credit_if_first_today(request.user, category, request)
 
         return redirect('post_detail', post_id=post.id)
+    else:
+            # GET 요청일 때: 글쓰기 폼 렌더링 + 오늘 또는 어제 글감 로딩
+            today = date.today()
+            yesterday = today - timedelta(days=1)
 
+            prompts = GeneratedPrompt.objects.filter(created_at__date=today)
+            if not prompts.exists():
+                prompts = GeneratedPrompt.objects.filter(created_at__date=yesterday)
+
+            return render(request, 'post/write_form.html', {
+                'prompts': prompts,
+            })
     return render(request, 'post/write_form.html')
 
 # 오늘 첫 글 작성 여부 확인
