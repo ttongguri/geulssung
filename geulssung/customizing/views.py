@@ -47,6 +47,7 @@ def store_view(request):
     })
 
 @require_POST
+@login_required
 def purchase_item(request):
     item_id = request.POST.get('item_id')
     item = get_object_or_404(Item, id=item_id)
@@ -64,7 +65,7 @@ def purchase_item(request):
     user.credit -= item.credit
     user.save()
 
-    # UserItem 생성 (owned=True는 기본값이라면 따로 지정 안 해도 됩니다)
-    UserItem.objects.create(user=user, item=item)
+    # UserItem 생성
+    UserItem.objects.create(user=user, item=item, owned=True)
 
     return JsonResponse({'success': True})
