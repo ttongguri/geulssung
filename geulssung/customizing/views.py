@@ -1,4 +1,3 @@
-# views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
@@ -6,7 +5,7 @@ from django.views.decorators.http import require_POST
 
 from .models import UserItem, Character, Item
 
-# 내 아이템 목록 보기 (사용 중)
+# 내 아이템 목록 보기
 @login_required
 def user_owned_items_view(request):
     owned_items = (
@@ -21,7 +20,7 @@ def user_owned_items_view(request):
         {'owned_items': owned_items},
     )
 
-# 상점 페이지 보기 (사용 중)
+# 상점 페이지 보기
 @login_required
 def store_view(request):
     owned_item_ids = (
@@ -72,4 +71,3 @@ def purchase_item(request):
 
     return JsonResponse({'success': True})
 
-# TODO: 앞으로 환불 취소 로직이 필요하면 아래에 추가
