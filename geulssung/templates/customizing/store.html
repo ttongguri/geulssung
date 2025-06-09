@@ -321,7 +321,7 @@
         allItems.forEach(item => {
           item.style.display = 'none';
         });
-        
+
           filtered.forEach((item, idx) => {
             item.style.display = (idx >= (page-1)*itemsPerPage && idx < page*itemsPerPage) ? 'flex' : 'none';
           });
@@ -339,17 +339,6 @@
 
         renderPage(1);
       }
-
-      //   아이템 표시 로직
-      //   document.querySelectorAll(`#store-${charName} .item`).forEach(item => {
-      //     const code = item.dataset.catPart;
-      //     if (partCode === 'all' || code === partCode) {
-      //       item.style.display = 'flex';
-      //     } else {
-      //       item.style.display = 'none';
-      //     }
-      //   });
-      // }
 
       // 구매 버튼 이벤트 바인딩
       window.addEventListener('DOMContentLoaded', () => {
