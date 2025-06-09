@@ -44,6 +44,8 @@ def toggle_equip_item(request, item_id):
             user_item.equipped = True
             user_item.save()
 
-        return JsonResponse({'success': True, 'equipped': user_item.equipped})
+            
+
+        return JsonResponse({'success': True, 'equipped': user_item.equipped, 'image_path': user_item.item.image_path,})
     else:
         return JsonResponse({'error': 'POST 요청만 허용됨'}, status=405)

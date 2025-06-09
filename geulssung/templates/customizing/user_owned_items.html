@@ -12,18 +12,20 @@
   <h1 class="text-3xl font-bold mb-6 text-center">🧳 내가 보유한 아이템</h1>
   <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
   
-  <div class="text-center cursor-pointer" onclick="showItems()">
+  <div class="text-center cursor-pointer">
     <div class="flex justify-center items-end gap-6 mb-2">
     
     <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-      <div class="text-center cursor-pointer" onclick="showItems()">
-        <div class="relative w-80 h-80 mx-auto">
+      <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
+        <div class="relative w-80 h-80 mx-auto character-geulssung">
           <!-- 기본 글썽이 -->
           <img src="{% static 'images/글썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
 
           <!-- 착용된 아이템들 (equipped=True) -->
           {% for ui in equipped_items %}
-            <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full">
+            {% if 'geulssung' in ui.item.image_path and ui.equipped %}
+              <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-geulssung-{{ ui.item.id }}">
+            {% endif %}
           {% endfor %}
         </div>
         <p class="text-xs mt-1 text-gray-500">글썽이</p>
@@ -31,17 +33,32 @@
       <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
 
       <!-- 말썽이 캐릭터는 그대로 -->
-      <div class="text-center">
-        <img src="{% static 'images/말썽이.png' %}" alt="말썽이" class="w-24 mx-auto">
+      <!-- 말썽이 캐릭터 -->
+      <div class="text-center cursor-pointer mt-6" onclick="selectCharacter('malssung')">
+        <div class="relative w-80 h-80 mx-auto character-malssung">
+          <img src="{% static 'images/말썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
+          {% for ui in equipped_items %}
+            {% if 'malssung' in ui.item.image_path and ui.equipped %}
+              <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-malssung-{{ ui.item.id }}">
+            {% endif %}
+          {% endfor %}
+        </div>
         <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
     </div>
     <br>
     <div class="text-center">
-      <div class="flex justify-center space-x-4">
+      <div id="geulssung-buttons" class="flex justify-center space-x-4">
         <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
         <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
         <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
+        <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
+      </div>
+
+      <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
+        <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
+        <button onclick="activateButton(this, '옷')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">옷</button>
+        <button onclick="activateButton(this, '모자')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">모자</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
     </div>
@@ -55,7 +72,8 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl">
       {% for ui in owned_items %}
       <div class="item-card hidden inline-block text-center"
-            data-category="{% if 'geulssung_body' in ui.item.image_path %}몸체{% elif 'geulssung_bag' in ui.item.image_path %}가방{% elif 'geulssung_glass' in ui.item.image_path %}안경{% else %}기타{% endif %}">
+             data-character="{% if 'geulssung' in ui.item.image_path %}geulssung{% elif 'malssung' in ui.item.image_path %}malssung{% endif %}"
+            data-category="{% if 'body' in ui.item.image_path %}몸체{% elif 'bag' in ui.item.image_path %}가방{% elif 'glass' in ui.item.image_path %}안경{% elif 'acc' in ui.item.image_path %}악세서리{% elif 'clothes' in ui.item.image_path %}옷{% elif 'head' in ui.item.image_path %}모자{% else %}기타{% endif %}">
           <img src="{% static ui.item.image_path %}"
               onclick="toggleEquip('{{ ui.item.id }}')"
               class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
@@ -71,58 +89,123 @@
     </div>
   </div>
 
-  <script>
-    function showItems() {
-      const section = document.getElementById("item-section");
-      section.classList.remove("hidden");
-    }
-    function toggleEquip(itemId) {
-      fetch(`/my-items/toggle-equip/${itemId}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("서버 응답:", data);
-        if (data.success) {
-          location.reload();  // 버튼 상태 갱신
-        } else {
-          alert("처리 중 문제가 발생했습니다.");
-        }
-      });
-    }
+    <script>
+      let selectedCharacter = null;
+      let selectedCategory = null;
 
-    function showAllItems() {
-      document.querySelectorAll(".category-btn").forEach(btn => {
-        btn.classList.remove("bg-[#00C9A7]", "text-white");
-        btn.classList.add("bg-gray-100", "text-gray-500");
-      });
+      // 🔹 캐릭터 선택 시 필터링
+      function selectCharacter(character) {
+        selectedCharacter = character;
+        selectedCategory = null;
 
-      document.querySelectorAll(".item-card").forEach(card => {
-        card.classList.remove("hidden");
-      });
-    }
-  
-    function activateButton(button, category) {
-      document.querySelectorAll(".category-btn").forEach(btn => {
-        btn.classList.remove("bg-[#00C9A7]", "text-white");
-        btn.classList.add("bg-gray-100", "text-gray-500");
-      });
-  
-      button.classList.remove("bg-gray-100", "text-gray-500");
-      button.classList.add("bg-[#00C9A7]", "text-white");
-  
-      document.querySelectorAll(".item-card").forEach(card => {
-        if (card.dataset.category === category) {
-          card.classList.remove("hidden");
-        } else {
-          card.classList.add("hidden");
+        console.log("선택된 캐릭터:", character); // 디버깅용
+        
+        document.getElementById('geulssung-buttons').classList.toggle('hidden', character !== 'geulssung');
+        document.getElementById('malssung-buttons').classList.toggle('hidden', character !== 'malssung');
+
+        filterItems();
+      }
+
+      // 🔹 카테고리 버튼 클릭 시 필터링
+      function activateButton(button, category) {
+        selectedCategory = category;
+
+        document.querySelectorAll(".category-btn").forEach(btn => {
+          btn.classList.remove("bg-[#00C9A7]", "text-white");
+          btn.classList.add("bg-gray-100", "text-gray-500");
+        });
+
+        button.classList.remove("bg-gray-100", "text-gray-500");
+        button.classList.add("bg-[#00C9A7]", "text-white");
+
+        filterItems();
+      }
+
+      // 🔹 아이템 목록 필터링
+      function filterItems() {
+        document.querySelectorAll(".item-card").forEach(card => {
+          const matchChar = selectedCharacter === null || card.dataset.character === selectedCharacter;
+          const matchCat = selectedCategory === null || card.dataset.category === selectedCategory;
+
+          card.classList.toggle("hidden", !(matchChar && matchCat));
+        });
+      }
+
+      // 🔹 '모두 보기' 클릭 시 필터 해제
+      function showAllItems() {
+        selectedCategory = null;
+
+        document.querySelectorAll(".category-btn").forEach(btn => {
+          btn.classList.remove("bg-[#00C9A7]", "text-white");
+          btn.classList.add("bg-gray-100", "text-gray-500");
+        });
+
+        filterItems();
+      }
+
+      // 🔹 장착/해제 비동기 처리
+      function toggleEquip(itemId) {
+        fetch(`/my-items/toggle-equip/${itemId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateItemStatus(itemId, data.equipped, data.image_path);
+          } else {
+            alert("처리 중 문제가 발생했습니다.");
+          }
+        });
+      }
+
+      function updateItemStatus(itemId, equipped, imagePath) {
+        const itemCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+        const statusSpan = itemCard.querySelector('p span');
+
+        const isMalssung = imagePath.includes('malssung');
+        const targetContainerSelector = isMalssung ? '.character-malssung' : '.character-geulssung';
+        const targetContainer = document.querySelector(targetContainerSelector);
+
+        const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
+        const part = partMatch ? partMatch[1] : null;
+
+        // 기존 동일 부위 이미지 제거
+        if (part) {
+          const oldImg = targetContainer.querySelector(`img[data-part="${part}"]`);
+          if (oldImg) oldImg.remove();
         }
-      });
-    }
-  
+
+        // 모든 해당 부위의 아이템 텍스트 상태 미착용으로 초기화
+        document.querySelectorAll(".item-card").forEach(card => {
+          if (
+            card.dataset.character === (isMalssung ? 'malssung' : 'geulssung') &&
+            card.dataset.category === convertPartToKorean(part)
+          ) {
+            const span = card.querySelector('p span');
+            span.innerText = '미착용';
+            span.classList.remove('text-green-500');
+            span.classList.add('text-gray-400');
+          }
+        });
+
+        if (equipped) {
+          // 텍스트 업데이트
+          statusSpan.innerText = '착용 중';
+          statusSpan.classList.remove('text-gray-400');
+          statusSpan.classList.add('text-green-500');
+
+          // 새로운 이미지 추가
+          const img = document.createElement('img');
+          img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
+          img.className = 'absolute top-0 left-0 z-20 w-full';
+          img.setAttribute('data-part', part);
+          targetContainer.appendChild(img);
+        }
+      }
+
   </script>
 </body>
 </html>
