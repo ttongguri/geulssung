@@ -200,12 +200,6 @@
             <button
               class="category-btn"
               data-char="{{ char.name }}"
-              data-part="3"
-              onclick="selectCategory(this)">
-              머리</button>
-            <button
-              class="category-btn"
-              data-char="{{ char.name }}"
               data-part="1"
               onclick="selectCategory(this)">
               옷</button>
@@ -215,6 +209,12 @@
               data-part="2"
               onclick="selectCategory(this)">
               악세서리</button>
+            <button
+              class="category-btn"
+              data-char="{{ char.name }}"
+              data-part="3"
+              onclick="selectCategory(this)">
+              머리</button>
           </div>
 
           <div class="item-list" id="{{ char.name }}-items">
@@ -331,6 +331,17 @@
 
         renderPage(1);
       }
+
+      //   아이템 표시 로직
+      //   document.querySelectorAll(`#store-${charName} .item`).forEach(item => {
+      //     const code = item.dataset.catPart;
+      //     if (partCode === 'all' || code === partCode) {
+      //       item.style.display = 'flex';
+      //     } else {
+      //       item.style.display = 'none';
+      //     }
+      //   });
+      // }
 
       // 구매 버튼 이벤트 바인딩
       window.addEventListener('DOMContentLoaded', () => {
