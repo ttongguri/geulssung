@@ -1,3 +1,4 @@
+{% load static %}
 <div class="relative w-80 h-80 mx-auto character-{{ character }}">
   <!-- 기본 캐릭터 -->
   {% if character == 'geulssung' %}
@@ -9,23 +10,22 @@
   <!-- 착용된 아이템 이미지 -->
   {% for ui in equipped_items %}
     {% if character in ui.item.image_path and ui.equipped %}
-      {% with path=ui.item.image_path %}
+      {% with ui.item.image_path as path %}
         {% if 'body' in path %}
-          {% set zindex = '11' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:11">
         {% elif 'clothes' in path %}
-          {% set zindex = '12' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:12">
         {% elif 'bag' in path %}
-          {% set zindex = '13' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:13">
         {% elif 'glass' in path %}
-          {% set zindex = '14' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:14">
         {% elif 'acc' in path %}
-          {% set zindex = '15' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:15">
         {% elif 'head' in path %}
-          {% set zindex = '16' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:16">
         {% else %}
-          {% set zindex = '20' %}
+          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:20">
         {% endif %}
-        <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 w-full" style="z-index:{{ zindex }}">
       {% endwith %}
     {% endif %}
   {% endfor %}

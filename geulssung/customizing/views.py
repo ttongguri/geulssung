@@ -50,7 +50,6 @@ def toggle_equip_item(request, item_id):
     else:
         return JsonResponse({'error': 'POST 요청만 허용됨'}, status=405)
 
-
 # 상점 페이지 보기
 @login_required
 def store_view(request):
