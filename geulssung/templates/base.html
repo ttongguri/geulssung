@@ -98,5 +98,13 @@
   <footer class="text-center text-sm text-[#6B5B5B] mb-4 z-10">
     © 글썽글썽 2025. 생각이 차오르면, 표현도 자랍니다 🌱
   </footer>
+
+  {% if messages %}
+    {% for message in messages %}
+      {% if "따개비" in message %}
+        <p>{{ message }}</p>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 </body>
 </html>
