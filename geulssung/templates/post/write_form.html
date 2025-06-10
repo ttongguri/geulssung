@@ -451,22 +451,5 @@ function prevStep() {
   </script>
   
   <script src="{% static 'js/chatbot.js' %}"></script>
-
-
-  {% if messages %}
-  <div id="toast" class="fixed top-10 right-10 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded shadow z-50">
-    {% for message in messages %}
-      <p>{{ message }}</p>
-    {% endfor %}
-  </div>
-  <script>
-    setTimeout(() => {
-      const toast = document.getElementById('toast');
-      if (toast) toast.remove();
-    }, 3000);
-  </script>
-{% endif %}
-
-
 </body>
 </html>

@@ -169,16 +169,29 @@
 
   {% if is_author %}
   <div class="fixed bottom-6 right-6 z-50 text-sm">
-    <div id="evaluation-popup" class="{% if post.evaluation %}block{% else %}hidden{% endif %} mb-3 w-96 p-5 bg-white border-2 border-[#facc15] rounded-2xl shadow-xl text-[#493E3E] z-50 transition-all">
-      <h3 class="font-extrabold text-lg text-center mb-3">📊 평가 결과</h3>
+    <div id="evaluation-popup"
+    class="fixed bottom-28 right-6 w-96 p-5 bg-white border-2 border-[#facc15] rounded-2xl shadow-xl text-[#493E3E] z-50 transition-all {% if post.evaluation %}block{% else %}hidden{% endif %}">
+     <h3 class="font-extrabold text-lg text-center mb-3">📊 평가 결과</h3>
       <ul class="space-y-3 text-base">
         <li><strong>점수:</strong> <span id="score-text" class="text-[#f59e0b] font-bold">{% if post.evaluation %}{{ post.evaluation.score }}{% endif %}</span>/100</li>
         <li><strong>장점:</strong> <p id="good-text" class="whitespace-pre-wrap ml-2">{% if post.evaluation %}{{ post.evaluation.good }}{% endif %}</p></li>
         <li><strong>개선점:</strong> <p id="improve-text" class="whitespace-pre-wrap ml-2">{% if post.evaluation %}{{ post.evaluation.improve }}{% endif %}</p></li>
       </ul>
     </div>
-    <button id="evaluate-btn" class="px-6 py-4 text-lg bg-[#facc15] hover:bg-[#f59e0b] text-[#493E3E] font-extrabold rounded-full shadow-xl transition-all duration-200 tracking-wide">✨ 평가받기</button>
-  </div>
+    {% if post.evaluation %}
+    <div class="fixed bottom-6 right-6 z-50">
+      <button disabled
+              class="px-6 py-4 text-lg bg-green-400 text-white font-extrabold rounded-full shadow-xl tracking-wide transition-all duration-200 cursor-not-allowed">
+        ✅ 평가 완료
+      </button>
+    </div>
+  {% else %}
+    <button id="evaluate-btn"
+            class="px-6 py-4 text-lg bg-[#facc15] hover:bg-[#f59e0b] text-[#493E3E] font-extrabold rounded-full shadow-xl transition-all duration-200 tracking-wide">
+      ✨ 평가받기
+    </button>
+  {% endif %}
+    </div>
   {% endif %}
 
 <script>
@@ -237,20 +250,26 @@ if (evaluateBtn) {
         document.getElementById("good-text").textContent = data.good;
         document.getElementById("improve-text").textContent = data.improve;
         document.getElementById("evaluation-popup").classList.remove("hidden");
+        evaluateBtn.outerHTML = `
+        <div class="fixed bottom-6 right-6 z-50">
+          <button disabled
+                  class="px-6 py-4 text-lg bg-green-400 text-white font-extrabold rounded-full shadow-xl tracking-wide transition-all duration-200 cursor-not-allowed">
+            ✅ 평가 완료
+          </button>
+        </div>
+        `;
       } else {
         alert("평가 실패: " + (data.error || "알 수 없는 오류"));
       }
     } catch (e) {
       alert("서버 오류로 평가에 실패했습니다.");
     }
-    evaluateBtn.disabled = false;
-    evaluateBtn.textContent = originalText;
   });
 }
 </script>
 
 {% if messages %}
-  <div id="toast" class="fixed top-10 right-10 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded shadow z-50">
+  <div id="toast" class="fixed top-24 right-10 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded shadow z-50">
     {% for message in messages %}
       <p>{{ message }}</p>
     {% endfor %}

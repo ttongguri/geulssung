@@ -56,6 +56,19 @@ class Post(models.Model):
         except (PostImage.DoesNotExist, ValueError):
             return '/static/images/피그민.png'  # static 경로 기준
 
+# 일일 크레딧 지급 기록
+class DailyCreditHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    category = models.CharField(max_length=20)  # 'logic' 또는 'emotion'
+    date = models.DateField()
+
+    class Meta:
+        unique_together = ('user', 'category', 'date')
+
+    def __str__(self):
+        return f"{self.user} - {self.category} - {self.date}"
+
+
 # 게시글 이미지 모델
 class PostImage(models.Model):
     post = models.OneToOneField(Post, on_delete=models.CASCADE)

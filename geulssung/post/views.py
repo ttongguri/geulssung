@@ -21,6 +21,8 @@ from .services import evaluate_post_with_gemini
 from .models import PostEvaluation
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from datetime import date
+from .models import DailyCreditHistory
 
 
 # hj - gemini_api_key 삽입
@@ -43,6 +45,7 @@ def home_view(request):
         return redirect('set_nickname')
     return render(request, "base.html")
 
+# 글쓰기 폼 페이지를 렌더링합니다.
 @login_required
 def write_post_view(request):
     if request.method == 'POST':
@@ -80,7 +83,6 @@ def write_post_view(request):
             })
         # 보상 조건 체크
         category = request.POST.get('category')
-        first_today = is_first_post_today(request.user, category)
 
         # 글감 처리
         prompt_obj = None
@@ -114,27 +116,39 @@ def write_post_view(request):
             PostImage.objects.create(post=post, image=request.FILES['cover_image'])
 
         # 크레딧 지급
-        if first_today:
-            reward_credit(request.user, 25)
-            messages.success(request, "🎁 오늘 첫 글! 따개비 25개 채집해왔어요.")
-
+        reward_credit_if_first_today(request.user, category, request)
 
         return redirect('post_detail', post_id=post.id)
+    else:
+            # GET 요청일 때: 글쓰기 폼 렌더링 + 오늘 또는 어제 글감 로딩
+            today = date.today()
+            yesterday = today - timedelta(days=1)
 
+            prompts = GeneratedPrompt.objects.filter(created_at__date=today)
+            if not prompts.exists():
+                prompts = GeneratedPrompt.objects.filter(created_at__date=yesterday)
+
+            return render(request, 'post/write_form.html', {
+                'prompts': prompts,
+            })
     return render(request, 'post/write_form.html')
 
 # 오늘 첫 글 작성 여부 확인
-def is_first_post_today(user, category):
-    return not Post.objects.filter(
-        author=user,
-        category=category,
-        created_at__date=timezone.now().date()
+def reward_credit_if_first_today(user, category, request=None):
+    today = date.today()
+
+    already_rewarded = DailyCreditHistory.objects.filter(
+        user=user, category=category, date=today
     ).exists()
 
-# 크레딧 지급
-def reward_credit(user, amount):
-    user.credit += amount
-    user.save()
+    if not already_rewarded:
+        user.credit += 25
+        user.save()
+
+        DailyCreditHistory.objects.create(user=user, category=category, date=today)
+
+        if request:
+            messages.success(request, "🎁 오늘 첫 글! 따개비 25개가 지급되었어요.")
 
 # 글 상세 페이지를 렌더링합니다.
 @login_required
