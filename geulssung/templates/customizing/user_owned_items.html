@@ -22,11 +22,11 @@
           <img src="{% static 'images/글썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
 
           <!-- 착용된 아이템들 (equipped=True) -->
-          <!-- {% for ui in equipped_items %}
+          {% for ui in equipped_items %}
             {% if 'geulssung' in ui.item.image_path and ui.equipped %}
               <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-geulssung-{{ ui.item.id }}">
             {% endif %}
-          {% endfor %} -->
+          {% endfor %}
         </div>
         <p class="text-xs mt-1 text-gray-500">글썽이</p>
       </div>
@@ -38,11 +38,11 @@
         <div class="relative w-80 h-80 mx-auto character-malssung">
           <!-- 기본 말썽이 -->
           <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-          <!-- {% for ui in equipped_items %}
+          {% for ui in equipped_items %}
             {% if 'malssung' in ui.item.image_path and ui.equipped %}
               <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-malssung-{{ ui.item.id }}">
             {% endif %}
-          {% endfor %} -->
+          {% endfor %}
         </div>
         <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
@@ -172,6 +172,16 @@
 
       // 🔹 장착/해제 비동기 처리
       function toggleEquip(itemId) {
+        const clickedCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+        const statusSpan = clickedCard.querySelector('p span');
+        const isCurrentlyEquipped = statusSpan.innerText === '착용 중';
+
+        // UI 반영 먼저 (optimistic UI)
+        statusSpan.innerText = isCurrentlyEquipped ? '미착용' : '착용 중';
+        statusSpan.classList.toggle('text-green-500', !isCurrentlyEquipped);
+        statusSpan.classList.toggle('text-gray-400', isCurrentlyEquipped);
+
+        // 백엔드 호출 (최종 확정)
         fetch(`/my-items/toggle-equip/${itemId}/`, {
           method: 'POST',
           headers: {
@@ -183,11 +193,43 @@
           if (data.success) {
             updateItemStatus(itemId, data.equipped, data.image_path);
           } else {
-            alert("처리 중 문제가 발생했습니다.");
+            // 실패 시 원래대로 롤백
+            statusSpan.innerText = isCurrentlyEquipped ? '착용 중' : '미착용';
+            statusSpan.classList.toggle('text-green-500', isCurrentlyEquipped);
+            statusSpan.classList.toggle('text-gray-400', !isCurrentlyEquipped);
+            alert("서버 처리 실패");
           }
         });
       }
+      // 기존 해당 부위 이미지 제거
+      const existingImg = targetContainer.querySelector(`img[data-part="${part}"]`);
+      if (existingImg) existingImg.remove();
 
+      if (equipped) {
+        // 텍스트 업데이트는 위에서 먼저 했으니 생략 가능 (중복 제거해도 됨)
+
+        // 이미지 생성
+        const img = document.createElement('img');
+        img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
+        img.className = 'absolute top-0 left-0 w-full';
+        img.setAttribute('data-part', part);
+
+        // z-index 명시
+        img.style.zIndex = part === 'body' ? '10' : '20';
+
+        if (part === 'body') {
+          const baseImg = targetContainer.querySelector('img');
+          if (baseImg && baseImg.nextSibling) {
+            targetContainer.insertBefore(img, baseImg.nextSibling);
+          } else {
+            targetContainer.appendChild(img);
+          }
+        } else {
+          targetContainer.appendChild(img);
+        }
+      }
+
+      // 아이템 착용 상태 업데이트
       function updateItemStatus(itemId, equipped, imagePath) {
         const itemCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
         const statusSpan = itemCard.querySelector('p span');
@@ -246,8 +288,6 @@
           }
         }
       }
-
-
 
       function convertPartToKorean(part) {
         switch (part) {
