@@ -23,6 +23,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from .models import DailyCreditHistory
+from django.db.models import Q
+from prompts.models import GeneratedPrompt
 
 
 # hj - gemini_api_key 삽입
@@ -173,12 +175,21 @@ def post_detail_view(request, post_id):
 # 특정 유저의 공개글/전체글 목록을 보여줍니다.
 def public_posts_by_user(request, nickname):
     author = get_object_or_404(User, nickname=nickname)
+    q = request.GET.get('q', '').strip() # 검색어
 
     # 로그인한 사용자가 해당 nickname 주인일 경우 → 전체 글
     if request.user.is_authenticated and request.user.nickname == nickname:
         posts = Post.objects.filter(author=author).order_by('-created_at')
     else:
         posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
+
+    # 검색필터 적용
+    if q:
+        posts = posts.filter(
+            Q(title__icontains=q) |
+            Q(final_content__icontains=q) |
+            Q(prompt__content__icontains=q)
+        )
 
     # 팔로잉 여부 체크 (다른 사람 프로필일 때만)
     is_following = False
@@ -189,6 +200,7 @@ def public_posts_by_user(request, nickname):
         'author': author,
         'posts': posts,
         'is_following': is_following,
+        'q': q,
     })
 
 # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
