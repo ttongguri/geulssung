@@ -16,20 +16,16 @@
     <div class="flex justify-center items-end gap-6 mb-2">
     
     <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-      <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-        <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
-          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-        </div>
-        <p class="text-xs mt-1 text-gray-500">글썽이</p>
-      </div>
+    <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
+      {% include "customizing/character_render.html" with character="geulssung" equipped_items=equipped_items %}
+      <p class="text-xs mt-1 text-gray-500">글썽이</p>
+    </div>
       <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
 
       <!-- 말썽이 캐릭터는 그대로 -->
       <!-- 말썽이 캐릭터 -->
       <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-        <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
-          <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-        </div>
+        {% include "customizing/character_render.html" with character="malssung" equipped_items=equipped_items %}
         <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
     </div>
@@ -217,52 +213,50 @@
 
   // 🔹 장착 상태 반영
   function updateItemStatus(itemId, equipped, imagePath) {
-    const itemCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
-    const statusSpan = itemCard.querySelector('p span');
+  const isMalssung = imagePath.includes('malssung');
+  const character = isMalssung ? 'malssung' : 'geulssung';
+  const targetContainer = document.querySelector(`.character-${character}`);
 
-    const isMalssung = imagePath.includes('malssung');
-    const targetContainerSelector = isMalssung ? '.character-malssung' : '.character-geulssung';
-    const targetContainer = document.querySelector(targetContainerSelector);
+  const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
+  const part = partMatch ? partMatch[1] : null;
+  const categoryKor = convertPartToKorean(part);
 
-    const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
-    const part = partMatch ? partMatch[1] : null;
-    const categoryKor = convertPartToKorean(part);
-    const character = isMalssung ? 'malssung' : 'geulssung';
+  // 기존 캐릭터 이미지 제거 (해당 파츠만)
+  const existingImgs = targetContainer.querySelectorAll(`img[data-part="${part}"]`);
+  existingImgs.forEach(img => img.remove());
 
-    // 기존 같은 부위 전부 제거
-    const existingImgs = targetContainer.querySelectorAll(`img[data-part="${part}"]`);
-    existingImgs.forEach(img => img.remove());
+  // 텍스트 초기화 (같은 부위의 모든 카드)
+  document.querySelectorAll(`.item-card[data-character="${character}"][data-category="${categoryKor}"]`).forEach(card => {
+    const span = card.querySelector('p span');
+    span.innerText = '미착용';
+    span.classList.remove('text-green-500');
+    span.classList.add('text-gray-400');
+  });
 
-    // 텍스트 초기화 (같은 부위 다른 카드들)
-    document.querySelectorAll(`.item-card[data-character="${character}"][data-category="${categoryKor}"]`).forEach(card => {
-      const span = card.querySelector('p span');
-      span.innerText = '미착용';
-      span.classList.remove('text-green-500');
-      span.classList.add('text-gray-400');
-    });
+  // 이미지 추가
+  if (equipped) {
+    const img = document.createElement('img');
+    img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
+    img.className = 'absolute top-0 left-0 w-full';
+    img.setAttribute('data-part', part);
+    img.style.zIndex = part === 'body' ? '10' : '20';
 
-    if (equipped) {
-      // 텍스트 변경
-      statusSpan.innerText = '착용 중';
-      statusSpan.classList.remove('text-gray-400');
-      statusSpan.classList.add('text-green-500');
-
-      // 이미지 추가
-      const img = document.createElement('img');
-      img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
-      img.className = 'absolute top-0 left-0 w-full';
-      img.setAttribute('data-part', part);
-      img.style.zIndex = part === 'body' ? '10' : '20';
-
-      // 삽입
-      const baseImg = targetContainer.querySelector('img');
-      if (part === 'body' && baseImg && baseImg.nextSibling) {
-        targetContainer.insertBefore(img, baseImg.nextSibling);
-      } else {
-        targetContainer.appendChild(img);
-      }
+    const baseImg = targetContainer.querySelector(`img:not([data-part])`);
+    if (part === 'body' && baseImg && baseImg.nextSibling) {
+      targetContainer.insertBefore(img, baseImg.nextSibling);
+    } else {
+      targetContainer.appendChild(img);
     }
+
+    // 카드에도 텍스트 반영
+    const thisCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+    const statusSpan = thisCard.querySelector('p span');
+    statusSpan.innerText = '착용 중';
+    statusSpan.classList.remove('text-gray-400');
+    statusSpan.classList.add('text-green-500');
   }
+}
+
 
   function convertPartToKorean(part) {
     switch (part) {
