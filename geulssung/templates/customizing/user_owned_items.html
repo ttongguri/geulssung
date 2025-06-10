@@ -17,16 +17,8 @@
     
     <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
       <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-        <div class="relative w-80 h-80 mx-auto character-geulssung">
-          <!-- 기본 글썽이 -->
-          <img src="{% static 'images/글썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
-
-          <!-- 착용된 아이템들 (equipped=True) -->
-          {% for ui in equipped_items %}
-            {% if 'geulssung' in ui.item.image_path and ui.equipped %}
-              <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-geulssung-{{ ui.item.id }}">
-            {% endif %}
-          {% endfor %}
+        <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
+          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
         </div>
         <p class="text-xs mt-1 text-gray-500">글썽이</p>
       </div>
@@ -35,14 +27,8 @@
       <!-- 말썽이 캐릭터는 그대로 -->
       <!-- 말썽이 캐릭터 -->
       <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-        <div class="relative w-80 h-80 mx-auto character-malssung">
-          <!-- 기본 말썽이 -->
+        <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
           <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-          {% for ui in equipped_items %}
-            {% if 'malssung' in ui.item.image_path and ui.equipped %}
-              <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 z-20 w-full" id="equipped-malssung-{{ ui.item.id }}">
-            {% endif %}
-          {% endfor %}
         </div>
         <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
@@ -116,191 +102,180 @@
     </div>
   </div>
 
-    <script>
-      let selectedCharacter = null;
-      let selectedCategory = null;
+<script>
+  let selectedCharacter = null;
+  let selectedCategory = null;
 
-      // 🔹 캐릭터 선택 시 필터링
-      function selectCharacter(character) {
-        selectedCharacter = character;
-        selectedCategory = null;
+  // 🔹 초기 장착 아이템 mount
+  const initialEquippedItems = [
+    {% for ui in equipped_items %}
+      {% with path=ui.item.image_path %}
+        {% if ui.equipped %}
+          {
+            id: {{ ui.item.id }},
+            image_path: "{% static ui.item.image_path %}",
+            character: "{% if 'malssung' in path %}malssung{% else %}geulssung{% endif %}",
+            part: "{% if 'body' in path %}body{% elif 'bag' in path %}bag{% elif 'glass' in path %}glass{% elif 'acc' in path %}acc{% elif 'clothes' in path %}clothes{% elif 'head' in path %}head{% endif %}"
+          },
+        {% endif %}
+      {% endwith %}
+    {% endfor %}
+  ];
 
-        console.log("선택된 캐릭터:", character); // 디버깅용
-        
-        document.getElementById('geulssung-buttons').classList.toggle('hidden', character !== 'geulssung');
-        document.getElementById('malssung-buttons').classList.toggle('hidden', character !== 'malssung');
-
-        filterItems();
+  window.addEventListener('DOMContentLoaded', () => {
+    initialEquippedItems.forEach(item => {
+      const target = document.querySelector(`.character-${item.character}`);
+      const img = document.createElement('img');
+      img.src = item.image_path;
+      img.className = 'absolute top-0 left-0 w-full';
+      img.setAttribute('data-part', item.part);
+      img.style.zIndex = item.part === 'body' ? '10' : '20';
+      const base = target.querySelector('img');
+      if (item.part === 'body' && base && base.nextSibling) {
+        target.insertBefore(img, base.nextSibling);
+      } else {
+        target.appendChild(img);
       }
+    });
+  });
 
-      // 🔹 카테고리 버튼 클릭 시 필터링
-      function activateButton(button, category) {
-        selectedCategory = category;
+  // 🔹 캐릭터 선택
+  function selectCharacter(character) {
+    selectedCharacter = character;
+    selectedCategory = null;
 
-        document.querySelectorAll(".category-btn").forEach(btn => {
-          btn.classList.remove("bg-[#00C9A7]", "text-white");
-          btn.classList.add("bg-gray-100", "text-gray-500");
-        });
+    document.getElementById('geulssung-buttons').classList.toggle('hidden', character !== 'geulssung');
+    document.getElementById('malssung-buttons').classList.toggle('hidden', character !== 'malssung');
 
-        button.classList.remove("bg-gray-100", "text-gray-500");
-        button.classList.add("bg-[#00C9A7]", "text-white");
+    filterItems();
+  }
 
-        filterItems();
+  // 🔹 부위 버튼 클릭 시
+  function activateButton(button, category) {
+    selectedCategory = category;
+
+    document.querySelectorAll(".category-btn").forEach(btn => {
+      btn.classList.remove("bg-[#00C9A7]", "text-white");
+      btn.classList.add("bg-gray-100", "text-gray-500");
+    });
+
+    button.classList.remove("bg-gray-100", "text-gray-500");
+    button.classList.add("bg-[#00C9A7]", "text-white");
+
+    filterItems();
+  }
+
+  // 🔹 아이템 필터링
+  function filterItems() {
+    document.querySelectorAll(".item-card").forEach(card => {
+      const matchChar = selectedCharacter === null || card.dataset.character === selectedCharacter;
+      const matchCat = selectedCategory === null || card.dataset.category === selectedCategory;
+      card.classList.toggle("hidden", !(matchChar && matchCat));
+    });
+  }
+
+  // 🔹 모두 보기
+  function showAllItems() {
+    selectedCategory = null;
+    document.querySelectorAll(".category-btn").forEach(btn => {
+      btn.classList.remove("bg-[#00C9A7]", "text-white");
+      btn.classList.add("bg-gray-100", "text-gray-500");
+    });
+    filterItems();
+  }
+
+  // 🔹 장착/해제 toggle
+  function toggleEquip(itemId) {
+    const clickedCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+    const statusSpan = clickedCard.querySelector('p span');
+    const isCurrentlyEquipped = statusSpan.innerText === '착용 중';
+
+    // 선반영
+    statusSpan.innerText = isCurrentlyEquipped ? '미착용' : '착용 중';
+    statusSpan.classList.toggle('text-green-500', !isCurrentlyEquipped);
+    statusSpan.classList.toggle('text-gray-400', isCurrentlyEquipped);
+
+    fetch(`/my-items/toggle-equip/${itemId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
       }
-
-      // 🔹 아이템 목록 필터링
-      function filterItems() {
-        document.querySelectorAll(".item-card").forEach(card => {
-          const matchChar = selectedCharacter === null || card.dataset.character === selectedCharacter;
-          const matchCat = selectedCategory === null || card.dataset.category === selectedCategory;
-
-          card.classList.toggle("hidden", !(matchChar && matchCat));
-        });
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        updateItemStatus(itemId, data.equipped, data.image_path);
+      } else {
+        // 롤백
+        statusSpan.innerText = isCurrentlyEquipped ? '착용 중' : '미착용';
+        statusSpan.classList.toggle('text-green-500', isCurrentlyEquipped);
+        statusSpan.classList.toggle('text-gray-400', !isCurrentlyEquipped);
+        alert("처리 중 오류가 발생했습니다.");
       }
+    });
+  }
 
-      // 🔹 '모두 보기' 클릭 시 필터 해제
-      function showAllItems() {
-        selectedCategory = null;
+  // 🔹 장착 상태 반영
+  function updateItemStatus(itemId, equipped, imagePath) {
+    const itemCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+    const statusSpan = itemCard.querySelector('p span');
 
-        document.querySelectorAll(".category-btn").forEach(btn => {
-          btn.classList.remove("bg-[#00C9A7]", "text-white");
-          btn.classList.add("bg-gray-100", "text-gray-500");
-        });
+    const isMalssung = imagePath.includes('malssung');
+    const targetContainerSelector = isMalssung ? '.character-malssung' : '.character-geulssung';
+    const targetContainer = document.querySelector(targetContainerSelector);
 
-        filterItems();
+    const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
+    const part = partMatch ? partMatch[1] : null;
+    const categoryKor = convertPartToKorean(part);
+    const character = isMalssung ? 'malssung' : 'geulssung';
+
+    // 기존 같은 부위 전부 제거
+    const existingImgs = targetContainer.querySelectorAll(`img[data-part="${part}"]`);
+    existingImgs.forEach(img => img.remove());
+
+    // 텍스트 초기화 (같은 부위 다른 카드들)
+    document.querySelectorAll(`.item-card[data-character="${character}"][data-category="${categoryKor}"]`).forEach(card => {
+      const span = card.querySelector('p span');
+      span.innerText = '미착용';
+      span.classList.remove('text-green-500');
+      span.classList.add('text-gray-400');
+    });
+
+    if (equipped) {
+      // 텍스트 변경
+      statusSpan.innerText = '착용 중';
+      statusSpan.classList.remove('text-gray-400');
+      statusSpan.classList.add('text-green-500');
+
+      // 이미지 추가
+      const img = document.createElement('img');
+      img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
+      img.className = 'absolute top-0 left-0 w-full';
+      img.setAttribute('data-part', part);
+      img.style.zIndex = part === 'body' ? '10' : '20';
+
+      // 삽입
+      const baseImg = targetContainer.querySelector('img');
+      if (part === 'body' && baseImg && baseImg.nextSibling) {
+        targetContainer.insertBefore(img, baseImg.nextSibling);
+      } else {
+        targetContainer.appendChild(img);
       }
+    }
+  }
 
-      // 🔹 장착/해제 비동기 처리
-      function toggleEquip(itemId) {
-        const clickedCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
-        const statusSpan = clickedCard.querySelector('p span');
-        const isCurrentlyEquipped = statusSpan.innerText === '착용 중';
-
-        // UI 반영 먼저 (optimistic UI)
-        statusSpan.innerText = isCurrentlyEquipped ? '미착용' : '착용 중';
-        statusSpan.classList.toggle('text-green-500', !isCurrentlyEquipped);
-        statusSpan.classList.toggle('text-gray-400', isCurrentlyEquipped);
-
-        // 백엔드 호출 (최종 확정)
-        fetch(`/my-items/toggle-equip/${itemId}/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            updateItemStatus(itemId, data.equipped, data.image_path);
-          } else {
-            // 실패 시 원래대로 롤백
-            statusSpan.innerText = isCurrentlyEquipped ? '착용 중' : '미착용';
-            statusSpan.classList.toggle('text-green-500', isCurrentlyEquipped);
-            statusSpan.classList.toggle('text-gray-400', !isCurrentlyEquipped);
-            alert("서버 처리 실패");
-          }
-        });
-      }
-      // 기존 해당 부위 이미지 제거
-      const existingImg = targetContainer.querySelector(`img[data-part="${part}"]`);
-      if (existingImg) existingImg.remove();
-
-      if (equipped) {
-        // 텍스트 업데이트는 위에서 먼저 했으니 생략 가능 (중복 제거해도 됨)
-
-        // 이미지 생성
-        const img = document.createElement('img');
-        img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
-        img.className = 'absolute top-0 left-0 w-full';
-        img.setAttribute('data-part', part);
-
-        // z-index 명시
-        img.style.zIndex = part === 'body' ? '10' : '20';
-
-        if (part === 'body') {
-          const baseImg = targetContainer.querySelector('img');
-          if (baseImg && baseImg.nextSibling) {
-            targetContainer.insertBefore(img, baseImg.nextSibling);
-          } else {
-            targetContainer.appendChild(img);
-          }
-        } else {
-          targetContainer.appendChild(img);
-        }
-      }
-
-      // 아이템 착용 상태 업데이트
-      function updateItemStatus(itemId, equipped, imagePath) {
-        const itemCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
-        const statusSpan = itemCard.querySelector('p span');
-
-        const isMalssung = imagePath.includes('malssung');
-        const targetContainerSelector = isMalssung ? '.character-malssung' : '.character-geulssung';
-        const targetContainer = document.querySelector(targetContainerSelector);
-
-        const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
-        const part = partMatch ? partMatch[1] : null;
-        const categoryKor = convertPartToKorean(part);
-
-        // 모든 해당 부위 텍스트 초기화
-        document.querySelectorAll(".item-card").forEach(card => {
-          if (
-            card.dataset.character === (isMalssung ? 'malssung' : 'geulssung') &&
-            card.dataset.category === categoryKor
-          ) {
-            const span = card.querySelector('p span');
-            span.innerText = '미착용';
-            span.classList.remove('text-green-500');
-            span.classList.add('text-gray-400');
-          }
-        });
-
-        // 기존 해당 부위 이미지 제거
-        const existingImg = targetContainer.querySelector(`img[data-part="${part}"]`);
-        if (existingImg) existingImg.remove();
-
-        if (equipped) {
-          // 텍스트 업데이트
-          statusSpan.innerText = '착용 중';
-          statusSpan.classList.remove('text-gray-400');
-          statusSpan.classList.add('text-green-500');
-
-          // 이미지 생성
-          const img = document.createElement('img');
-          img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
-          img.className = 'absolute top-0 left-0 w-full';
-          img.setAttribute('data-part', part);
-
-          // z-index 명시
-          img.style.zIndex = part === 'body' ? '10' : '20';
-
-          // ✅ 몸체는 항상 가장 먼저 삽입 (기본 캐릭터 이미지 다음에 위치)
-          if (part === 'body') {
-            const baseImg = targetContainer.querySelector('img'); // 기본 글썽이/말썽이
-            if (baseImg && baseImg.nextSibling) {
-              targetContainer.insertBefore(img, baseImg.nextSibling); // base 다음 위치
-            } else {
-              targetContainer.appendChild(img);
-            }
-          } else {
-            // 나머지는 그냥 뒤에 추가 (더 위에 보임)
-            targetContainer.appendChild(img);
-          }
-        }
-      }
-
-      function convertPartToKorean(part) {
-        switch (part) {
-          case 'body': return '몸체';
-          case 'bag': return '가방';
-          case 'glass': return '안경';
-          case 'acc': return '악세서리';
-          case 'clothes': return '옷';
-          case 'head': return '모자';
-          default: return '';
-        }
-      }
-
-  </script>
+  function convertPartToKorean(part) {
+    switch (part) {
+      case 'body': return '몸체';
+      case 'bag': return '가방';
+      case 'glass': return '안경';
+      case 'acc': return '악세서리';
+      case 'clothes': return '옷';
+      case 'head': return '모자';
+      default: return '';
+    }
+  }
+</script>
+  
 </body>
 </html>
