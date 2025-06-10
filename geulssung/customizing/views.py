@@ -1,14 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import UserItem
-
-
-# 캐릭터 소유 아이템 확인
 from django.views.decorators.http import require_POST
 from .models import UserItem, Character, Item
 
-# 내 아이템 목록 보기
+# 캐릭터 소유 아이템 확인
 @login_required
 def user_owned_items_view(request):
     owned_items = (
@@ -48,15 +44,12 @@ def toggle_equip_item(request, item_id):
             user_item.equipped = True
             user_item.save()
 
+            
 
         return JsonResponse({'success': True, 'equipped': user_item.equipped, 'image_path': user_item.item.image_path,})
     else:
         return JsonResponse({'error': 'POST 요청만 허용됨'}, status=405)
-    # return render(
-    #     request,
-    #     'customizing/user_owned_items.html',
-    #     {'owned_items': owned_items},
-    # )
+
 
 # 상점 페이지 보기
 @login_required
