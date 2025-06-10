@@ -35,6 +35,7 @@ urlpatterns = [
     path("like/<int:post_id>/", views.like, name="like"),
     path("geulssung/customizing/", include("customizing.urls")),
     path('my-items/', include('customizing.urls')),  # 너가 만든 앱의 URL 연결
+    path('customizing/', include('customizing.urls')),
 ]
 
 if settings.DEBUG:

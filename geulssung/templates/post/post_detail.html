@@ -15,7 +15,7 @@
     .gaegu {
       font-family: 'Gaegu', cursive;
     }
-    .blurred-bg {
+    /* .blurred-bg {
       position: fixed;
       top: 0;
       left: 0;
@@ -26,7 +26,7 @@
       background-position: center;
       filter: blur(4px) brightness(0.95);
       z-index: -10;
-    }
+    } */
     .like-float {
       position: absolute;
       font-size: 1rem;
@@ -48,20 +48,14 @@
     }
   </style>
 </head>
-<body class="bg-[#FFF9F2] min-h-screen p-8 relative">
+<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;"></body>
+
+    <!-- 상단 네비게이션 -->
+  {% include "nav_bar.html" %}
   <div class="blurred-bg"></div>
-
-  <div class="absolute top-6 right-8 text-sm space-x-4">
-    {% if user.is_authenticated %}
-      <span class="text-[#493E3E] font-semibold">{{ user.nickname }}님</span>
-      <a href="{% url 'logout' %}" class="text-[#493E3E] underline hover:text-gray-600">로그아웃</a>
-    {% else %}
-      <a href="{% url 'login' %}" class="text-[#493E3E] underline hover:text-gray-600">로그인</a>
-      <a href="{% url 'signup' %}" class="text-[#493E3E] underline hover:text-gray-600">회원가입</a>
-    {% endif %}
-  </div>
-
+  
   <div id="detail-content" class="max-w-3xl mx-auto card mt-16 relative">
+
     <!-- 글 본문 카드 -->
     <div class="bg-white rounded-2xl shadow-xl border border-[#f9dcc4] px-8 pt-8 pb-10 mb-10 flex flex-col items-center relative">
       {% if user == post.author %}
