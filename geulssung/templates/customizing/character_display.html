@@ -1,0 +1,32 @@
+<div class="relative w-80 h-80 mx-auto character-{{ character }}">
+  <!-- 기본 캐릭터 -->
+  {% if character == 'geulssung' %}
+    <img src="{% static 'images/글썽이.png' %}" class="absolute top-0 left-0 z-10 w-full">
+  {% else %}
+    <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
+  {% endif %}
+
+  <!-- 착용된 아이템 이미지 -->
+  {% for ui in equipped_items %}
+    {% if character in ui.item.image_path and ui.equipped %}
+      {% with path=ui.item.image_path %}
+        {% if 'body' in path %}
+          {% set zindex = '11' %}
+        {% elif 'clothes' in path %}
+          {% set zindex = '12' %}
+        {% elif 'bag' in path %}
+          {% set zindex = '13' %}
+        {% elif 'glass' in path %}
+          {% set zindex = '14' %}
+        {% elif 'acc' in path %}
+          {% set zindex = '15' %}
+        {% elif 'head' in path %}
+          {% set zindex = '16' %}
+        {% else %}
+          {% set zindex = '20' %}
+        {% endif %}
+        <img src="{% static ui.item.image_path %}" class="absolute top-0 left-0 w-full" style="z-index:{{ zindex }}">
+      {% endwith %}
+    {% endif %}
+  {% endfor %}
+</div>
