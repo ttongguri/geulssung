@@ -9,28 +9,38 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans p-8">
 
-  <h1 class="text-3xl font-bold mb-6 text-center">🧳 내가 보유한 아이템</h1>
+  <h1 class="text-3xl font-bold mb-6 text-center">✨ 내가 보유한 아이템 ✨</h1>
+  <br>
+  <br>
   <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
   
   <div class="text-center cursor-pointer">
     <div class="flex justify-center items-end gap-6 mb-2">
-    
-    <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-      <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-        <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
-          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-        </div>
-        <p class="text-xs mt-1 text-gray-500">글썽이</p>
-      </div>
-      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
+      <div class="relative w-full max-w-4xl mx-auto">
+        <!-- 🔸 상단 중앙 버튼 -->
+        <a href="{% url 'store' %}" 
+        class="{% if request.path == '/geulssung/customizing/store' %} absolute -top-5 left-1/2 transform -translate-x-1/2 {% endif %} bg-[#00C9A7] hover:bg-[#00b498] text-black text-sm font-bold px-4 py-2 rounded-full shadow">
+        도우미 상점 가기
+        </a>
+      
+      <div class="flex justify-center items-end gap-6 border-2 border-gray rounded-full px-6 py-4 w-full max-w-4xl mx-auto">
+      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
+          <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
+            <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
+              <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
+            </div>
+            <p class="text-xs mt-1 text-gray-500">🐌 글썽이</p>
+          </div>
+          <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
 
-      <!-- 말썽이 캐릭터는 그대로 -->
-      <!-- 말썽이 캐릭터 -->
-      <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-        <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
-          <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
+          <!-- 말썽이 캐릭터 -->
+          <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
+            <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
+              <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
+            </div>
+            <p class="text-xs mt-1 text-gray-500">🐌 말썽이</p>
+          </div>
         </div>
-        <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
     </div>
     <br>
@@ -49,7 +59,6 @@
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
     </div>
-    <br>
     <br>
   </div>
 
@@ -77,8 +86,9 @@
           {% endif %}
         {% endwith %}
       {% endfor %}
+    </div>
 
-      {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
+      <!-- {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
       {% for ui in owned_items %}
         {% with path=ui.item.image_path %}
           {% if 'clothes' in path %}
@@ -98,8 +108,7 @@
             </div>
           {% endif %}
         {% endwith %}
-      {% endfor %}
-    </div>
+      {% endfor %} -->
   </div>
 
 <script>
