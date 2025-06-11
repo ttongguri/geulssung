@@ -23,7 +23,7 @@
     {% if top_scored_posts %}
       <ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
         {% for post in top_scored_posts|slice:':5' %}
-          <li class="flex justify-between items-center border-b last:border-b-0 pb-2 text-lg">
+          <li class="flex justify-between items-center border-b last:border-b-0 text-lg">
             <div class="w-2/5 flex flex-col justify-center">
               <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
                 {{ post.title }}
