@@ -68,15 +68,15 @@
       </div>
       <form method="post" action="" enctype="multipart/form-data" class="h-full flex flex-col">
         {% csrf_token %}
-        <input type="hidden" name="character" id="character-input" value="">
+        <input type="hidden" name="character" id="character-input" value="none">
         <input type="hidden" name="custom_prompt" id="customPromptHidden">
   
         <div id="step-1" class="step-form flex-1">
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
         <div class="flex gap-4">
-          <label><input type="radio" name="category" value="emotion" onchange="handleCharacterSelection(this.value)"> F 글썽이</label>
-          <label><input type="radio" name="category" value="logic" onchange="handleCharacterSelection(this.value)"> T 말썽이</label>
+          <label><input type="radio" name="category" value="1" onchange="handleCharacterSelection(this.value)"> F 글썽이</label>
+          <label><input type="radio" name="category" value="2" onchange="handleCharacterSelection(this.value)"> T 말썽이</label>
         </div>
       </div>
 
@@ -259,10 +259,38 @@
     chatbot.classList.remove('hidden');
   }
 
-  function handleCharacterSelection(value) {
-  showGenres(value);        // 기존 기능 복원
-  selectCharacter(value);   // 캐릭터 말풍선 출력
+  function handleCharacterSelection(characterId) {
+    // 도우미 선택 시 장르 영역 토글 (id 기준)
+    document.getElementById('genre-logic').style.display = characterId === '2' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = characterId === '1' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const scrollable = document.getElementById("guide-scrollable");
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
+    }
+    document.getElementById("character-input").value = characterId;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
+
+    // 캐릭터 이미지 다시 렌더링해서 넣기
+    fetch(`/geulssung/customizing/render-character/${characterId}/`)
+      .then(res => res.text())
+      .then(html => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
+      });
   }
+
+
 
   function renderPrompts() {
     const genreInput = document.querySelector('input[name="genre"]:checked');
@@ -436,22 +464,48 @@ function prevStep() {
 }
 </script>
 
-<div id="chat-box-wrapper" class="fixed bottom-24 right-4 w-[400px] z-50">
-    <button onclick="toggleChat()" class="w-full bg-[#bae6fd] text-[#493E3E] font-bold py-2 rounded-t-xl transition">
-      💬 챗봇 열기 / 닫기
-    </button>
-    <div id="chat-box-content" class="hidden h-[400px] overflow-y-auto px-4 py-3">
-      <p class="text-sm text-gray-500">챗봇 로딩 중입니다...</p>
-    </div>
+<!-- 챗봇 말풍선+버튼: 캐릭터와 완전히 분리, 오른쪽 하단 상단에 고정 -->
+<div id="chat-box-wrapper" class="fixed right-4 bottom-[340px] w-[400px] z-50 flex flex-col items-end">
+  <!-- JS에서 토글 버튼/챗봇 말풍선이 이 div에 append됨 -->
 </div>
-  
-  <script>
-    function toggleChat() {
-      const chatBox = document.getElementById("chat-box-content");
-      chatBox.classList.toggle("hidden");
-    }
-  </script>
-  
-  <script src="{% static 'js/chatbot.js' %}"></script>
+<!-- 챗봇 말풍선 (오른쪽 하단, 둥근 그림자, 말풍선 꼬리, 반응형, 캐릭터와 겹치지 않게 더 왼쪽) -->
+<div id="chat-box" class="hidden fixed bottom-36 right-200 max-w-[90vw] w-[380px] bg-white rounded-2xl shadow-2xl p-5 z-50 border border-[#bae6fd]" style="box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+  <div class="relative">
+    <!-- 말풍선 꼬리 -->
+    <div style="position: absolute; right: 32px; bottom: -18px; width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 18px solid #bae6fd;"></div>
+    <div class="font-bold text-[#2563eb] text-lg mb-2 flex items-center gap-2">📚 글쓰기 도우미</div>
+    <div class="text-gray-700 text-base mb-2">안녕하세요! 무엇을 도와드릴까요?</div>
+    <!-- 실제 대화 영역은 JS에서 추가 -->
+  </div>
+</div>
+
+<!-- 챗봇 토글 버튼 (캐릭터 머리 위, 캐릭터와 우측 끝 맞춤) -->
+<div class="fixed right-14 bottom-[calc(20rem+2.5rem)] z-50">
+  <button onclick="toggleChat()" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
+    💬 챗봇 열기 / 닫기
+  </button>
+</div>
+
+<!-- 캐릭터 컨테이너: 오른쪽 끝에 최대한 가깝게 (right-0) -->
+<div class="fixed bottom-24 right-0 w-80 h-80 z-40">
+  <div id="character-container" class="relative w-full h-full">
+    {% if not genre %}
+      <div class="w-full h-full flex items-center justify-center text-gray-400 text-lg">도우미를 선택해 주세요!</div>
+    {% else %}
+      {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
+    {% endif %}
+  </div>
+</div>
+<input type="hidden" name="character" id="character-input" value="none">  
+
+<script>
+// 챗봇 토글 함수: chat-box의 hidden 토글만 담당
+function toggleChat() {
+  const chatBox = document.getElementById("chat-box");
+  if (chatBox) chatBox.classList.toggle("hidden");
+}
+</script>
+<script src="{% static 'js/chatbot.js' %}"></script>
+
 </body>
 </html>

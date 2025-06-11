@@ -9,98 +9,59 @@
 </head>
 
 <body class="bg-gray-50 text-gray-800 font-sans p-8">
-  <div class="absolute top-2 right-6 flex gap-2 z-50">
-    {% if user.is_authenticated %}
-      <a href="{% url 'write' %}"
-        class="text-sm px-1 py-1 rounded-full font-bold {% if request.path == '/geulssung/write/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-2 py-2 rounded-full transition">
-        ✍️ 글쓰러 가기
-      </a>
-    {% else %}
-      <a href="{% url 'login' %}?next={% url 'write' %}"
-        class="text-sm px-1 py-1 rounded-full font-bold bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-        ✍️ 글쓰러 가기
-      </a>
-    {% endif %}
 
-    <a href="{% url 'explore' %}"
-      class="text-sm px-1 py-1 rounded-full font-bold {% if request.path == '/geulssung/explore/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-      🌊 글바다로
-    </a>
-
-    <a href="{% url 'home' %}"
-      class="text-sm px-1 py-1 rounded-full font-bold {% if request.path == '/geulssung/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-      🏠 홈으로
-    </a>
-  </div>
-
-  <h1 class="text-3xl font-bold mb-6 text-center">✨ 내가 보유한 아이템 ✨</h1>
-  <br>
+  <h1 class="text-3xl font-bold mb-6 text-center">🧳 내가 보유한 아이템</h1>
   <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
   
   <div class="text-center cursor-pointer">
     <div class="flex justify-center items-end gap-6 mb-2">
-      
-      <div class="flex justify-center items-start gap-3 border-2 border-gray rounded-full px-6 py-4 w-full max-w-4xl ">
-        <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-        <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-          <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
-            <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-          </div>
-          <p class="text-xs mt-1 text-gray-500">🐌 글썽이</p>
+    
+    <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
+      <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
+        <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
+          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
         </div>
-        <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
-        
-        <!-- 말썽이 캐릭터 -->
-        <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-          <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
-            <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-          </div>
-          <p class="text-xs mt-1 text-gray-500">🐌 말썽이</p>
+        <p class="text-xs mt-1 text-gray-500">글썽이</p>
+      </div>
+      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
+
+      <!-- 말썽이 캐릭터는 그대로 -->
+      <!-- 말썽이 캐릭터 -->
+      <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
+        <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
+          <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
         </div>
+        <p class="text-xs mt-1 text-gray-500">말썽이</p>
       </div>
     </div>
-  </div>
-  <br>
-  <div class="relative w-full max-w-2xl mx-auto flex flex-col items-center gap-1">
-    <a href="{% url 'store' %}" 
-      class="{% if request.path == '/geulssung/customizing/store' %} absolute -top-5 left-1/2 transform -translate-x-1/2 {% endif %} 
-        bg-[#00C9A7] hover:bg-[#00b498] text-black text-sm font-bold px-4 py-2 rounded-full shadow">
-        도우미 상점 가기
-    </a>
-    <div class="bg-white px-4 py-2 rounded shadow flex items-center w-fit mx-auto">
-      <p class="text-sm font-semibold">
-        현재 보유 따개비: <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개
-      </p>
-    </div>
-  </div>
-  <br>
-  <div class="text-center">
-    <div id="geulssung-buttons" class="flex justify-center space-x-4">
-      <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
-      <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
-      <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
-      <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
-    </div>
-    
-    <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
-      <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
+    <br>
+    <div class="text-center">
+      <div id="geulssung-buttons" class="flex justify-center space-x-4">
+        <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
+        <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
+        <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
+        <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
+      </div>
+
+      <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
+        <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
         <button onclick="activateButton(this, '옷')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">옷</button>
         <button onclick="activateButton(this, '모자')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">모자</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
     </div>
     <br>
+    <br>
   </div>
 
-  <!-- 🔹 보유 아이템 영역 -->
-
+  <!-- 🔹 보유 아이템 영역 (id 기반) -->
   <div id="item-section" class="mt-6 mb-20 transition-all duration-300 flex justify-center">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl">
       {% for ui in owned_items %}
-        {% with path=ui.item.image_path %}
+        {% with path=ui.item.image_path char_id=ui.item.character.id %}
           {% if not 'clothes' in path %}
             <div class="item-card hidden inline-block text-center"
-                data-character="{% if 'geulssung' in path %}geulssung{% elif 'malssung' in path %}malssung{% endif %}"
+                data-character="{{ char_id }}"
                 data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
               <img src="{% static ui.item.image_path %}"
                   onclick="toggleEquip('{{ ui.item.id }}')"
@@ -116,14 +77,13 @@
           {% endif %}
         {% endwith %}
       {% endfor %}
-    </div>
 
-      <!-- {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
+      {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
       {% for ui in owned_items %}
-        {% with path=ui.item.image_path %}
+        {% with path=ui.item.image_path char_id=ui.item.character.id %}
           {% if 'clothes' in path %}
             <div class="item-card hidden inline-block text-center"
-                data-character="{% if 'geulssung' in path %}geulssung{% elif 'malssung' in path %}malssung{% endif %}"
+                data-character="{{ char_id }}"
                 data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
               <img src="{% static ui.item.image_path %}"
                   onclick="toggleEquip('{{ ui.item.id }}')"
@@ -142,18 +102,18 @@
   </div>
 
 <script>
-  let selectedCharacter = null;
+  let selectedCharacter = 1; // 기본: 글썽이
   let selectedCategory = null;
 
-  // 🔹 초기 장착 아이템 mount
+  // 🔹 초기 장착 아이템 mount (id 기반)
   const initialEquippedItems = [
     {% for ui in equipped_items %}
-      {% with path=ui.item.image_path %}
+      {% with path=ui.item.image_path char_id=ui.item.character.id %}
         {% if ui.equipped %}
           {
             id: {{ ui.item.id }},
             image_path: "{% static ui.item.image_path %}",
-            character: "{% if 'malssung' in path %}malssung{% else %}geulssung{% endif %}",
+            character: {{ char_id }},
             part: "{% if 'body' in path %}body{% elif 'bag' in path %}bag{% elif 'glass' in path %}glass{% elif 'acc' in path %}acc{% elif 'clothes' in path %}clothes{% elif 'head' in path %}head{% endif %}"
           },
         {% endif %}
@@ -164,6 +124,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     initialEquippedItems.forEach(item => {
       const target = document.querySelector(`.character-${item.character}`);
+      if (!target) return;
       const img = document.createElement('img');
       img.src = item.image_path;
       img.className = 'absolute top-0 left-0 w-full';
@@ -176,64 +137,61 @@
         target.appendChild(img);
       }
     });
+    // 기본 글썽이 버튼만 보이게
+    document.getElementById('char-1-buttons').classList.remove('hidden');
+    document.getElementById('char-2-buttons').classList.add('hidden');
+    filterItems();
   });
 
-  // 🔹 캐릭터 선택
-  function selectCharacter(character) {
-    selectedCharacter = character;
+  // 🔹 캐릭터 선택 (id 기반)
+  function selectCharacter(characterId) {
+    selectedCharacter = characterId;
     selectedCategory = null;
-
-    document.getElementById('geulssung-buttons').classList.toggle('hidden', character !== 'geulssung');
-    document.getElementById('malssung-buttons').classList.toggle('hidden', character !== 'malssung');
-
+    document.getElementById('char-1-buttons').classList.toggle('hidden', characterId !== 1);
+    document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 2);
     filterItems();
   }
 
   // 🔹 부위 버튼 클릭 시
   function activateButton(button, category) {
     selectedCategory = category;
-
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.remove("bg-[#00C9A7]", "text-white");
-      btn.classList.add("bg-gray-100", "text-gray-500");
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('bg-[#00C9A7]', 'text-white');
+      btn.classList.add('bg-gray-100', 'text-gray-500');
     });
-
-    button.classList.remove("bg-gray-100", "text-gray-500");
-    button.classList.add("bg-[#00C9A7]", "text-white");
-
+    button.classList.remove('bg-gray-100', 'text-gray-500');
+    button.classList.add('bg-[#00C9A7]', 'text-white');
     filterItems();
   }
 
-  // 🔹 아이템 필터링
+  // 🔹 아이템 필터링 (id 기반)
   function filterItems() {
-    document.querySelectorAll(".item-card").forEach(card => {
-      const matchChar = selectedCharacter === null || card.dataset.character === selectedCharacter;
+    document.querySelectorAll('.item-card').forEach(card => {
+      const matchChar = selectedCharacter === null || Number(card.dataset.character) === selectedCharacter;
       const matchCat = selectedCategory === null || card.dataset.category === selectedCategory;
-      card.classList.toggle("hidden", !(matchChar && matchCat));
+      card.classList.toggle('hidden', !(matchChar && matchCat));
     });
   }
 
   // 🔹 모두 보기
   function showAllItems() {
     selectedCategory = null;
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.remove("bg-[#00C9A7]", "text-white");
-      btn.classList.add("bg-gray-100", "text-gray-500");
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('bg-[#00C9A7]', 'text-white');
+      btn.classList.add('bg-gray-100', 'text-gray-500');
     });
     filterItems();
   }
 
-  // 🔹 장착/해제 toggle
+  // 🔹 장착/해제 toggle (id 기반)
   function toggleEquip(itemId) {
     const clickedCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
     const statusSpan = clickedCard.querySelector('p span');
     const isCurrentlyEquipped = statusSpan.innerText === '착용 중';
-
     // 선반영
     statusSpan.innerText = isCurrentlyEquipped ? '미착용' : '착용 중';
     statusSpan.classList.toggle('text-green-500', !isCurrentlyEquipped);
     statusSpan.classList.toggle('text-gray-400', isCurrentlyEquipped);
-
     fetch(`/my-items/toggle-equip/${itemId}/`, {
       method: 'POST',
       headers: {
@@ -249,57 +207,48 @@
         statusSpan.innerText = isCurrentlyEquipped ? '착용 중' : '미착용';
         statusSpan.classList.toggle('text-green-500', isCurrentlyEquipped);
         statusSpan.classList.toggle('text-gray-400', !isCurrentlyEquipped);
-        alert("처리 중 오류가 발생했습니다.");
+        alert('처리 중 오류가 발생했습니다.');
       }
     });
   }
 
-  // 🔹 장착 상태 반영
+  // 🔹 장착 상태 반영 (id 기반)
   function updateItemStatus(itemId, equipped, imagePath) {
-    const itemCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
-    const statusSpan = itemCard.querySelector('p span');
-
-    const isMalssung = imagePath.includes('malssung');
-    const targetContainerSelector = isMalssung ? '.character-malssung' : '.character-geulssung';
-    const targetContainer = document.querySelector(targetContainerSelector);
-
+    // 캐릭터 id 추출 (글썽이: 1, 말썽이: 2)
+    let character = imagePath.includes('malssung') ? 2 : 1;
+    const targetContainer = document.querySelector(`.character-${character}`);
     const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
     const part = partMatch ? partMatch[1] : null;
     const categoryKor = convertPartToKorean(part);
-    const character = isMalssung ? 'malssung' : 'geulssung';
-
-    // 기존 같은 부위 전부 제거
+    // 기존 캐릭터 이미지 제거 (해당 파츠만)
     const existingImgs = targetContainer.querySelectorAll(`img[data-part="${part}"]`);
     existingImgs.forEach(img => img.remove());
-
-    // 텍스트 초기화 (같은 부위 다른 카드들)
+    // 텍스트 초기화 (같은 부위의 모든 카드)
     document.querySelectorAll(`.item-card[data-character="${character}"][data-category="${categoryKor}"]`).forEach(card => {
       const span = card.querySelector('p span');
       span.innerText = '미착용';
       span.classList.remove('text-green-500');
       span.classList.add('text-gray-400');
     });
-
+    // 이미지 추가
     if (equipped) {
-      // 텍스트 변경
-      statusSpan.innerText = '착용 중';
-      statusSpan.classList.remove('text-gray-400');
-      statusSpan.classList.add('text-green-500');
-
-      // 이미지 추가
       const img = document.createElement('img');
       img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
       img.className = 'absolute top-0 left-0 w-full';
       img.setAttribute('data-part', part);
       img.style.zIndex = part === 'body' ? '10' : '20';
-
-      // 삽입
-      const baseImg = targetContainer.querySelector('img');
+      const baseImg = targetContainer.querySelector('img:not([data-part])');
       if (part === 'body' && baseImg && baseImg.nextSibling) {
         targetContainer.insertBefore(img, baseImg.nextSibling);
       } else {
         targetContainer.appendChild(img);
       }
+      // 카드에도 텍스트 반영
+      const thisCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+      const statusSpan = thisCard.querySelector('p span');
+      statusSpan.innerText = '착용 중';
+      statusSpan.classList.remove('text-gray-400');
+      statusSpan.classList.add('text-green-500');
     }
   }
 

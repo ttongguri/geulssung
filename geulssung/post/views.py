@@ -23,6 +23,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from datetime import date
 from .models import DailyCreditHistory
+from django.db.models import Q
+from prompts.models import GeneratedPrompt
+from customizing.models import UserItem, Character
 
 
 # hj - gemini_api_key 삽입
@@ -32,8 +35,8 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 User = get_user_model()
 
 # 글쓰기 폼 페이지를 렌더링합니다.
-def write_view(request):
-    return render(request, "write_form.html")
+# def write_view(request):
+#     return render(request, "write_form.html")
 
 # 테스트용 페이지를 렌더링합니다.
 def test_page_view(request):
@@ -128,8 +131,11 @@ def write_post_view(request):
             if not prompts.exists():
                 prompts = GeneratedPrompt.objects.filter(created_at__date=yesterday)
 
+            equipped_items = UserItem.objects.filter(user=request.user, equipped=True)
+
             return render(request, 'post/write_form.html', {
                 'prompts': prompts,
+                'equipped_items': equipped_items,
             })
     return render(request, 'post/write_form.html')
 
@@ -173,6 +179,7 @@ def post_detail_view(request, post_id):
 # 특정 유저의 공개글/전체글 목록을 보여줍니다.
 def public_posts_by_user(request, nickname):
     author = get_object_or_404(User, nickname=nickname)
+    q = request.GET.get('q', '').strip() # 검색어
 
     # 로그인한 사용자가 해당 nickname 주인일 경우 → 전체 글
     if request.user.is_authenticated and request.user.nickname == nickname:
@@ -180,15 +187,47 @@ def public_posts_by_user(request, nickname):
     else:
         posts = Post.objects.filter(author=author, is_public=True).order_by('-created_at')
 
+    # 검색필터 적용
+    if q:
+        posts = posts.filter(
+            Q(title__icontains=q) |
+            Q(final_content__icontains=q) |
+            Q(prompt__content__icontains=q)
+        )
+
+    # F글/T글 비율 계산 (emotion/logic 기준)
+    f_count = posts.filter(category='emotion').count()
+    t_count = posts.filter(category='logic').count()
+    total_count = f_count + t_count
+    f_ratio = int(f_count / total_count * 100) if total_count else 0
+    t_ratio = 100 - f_ratio if total_count else 0
+
     # 팔로잉 여부 체크 (다른 사람 프로필일 때만)
     is_following = False
     if request.user.is_authenticated and request.user != author:
         is_following = Follow.objects.filter(follower=request.user, following=author).exists()
 
+    # 글썽이/말썽이 캐릭터 객체 쿼리 (id 고정)
+    geulssung_character = Character.objects.filter(id=1).first()
+    malssung_character = Character.objects.filter(id=2).first()
+    # 각 캐릭터별 착용 아이템 쿼리
+    geulssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=geulssung_character)
+    malssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=malssung_character)
+
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
         'is_following': is_following,
+        'q': q,
+        'f_count': f_count,
+        't_count': t_count,
+        'total_count': total_count,
+        'f_ratio': f_ratio,
+        't_ratio': t_ratio,
+        'geulssung_character': geulssung_character,
+        'malssung_character': malssung_character,
+        'geulssung_equipped_items': geulssung_equipped_items,
+        'malssung_equipped_items': malssung_equipped_items,
     })
 
 # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)

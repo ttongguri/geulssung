@@ -14,10 +14,11 @@ def user_owned_items_view(request):
         .order_by('item__character__name', 'item__part_code')
     )
     equipped_items = owned_items.filter(equipped=True)
-    
+    characters = Character.objects.all().order_by('id')
     return render(request, 'customizing/user_owned_items.html', {
         'owned_items': owned_items,
         'equipped_items': equipped_items,
+        'characters': characters,
     })
 
 # 아이템 장착 / 해제 토글
@@ -101,3 +102,18 @@ def purchase_item(request):
 
     return JsonResponse({'success': True})
 
+# 캐릭터 렌더링
+@login_required
+def render_character_partial(request, character_id):
+    try:
+        character_obj = Character.objects.get(id=character_id)
+    except Character.DoesNotExist:
+        return render(request, 'customizing/character_render.html', {
+            'character': None,
+            'equipped_items': []
+        })
+    equipped_items = UserItem.objects.filter(user=request.user, equipped=True, item__character=character_obj)
+    return render(request, 'customizing/character_render.html', {
+        'character': character_obj,
+        'equipped_items': equipped_items
+    })
