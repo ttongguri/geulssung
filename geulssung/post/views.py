@@ -287,8 +287,9 @@ def explore_view(request):
 
         subscribed_posts = Post.objects.filter(id__in=latest_ids).select_related('author').order_by('-created_at')
 
-    # 좋아요 TOP5 영역: 이번 주 월~일 집계
+    # 좋아요/점수 TOP5 영역: 이번 주 월~일 집계
     genre_filter = request.GET.get('category')  # URL 파라미터 ?category=column 등
+    ranking_type = request.GET.get('ranking', 'like')
     week_start, week_end = get_week_range()
     filter_kwargs = {
         'is_public': True,
@@ -298,12 +299,25 @@ def explore_view(request):
     if genre_filter:
         filter_kwargs['genre'] = genre_filter
 
-    top_liked_posts = (
-        Post.objects
-        .filter(**filter_kwargs)
-        .annotate(like_count=Count('like_users'))
-        .order_by('-like_count', '-created_at')[:10]
-    )
+    if ranking_type == 'score':
+        # 점수순: Post와 PostEvaluation join, score 기준 내림차순
+        from .models import PostEvaluation
+        top_scored_posts = (
+            Post.objects
+            .filter(**filter_kwargs, evaluation__score__isnull=False)
+            .select_related('evaluation', 'author')
+            .order_by('-evaluation__score', '-created_at')[:10]
+        )
+        top_liked_posts = []  # 템플릿 분기용
+    else:
+        # 좋아요순
+        top_liked_posts = (
+            Post.objects
+            .filter(**filter_kwargs)
+            .annotate(like_count=Count('like_users'))
+            .order_by('-like_count', '-created_at')[:10]
+        )
+        top_scored_posts = []
 
     # 최신글 (카테고리 필터 적용, 최신순 10개)
     latest_posts = (
@@ -315,6 +329,7 @@ def explore_view(request):
     context = {
         'subscribed_posts': subscribed_posts,
         'top_liked_posts': top_liked_posts,
+        'top_scored_posts': top_scored_posts,
         'latest_posts': latest_posts,
         'selected_genre': genre_filter,
         'ranking_period': f"{week_start.strftime('%Y-%m-%d')} ~ {week_end.strftime('%Y-%m-%d')}",
