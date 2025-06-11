@@ -480,16 +480,20 @@ function prevStep() {
 </div>
 
 <!-- 챗봇 토글 버튼 (캐릭터 머리 위, 캐릭터와 우측 끝 맞춤) -->
-<div class="fixed right-4 bottom-[calc(20rem+2.5rem)] z-50">
+<div class="fixed right-14 bottom-[calc(20rem+2.5rem)] z-50">
   <button onclick="toggleChat()" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
     💬 챗봇 열기 / 닫기
   </button>
 </div>
 
-<!-- 캐릭터 컨테이너: 오른쪽 끝에 최대한 가깝게 (right-4) -->
+<!-- 캐릭터 컨테이너: 오른쪽 끝에 최대한 가깝게 (right-0) -->
 <div class="fixed bottom-24 right-0 w-80 h-80 z-40">
   <div id="character-container" class="relative w-full h-full">
-    {% include "customizing/character_render.html" with character="none" equipped_items=equipped_items %}
+    {% if not genre %}
+      <div class="w-full h-full flex items-center justify-center text-gray-400 text-lg">도우미를 선택해 주세요!</div>
+    {% else %}
+      {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
+    {% endif %}
   </div>
 </div>
 <input type="hidden" name="character" id="character-input" value="none">  
