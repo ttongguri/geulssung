@@ -25,6 +25,7 @@ from datetime import date
 from .models import DailyCreditHistory
 from django.db.models import Q
 from prompts.models import GeneratedPrompt
+from customizing.models import UserItem
 
 
 # hj - gemini_api_key 삽입
@@ -34,8 +35,8 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 User = get_user_model()
 
 # 글쓰기 폼 페이지를 렌더링합니다.
-def write_view(request):
-    return render(request, "write_form.html")
+# def write_view(request):
+#     return render(request, "write_form.html")
 
 # 테스트용 페이지를 렌더링합니다.
 def test_page_view(request):
@@ -130,8 +131,11 @@ def write_post_view(request):
             if not prompts.exists():
                 prompts = GeneratedPrompt.objects.filter(created_at__date=yesterday)
 
+            equipped_items = UserItem.objects.filter(user=request.user, equipped=True)
+
             return render(request, 'post/write_form.html', {
                 'prompts': prompts,
+                'equipped_items': equipped_items,
             })
     return render(request, 'post/write_form.html')
 

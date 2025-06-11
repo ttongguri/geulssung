@@ -10,54 +10,42 @@
 <body class="bg-gray-50 text-gray-800 font-sans p-8">
 
   <h1 class="text-3xl font-bold mb-6 text-center">🧳 내가 보유한 아이템</h1>
-  <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
-  
+  <!-- 🔸 캐릭터 탭 UI (id 기반) -->
   <div class="text-center cursor-pointer">
     <div class="flex justify-center items-end gap-6 mb-2">
-    
-    <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-    <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-      {% include "customizing/character_render.html" with character="geulssung" equipped_items=equipped_items %}
-      <p class="text-xs mt-1 text-gray-500">글썽이</p>
-    </div>
-      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
-
-      <!-- 말썽이 캐릭터는 그대로 -->
-      <!-- 말썽이 캐릭터 -->
-      <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-        {% include "customizing/character_render.html" with character="malssung" equipped_items=equipped_items %}
-        <p class="text-xs mt-1 text-gray-500">말썽이</p>
-      </div>
+      {% for char in characters %}
+        <div class="text-center cursor-pointer" onclick="selectCharacter({{ char.id }})">
+          {% include "customizing/character_render.html" with character=char equipped_items=equipped_items %}
+          <p class="text-xs mt-1 text-gray-500">{{ char.name }}</p>
+        </div>
+      {% endfor %}
     </div>
     <br>
     <div class="text-center">
-      <div id="geulssung-buttons" class="flex justify-center space-x-4">
+      <div id="char-1-buttons" class="flex justify-center space-x-4">
         <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
         <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
         <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
-
-      <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
+      <div id="char-2-buttons" class="hidden flex justify-center space-x-4">
         <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
         <button onclick="activateButton(this, '옷')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">옷</button>
         <button onclick="activateButton(this, '모자')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">모자</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
     </div>
-    <br>
-    <br>
+    <br><br>
   </div>
 
-  <!-- 🔹 보유 아이템 영역 -->
-
+  <!-- 🔹 보유 아이템 영역 (id 기반) -->
   <div id="item-section" class="mt-6 mb-20 transition-all duration-300 flex justify-center">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl">
       {% for ui in owned_items %}
-        {% with path=ui.item.image_path %}
+        {% with path=ui.item.image_path char_id=ui.item.character.id %}
           {% if not 'clothes' in path %}
             <div class="item-card hidden inline-block text-center"
-                data-character="{% if 'geulssung' in path %}geulssung{% elif 'malssung' in path %}malssung{% endif %}"
+                data-character="{{ char_id }}"
                 data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
               <img src="{% static ui.item.image_path %}"
                   onclick="toggleEquip('{{ ui.item.id }}')"
@@ -73,13 +61,12 @@
           {% endif %}
         {% endwith %}
       {% endfor %}
-
       {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
       {% for ui in owned_items %}
-        {% with path=ui.item.image_path %}
+        {% with path=ui.item.image_path char_id=ui.item.character.id %}
           {% if 'clothes' in path %}
             <div class="item-card hidden inline-block text-center"
-                data-character="{% if 'geulssung' in path %}geulssung{% elif 'malssung' in path %}malssung{% endif %}"
+                data-character="{{ char_id }}"
                 data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
               <img src="{% static ui.item.image_path %}"
                   onclick="toggleEquip('{{ ui.item.id }}')"
@@ -99,18 +86,18 @@
   </div>
 
 <script>
-  let selectedCharacter = null;
+  let selectedCharacter = 1; // 기본: 글썽이
   let selectedCategory = null;
 
-  // 🔹 초기 장착 아이템 mount
+  // 🔹 초기 장착 아이템 mount (id 기반)
   const initialEquippedItems = [
     {% for ui in equipped_items %}
-      {% with path=ui.item.image_path %}
+      {% with path=ui.item.image_path char_id=ui.item.character.id %}
         {% if ui.equipped %}
           {
             id: {{ ui.item.id }},
             image_path: "{% static ui.item.image_path %}",
-            character: "{% if 'malssung' in path %}malssung{% else %}geulssung{% endif %}",
+            character: {{ char_id }},
             part: "{% if 'body' in path %}body{% elif 'bag' in path %}bag{% elif 'glass' in path %}glass{% elif 'acc' in path %}acc{% elif 'clothes' in path %}clothes{% elif 'head' in path %}head{% endif %}"
           },
         {% endif %}
@@ -121,6 +108,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     initialEquippedItems.forEach(item => {
       const target = document.querySelector(`.character-${item.character}`);
+      if (!target) return;
       const img = document.createElement('img');
       img.src = item.image_path;
       img.className = 'absolute top-0 left-0 w-full';
@@ -133,64 +121,61 @@
         target.appendChild(img);
       }
     });
+    // 기본 글썽이 버튼만 보이게
+    document.getElementById('char-1-buttons').classList.remove('hidden');
+    document.getElementById('char-2-buttons').classList.add('hidden');
+    filterItems();
   });
 
-  // 🔹 캐릭터 선택
-  function selectCharacter(character) {
-    selectedCharacter = character;
+  // 🔹 캐릭터 선택 (id 기반)
+  function selectCharacter(characterId) {
+    selectedCharacter = characterId;
     selectedCategory = null;
-
-    document.getElementById('geulssung-buttons').classList.toggle('hidden', character !== 'geulssung');
-    document.getElementById('malssung-buttons').classList.toggle('hidden', character !== 'malssung');
-
+    document.getElementById('char-1-buttons').classList.toggle('hidden', characterId !== 1);
+    document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 2);
     filterItems();
   }
 
   // 🔹 부위 버튼 클릭 시
   function activateButton(button, category) {
     selectedCategory = category;
-
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.remove("bg-[#00C9A7]", "text-white");
-      btn.classList.add("bg-gray-100", "text-gray-500");
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('bg-[#00C9A7]', 'text-white');
+      btn.classList.add('bg-gray-100', 'text-gray-500');
     });
-
-    button.classList.remove("bg-gray-100", "text-gray-500");
-    button.classList.add("bg-[#00C9A7]", "text-white");
-
+    button.classList.remove('bg-gray-100', 'text-gray-500');
+    button.classList.add('bg-[#00C9A7]', 'text-white');
     filterItems();
   }
 
-  // 🔹 아이템 필터링
+  // 🔹 아이템 필터링 (id 기반)
   function filterItems() {
-    document.querySelectorAll(".item-card").forEach(card => {
-      const matchChar = selectedCharacter === null || card.dataset.character === selectedCharacter;
+    document.querySelectorAll('.item-card').forEach(card => {
+      const matchChar = selectedCharacter === null || Number(card.dataset.character) === selectedCharacter;
       const matchCat = selectedCategory === null || card.dataset.category === selectedCategory;
-      card.classList.toggle("hidden", !(matchChar && matchCat));
+      card.classList.toggle('hidden', !(matchChar && matchCat));
     });
   }
 
   // 🔹 모두 보기
   function showAllItems() {
     selectedCategory = null;
-    document.querySelectorAll(".category-btn").forEach(btn => {
-      btn.classList.remove("bg-[#00C9A7]", "text-white");
-      btn.classList.add("bg-gray-100", "text-gray-500");
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('bg-[#00C9A7]', 'text-white');
+      btn.classList.add('bg-gray-100', 'text-gray-500');
     });
     filterItems();
   }
 
-  // 🔹 장착/해제 toggle
+  // 🔹 장착/해제 toggle (id 기반)
   function toggleEquip(itemId) {
     const clickedCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
     const statusSpan = clickedCard.querySelector('p span');
     const isCurrentlyEquipped = statusSpan.innerText === '착용 중';
-
     // 선반영
     statusSpan.innerText = isCurrentlyEquipped ? '미착용' : '착용 중';
     statusSpan.classList.toggle('text-green-500', !isCurrentlyEquipped);
     statusSpan.classList.toggle('text-gray-400', isCurrentlyEquipped);
-
     fetch(`/my-items/toggle-equip/${itemId}/`, {
       method: 'POST',
       headers: {
@@ -206,57 +191,50 @@
         statusSpan.innerText = isCurrentlyEquipped ? '착용 중' : '미착용';
         statusSpan.classList.toggle('text-green-500', isCurrentlyEquipped);
         statusSpan.classList.toggle('text-gray-400', !isCurrentlyEquipped);
-        alert("처리 중 오류가 발생했습니다.");
+        alert('처리 중 오류가 발생했습니다.');
       }
     });
   }
 
-  // 🔹 장착 상태 반영
+  // 🔹 장착 상태 반영 (id 기반)
   function updateItemStatus(itemId, equipped, imagePath) {
-  const isMalssung = imagePath.includes('malssung');
-  const character = isMalssung ? 'malssung' : 'geulssung';
-  const targetContainer = document.querySelector(`.character-${character}`);
-
-  const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
-  const part = partMatch ? partMatch[1] : null;
-  const categoryKor = convertPartToKorean(part);
-
-  // 기존 캐릭터 이미지 제거 (해당 파츠만)
-  const existingImgs = targetContainer.querySelectorAll(`img[data-part="${part}"]`);
-  existingImgs.forEach(img => img.remove());
-
-  // 텍스트 초기화 (같은 부위의 모든 카드)
-  document.querySelectorAll(`.item-card[data-character="${character}"][data-category="${categoryKor}"]`).forEach(card => {
-    const span = card.querySelector('p span');
-    span.innerText = '미착용';
-    span.classList.remove('text-green-500');
-    span.classList.add('text-gray-400');
-  });
-
-  // 이미지 추가
-  if (equipped) {
-    const img = document.createElement('img');
-    img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
-    img.className = 'absolute top-0 left-0 w-full';
-    img.setAttribute('data-part', part);
-    img.style.zIndex = part === 'body' ? '10' : '20';
-
-    const baseImg = targetContainer.querySelector(`img:not([data-part])`);
-    if (part === 'body' && baseImg && baseImg.nextSibling) {
-      targetContainer.insertBefore(img, baseImg.nextSibling);
-    } else {
-      targetContainer.appendChild(img);
+    // 캐릭터 id 추출 (글썽이: 1, 말썽이: 2)
+    let character = imagePath.includes('malssung') ? 2 : 1;
+    const targetContainer = document.querySelector(`.character-${character}`);
+    const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
+    const part = partMatch ? partMatch[1] : null;
+    const categoryKor = convertPartToKorean(part);
+    // 기존 캐릭터 이미지 제거 (해당 파츠만)
+    const existingImgs = targetContainer.querySelectorAll(`img[data-part="${part}"]`);
+    existingImgs.forEach(img => img.remove());
+    // 텍스트 초기화 (같은 부위의 모든 카드)
+    document.querySelectorAll(`.item-card[data-character="${character}"][data-category="${categoryKor}"]`).forEach(card => {
+      const span = card.querySelector('p span');
+      span.innerText = '미착용';
+      span.classList.remove('text-green-500');
+      span.classList.add('text-gray-400');
+    });
+    // 이미지 추가
+    if (equipped) {
+      const img = document.createElement('img');
+      img.src = imagePath.startsWith('/static/') ? imagePath : '/static/' + imagePath;
+      img.className = 'absolute top-0 left-0 w-full';
+      img.setAttribute('data-part', part);
+      img.style.zIndex = part === 'body' ? '10' : '20';
+      const baseImg = targetContainer.querySelector('img:not([data-part])');
+      if (part === 'body' && baseImg && baseImg.nextSibling) {
+        targetContainer.insertBefore(img, baseImg.nextSibling);
+      } else {
+        targetContainer.appendChild(img);
+      }
+      // 카드에도 텍스트 반영
+      const thisCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
+      const statusSpan = thisCard.querySelector('p span');
+      statusSpan.innerText = '착용 중';
+      statusSpan.classList.remove('text-gray-400');
+      statusSpan.classList.add('text-green-500');
     }
-
-    // 카드에도 텍스트 반영
-    const thisCard = document.querySelector(`[onclick="toggleEquip('${itemId}')"]`).closest('.item-card');
-    const statusSpan = thisCard.querySelector('p span');
-    statusSpan.innerText = '착용 중';
-    statusSpan.classList.remove('text-gray-400');
-    statusSpan.classList.add('text-green-500');
   }
-}
-
 
   function convertPartToKorean(part) {
     switch (part) {

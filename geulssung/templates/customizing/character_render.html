@@ -1,16 +1,19 @@
 {% load static %}
 
-<div class="relative w-80 h-80 mx-auto character-{{ character }}" id="{{ character }}-container">
-  <img src="{% static 'images/character/'|add:character|add:'/'|add:character|add:'_default.png' %}" class="absolute top-0 left-0 w-full z-10" />
-
-  {% for item in equipped_items %}
-    {% if item.item.character.name == character %}
-      {% with path=item.item.image_path %}
-        <img src="{% static item.item.image_path %}"
-             class="absolute top-0 left-0 w-full"
-             data-part="{% if 'body' in path %}body{% elif 'bag' in path %}bag{% elif 'glass' in path %}glass{% elif 'acc' in path %}acc{% elif 'clothes' in path %}clothes{% elif 'head' in path %}head{% else %}etc{% endif %}"
-             style="z-index: {% if 'body' in path %}10{% else %}20{% endif %};">
-      {% endwith %}
-    {% endif %}
-  {% endfor %}
+<div class="relative w-80 h-80 mx-auto {% if character %}character-{{ character.id }}{% else %}character-none{% endif %}" id="{% if character %}{{ character.id }}{% else %}none{% endif %}-container">
+  {% if not character %}
+    <div class="w-full h-full flex items-center justify-center text-gray-400 text-lg">도우미를 선택해 주세요!</div>
+  {% else %}
+    <img src="{% static character.base_image %}" class="absolute top-0 left-0 w-full z-10" />
+    {% for item in equipped_items %}
+      {% if item.item.character == character %}
+        {% with path=item.item.image_path %}
+          <img src="{% static item.item.image_path %}"
+               class="absolute top-0 left-0 w-full"
+               data-part="{% if 'body' in path %}body{% elif 'bag' in path %}bag{% elif 'glass' in path %}glass{% elif 'acc' in path %}acc{% elif 'clothes' in path %}clothes{% elif 'head' in path %}head{% else %}etc{% endif %}"
+               style="z-index: {% if 'body' in path %}10{% else %}20{% endif %};">
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 </div>

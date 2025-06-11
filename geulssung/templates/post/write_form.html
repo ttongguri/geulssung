@@ -68,15 +68,15 @@
       </div>
       <form method="post" action="" enctype="multipart/form-data" class="h-full flex flex-col">
         {% csrf_token %}
-        <input type="hidden" name="character" id="character-input" value="">
+        <input type="hidden" name="character" id="character-input" value="none">
         <input type="hidden" name="custom_prompt" id="customPromptHidden">
   
         <div id="step-1" class="step-form flex-1">
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
         <div class="flex gap-4">
-          <label><input type="radio" name="category" value="emotion" onchange="handleCharacterSelection(this.value)"> F 글썽이</label>
-          <label><input type="radio" name="category" value="logic" onchange="handleCharacterSelection(this.value)"> T 말썽이</label>
+          <label><input type="radio" name="category" value="1" onchange="handleCharacterSelection(this.value)"> F 글썽이</label>
+          <label><input type="radio" name="category" value="2" onchange="handleCharacterSelection(this.value)"> T 말썽이</label>
         </div>
       </div>
 
@@ -259,10 +259,38 @@
     chatbot.classList.remove('hidden');
   }
 
-  function handleCharacterSelection(value) {
-  showGenres(value);        // 기존 기능 복원
-  selectCharacter(value);   // 캐릭터 말풍선 출력
+  function handleCharacterSelection(characterId) {
+    // 도우미 선택 시 장르 영역 토글 (id 기준)
+    document.getElementById('genre-logic').style.display = characterId === '2' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = characterId === '1' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const scrollable = document.getElementById("guide-scrollable");
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
+    }
+    document.getElementById("character-input").value = characterId;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
+
+    // 캐릭터 이미지 다시 렌더링해서 넣기
+    fetch(`/geulssung/customizing/render-character/${characterId}/`)
+      .then(res => res.text())
+      .then(html => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
+      });
   }
+
+
 
   function renderPrompts() {
     const genreInput = document.querySelector('input[name="genre"]:checked');
@@ -453,5 +481,12 @@ function prevStep() {
   </script>
   
   <script src="{% static 'js/chatbot.js' %}"></script>
+
+  <div id="character-container" class="fixed bottom-24 right-4 w-80 h-80 z-50">
+    {% include "customizing/character_render.html" with character="none" equipped_items=equipped_items %}
+  </div>
+  
+  <input type="hidden" name="character" id="character-input" value="none">  
+
 </body>
 </html>
