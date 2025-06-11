@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="relative w-80 h-80 mx-auto {% if character %}character-{{ character.id }}{% else %}character-none{% endif %}" id="{% if character %}{{ character.id }}{% else %}none{% endif %}-container">
+<div class="relative w-full h-full mx-auto {% if character %}character-{{ character.id }}{% else %}character-none{% endif %}" id="{% if character %}{{ character.id }}{% else %}none{% endif %}-container">
   {% if not character or character.id == 0 or character.id == 'none' %}
     <div class="w-full h-full flex items-center justify-center text-gray-400 text-lg">도우미를 선택해 주세요!</div>
   {% else %}

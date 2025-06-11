@@ -63,6 +63,31 @@
     <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국🐾</h1>
     <br>
 
+    {# F글/T글 비율 막대 그래프 #}
+    {% if total_count > 0 %}
+    <div class="w-full max-w-6xl mx-auto mb-10 flex items-center">
+      <!-- 왼쪽: 글썽이 캐릭터 -->
+      <div class="flex-shrink-0 w-64 h-64">
+        {% include "customizing/character_render.html" with character=geulssung_character equipped_items=geulssung_equipped_items %}
+      </div>
+      <!-- 그래프 -->
+      <div class="flex-1 mx-8">
+        <div class="flex justify-between text-lg md:text-2xl font-semibold mb-4">
+          <span class="text-blue-600">F글(감성) {{ f_count }}개 ({{ f_ratio }}%)</span>
+          <span class="text-orange-500">T글(논리) {{ t_count }}개 ({{ t_ratio }}%)</span>
+        </div>
+        <div class="w-full h-12 bg-gray-200 rounded-full overflow-hidden flex">
+          <div class="h-full bg-blue-400" style="width: {{ f_ratio }}%"></div>
+          <div class="h-full bg-orange-400" style="width: {{ t_ratio }}%"></div>
+        </div>
+      </div>
+      <!-- 오른쪽: 말썽이 캐릭터 -->
+      <div class="flex-shrink-0 w-64 h-64">
+        {% include "customizing/character_render.html" with character=malssung_character equipped_items=malssung_equipped_items %}
+      </div>
+    </div>
+    {% endif %}
+
     {% if user.is_authenticated and user.id != author.id %}
       <div class="mb-6">
         <button id="follow-btn"
@@ -128,22 +153,29 @@
             </div>
 
             {% if user.is_authenticated and user == post.author %}
-              <form method="post" action="{% url 'update_cover_image' post.id %}" enctype="multipart/form-data" class="flex items-center gap-2">
-                {% csrf_token %}
-                <input type="file" id="coverImageInput-{{ post.id }}" name="cover_image" accept="image/*"
-                      class="hidden"
-                      onchange="this.form.submit()" />
-                <button type="button"
-                        onclick="document.getElementById('coverImageInput-{{ post.id }}').click();"
-                        class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
-                  커버 사진 변경📷
-                </button>
-              </form>
+              <div class="flex flex-col items-start gap-0.5">
+                <form method="post" action="{% url 'update_cover_image' post.id %}" enctype="multipart/form-data" class="flex items-center gap-2">
+                  {% csrf_token %}
+                  <input type="file" id="coverImageInput-{{ post.id }}" name="cover_image" accept="image/*"
+                        class="hidden"
+                        onchange="this.form.submit()" />
+                  <button type="button"
+                          onclick="document.getElementById('coverImageInput-{{ post.id }}').click();"
+                          class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
+                    커버 사진 변경📷
+                  </button>
+                </form>
+              </div>
             {% endif %}
           </div>
 
           <!-- 제목 -->
           <h2 class="card-title truncate text-left mb-2">{{ post.title }}</h2>
+
+          <!-- 작성일(우측 정렬, 작성자보다 위) -->
+          <div class="flex justify-end">
+            <div class="text-xs text-gray-400 mb-0.5 mr-0.5">작성일: {{ post.created_at|date:"y.m.d" }}</div>
+          </div>
 
           <!-- 메타 정보 -->
           <div class="pt-2">

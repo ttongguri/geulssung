@@ -25,7 +25,7 @@ from datetime import date
 from .models import DailyCreditHistory
 from django.db.models import Q
 from prompts.models import GeneratedPrompt
-from customizing.models import UserItem
+from customizing.models import UserItem, Character
 
 
 # hj - gemini_api_key 삽입
@@ -195,16 +195,39 @@ def public_posts_by_user(request, nickname):
             Q(prompt__content__icontains=q)
         )
 
+    # F글/T글 비율 계산 (emotion/logic 기준)
+    f_count = posts.filter(category='emotion').count()
+    t_count = posts.filter(category='logic').count()
+    total_count = f_count + t_count
+    f_ratio = int(f_count / total_count * 100) if total_count else 0
+    t_ratio = 100 - f_ratio if total_count else 0
+
     # 팔로잉 여부 체크 (다른 사람 프로필일 때만)
     is_following = False
     if request.user.is_authenticated and request.user != author:
         is_following = Follow.objects.filter(follower=request.user, following=author).exists()
+
+    # 글썽이/말썽이 캐릭터 객체 쿼리 (id 고정)
+    geulssung_character = Character.objects.filter(id=1).first()
+    malssung_character = Character.objects.filter(id=2).first()
+    # 각 캐릭터별 착용 아이템 쿼리
+    geulssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=geulssung_character)
+    malssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=malssung_character)
 
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
         'is_following': is_following,
         'q': q,
+        'f_count': f_count,
+        't_count': t_count,
+        'total_count': total_count,
+        'f_ratio': f_ratio,
+        't_ratio': t_ratio,
+        'geulssung_character': geulssung_character,
+        'malssung_character': malssung_character,
+        'geulssung_equipped_items': geulssung_equipped_items,
+        'malssung_equipped_items': malssung_equipped_items,
     })
 
 # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
