@@ -7,98 +7,86 @@
   <title>내 아이템</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-50 text-gray-800 font-sans p-8">
 
   <h1 class="text-3xl font-bold mb-6 text-center">🧳 내가 보유한 아이템</h1>
-  <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
-  
-  <div class="text-center cursor-pointer">
-    <div class="flex justify-center items-end gap-6 mb-2">
-    
-    <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-      <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-        <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
-          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
+  <!-- 🔸 캐릭터 탭 UI (id 기반) -->
+  <div id="character-tab" class="bg-white px-4 pt-1 pb-0 max-h-[400px] overflow-hidden rounded-t-lg shadow max-w-6xl mx-auto">
+    <div class="flex justify-center items-end gap-4 mb-0">
+      {% for char in characters %}
+        <div class="text-center cursor-pointer" onclick="selectCharacter({{ char.id }})">
+          {% include "customizing/character_render.html" with character=char equipped_items=equipped_items %}
+          <p class="text-xs mt-1 text-gray-500">{{ char.name }}</p>
         </div>
-        <p class="text-xs mt-1 text-gray-500">글썽이</p>
-      </div>
-      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
-
-      <!-- 말썽이 캐릭터는 그대로 -->
-      <!-- 말썽이 캐릭터 -->
-      <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-        <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
-          <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-        </div>
-        <p class="text-xs mt-1 text-gray-500">말썽이</p>
-      </div>
+      {% endfor %}
     </div>
     <br>
     <div class="text-center">
-      <div id="geulssung-buttons" class="flex justify-center space-x-4">
+      <div id="char-1-buttons" class="flex justify-center space-x-4">
         <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
         <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
         <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
-
-      <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
+      <div id="char-2-buttons" class="hidden flex justify-center space-x-4">
         <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
         <button onclick="activateButton(this, '옷')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">옷</button>
         <button onclick="activateButton(this, '모자')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">모자</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
       </div>
     </div>
-    <br>
-    <br>
+    <br><br>
   </div>
 
-  <!-- 🔹 보유 아이템 영역 (id 기반) -->
-  <div id="item-section" class="mt-6 mb-20 transition-all duration-300 flex justify-center">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl">
-      {% for ui in owned_items %}
-        {% with path=ui.item.image_path char_id=ui.item.character.id %}
-          {% if not 'clothes' in path %}
-            <div class="item-card hidden inline-block text-center"
-                data-character="{{ char_id }}"
-                data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
-              <img src="{% static ui.item.image_path %}"
-                  onclick="toggleEquip('{{ ui.item.id }}')"
-                  class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
-              <p class="text-xs mt-1">
-                {% if ui.equipped %}
-                  <span class="text-green-500">착용 중</span>
-                {% else %}
-                  <span class="text-gray-400">미착용</span>
-                {% endif %}
-              </p>
-            </div>
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
+  <div class="border-t border-gray-300 max-w-6xl mx-auto"></div>
 
-      {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
-      {% for ui in owned_items %}
-        {% with path=ui.item.image_path char_id=ui.item.character.id %}
-          {% if 'clothes' in path %}
-            <div class="item-card hidden inline-block text-center"
-                data-character="{{ char_id }}"
-                data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
-              <img src="{% static ui.item.image_path %}"
-                  onclick="toggleEquip('{{ ui.item.id }}')"
-                  class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
-              <p class="text-xs mt-1">
-                {% if ui.equipped %}
-                  <span class="text-green-500">착용 중</span>
-                {% else %}
-                  <span class="text-gray-400">미착용</span>
-                {% endif %}
-              </p>
-            </div>
-          {% endif %}
-        {% endwith %}
-      {% endfor %} -->
+  <!-- 🔹 보유 아이템 영역 (id 기반) -->
+  <div id="item-section-scrollable" class="overflow-y-scroll h-[500px] bg-gray-50 p-6 max-w-6xl mx-auto rounded-b-lg shadow">
+    <div id="item-section" class="transition-all duration-300 flex justify-center">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl">
+        {% for ui in owned_items %}
+          {% with path=ui.item.image_path char_id=ui.item.character.id %}
+            {% if not 'clothes' in path %}
+              <div class="item-card hidden inline-block text-center"
+                  data-character="{{ char_id }}"
+                  data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
+                <img src="{% static ui.item.image_path %}"
+                    onclick="toggleEquip('{{ ui.item.id }}')"
+                    class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
+                <p class="text-xs mt-1">
+                  {% if ui.equipped %}
+                    <span class="text-green-500">착용 중</span>
+                  {% else %}
+                    <span class="text-gray-400">미착용</span>
+                  {% endif %}
+                </p>
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+        {# ✅ 옷(clothes) 아이템은 마지막에 출력 #}
+        {% for ui in owned_items %}
+          {% with path=ui.item.image_path char_id=ui.item.character.id %}
+            {% if 'clothes' in path %}
+              <div class="item-card hidden inline-block text-center"
+                  data-character="{{ char_id }}"
+                  data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
+                <img src="{% static ui.item.image_path %}"
+                    onclick="toggleEquip('{{ ui.item.id }}')"
+                    class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
+                <p class="text-xs mt-1">
+                  {% if ui.equipped %}
+                    <span class="text-green-500">착용 중</span>
+                  {% else %}
+                    <span class="text-gray-400">미착용</span>
+                  {% endif %}
+                </p>
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
   </div>
 
 <script>
@@ -264,6 +252,6 @@
     }
   }
 </script>
-
+  
 </body>
 </html>
