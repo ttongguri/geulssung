@@ -75,8 +75,8 @@
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E]">오늘의 글쓰기 도우미</p>
         <div class="flex gap-4">
-          <label><input type="radio" name="category" value="1" onchange="handleCharacterSelection(this.value)"> F 글썽이</label>
-          <label><input type="radio" name="category" value="2" onchange="handleCharacterSelection(this.value)"> T 말썽이</label>
+          <label><input type="radio" name="category" value="emotion" onchange="handleCharacterSelection(this.value)"> F 글썽이</label>
+          <label><input type="radio" name="category" value="logic" onchange="handleCharacterSelection(this.value)"> T 말썽이</label>
         </div>
       </div>
 
@@ -261,8 +261,8 @@
 
   function handleCharacterSelection(characterId) {
     // 도우미 선택 시 장르 영역 토글 (id 기준)
-    document.getElementById('genre-logic').style.display = characterId === '2' ? 'block' : 'none';
-    document.getElementById('genre-emotion').style.display = characterId === '1' ? 'block' : 'none';
+    document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
     document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
