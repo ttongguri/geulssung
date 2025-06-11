@@ -2,7 +2,7 @@ import os
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from accounts.models import CustomUser
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
 from django.contrib.auth import get_user_model
@@ -26,6 +26,7 @@ from .models import DailyCreditHistory
 from django.db.models import Q
 from prompts.models import GeneratedPrompt
 from customizing.models import UserItem, Character
+from django.template.loader import render_to_string
 
 
 # hj - gemini_api_key 삽입
@@ -470,3 +471,34 @@ def generate_gemini_reply(system_prompt, user_input):
 #         return response.text
 #     except Exception as e:
 #         return f"오류 발생: {e}"
+
+def top_liked_posts_ajax(request):
+    genre_filter = request.GET.get('category')
+    ranking_type = request.GET.get('ranking', 'like')
+    week_start, week_end = get_week_range()
+    filter_kwargs = {
+        'is_public': True,
+        'created_at__gte': week_start,
+        'created_at__lte': week_end,
+    }
+    if genre_filter:
+        filter_kwargs['genre'] = genre_filter
+
+    if ranking_type == 'score':
+        from .models import PostEvaluation
+        posts = (
+            Post.objects
+            .filter(**filter_kwargs, evaluation__score__isnull=False)
+            .select_related('evaluation', 'author')
+            .order_by('-evaluation__score', '-created_at')[:5]
+        )
+        html = render_to_string('explore/_top_scored_posts_partial.html', {'posts': posts}, request=request)
+    else:
+        posts = (
+            Post.objects
+            .filter(**filter_kwargs)
+            .annotate(like_count=Count('like_users'))
+            .order_by('-like_count', '-created_at')[:5]
+        )
+        html = render_to_string('explore/_top_liked_posts_partial.html', {'posts': posts}, request=request)
+    return JsonResponse({'html': html})
