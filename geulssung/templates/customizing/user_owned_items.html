@@ -7,53 +7,83 @@
   <title>내 아이템</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-50 text-gray-800 font-sans p-8">
+  <div class="absolute top-2 right-6 flex gap-2 z-50">
+    {% if user.is_authenticated %}
+      <a href="{% url 'write' %}"
+        class="text-sm px-1 py-1 rounded-full font-bold {% if request.path == '/geulssung/write/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-2 py-2 rounded-full transition">
+        ✍️ 글쓰러 가기
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}?next={% url 'write' %}"
+        class="text-sm px-1 py-1 rounded-full font-bold bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        ✍️ 글쓰러 가기
+      </a>
+    {% endif %}
+
+    <a href="{% url 'explore' %}"
+      class="text-sm px-1 py-1 rounded-full font-bold {% if request.path == '/geulssung/explore/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+      🌊 글바다로
+    </a>
+
+    <a href="{% url 'home' %}"
+      class="text-sm px-1 py-1 rounded-full font-bold {% if request.path == '/geulssung/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+      🏠 홈으로
+    </a>
+  </div>
 
   <h1 class="text-3xl font-bold mb-6 text-center">✨ 내가 보유한 아이템 ✨</h1>
-  <br>
   <br>
   <!-- 🔸 말썽이 캐릭터와 탭 메뉴 UI -->
   
   <div class="text-center cursor-pointer">
     <div class="flex justify-center items-end gap-6 mb-2">
-      <div class="relative w-full max-w-4xl mx-auto">
-        <!-- 🔸 상단 중앙 버튼 -->
-        <a href="{% url 'store' %}" 
-        class="{% if request.path == '/geulssung/customizing/store' %} absolute -top-5 left-1/2 transform -translate-x-1/2 {% endif %} bg-[#00C9A7] hover:bg-[#00b498] text-black text-sm font-bold px-4 py-2 rounded-full shadow">
-        도우미 상점 가기
-        </a>
       
-      <div class="flex justify-center items-end gap-6 border-2 border-gray rounded-full px-6 py-4 w-full max-w-4xl mx-auto">
-      <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
-          <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
-            <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
-              <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-            </div>
-            <p class="text-xs mt-1 text-gray-500">🐌 글썽이</p>
+      <div class="flex justify-center items-start gap-3 border-2 border-gray rounded-full px-6 py-4 w-full max-w-4xl ">
+        <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 시작 -->
+        <div class="text-center cursor-pointer" onclick="selectCharacter('geulssung')">
+          <div class="relative w-80 h-80 mx-auto character-geulssung" id="geulssung-container">
+            <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
           </div>
-          <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
-
-          <!-- 말썽이 캐릭터 -->
-          <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
-            <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
-              <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-            </div>
-            <p class="text-xs mt-1 text-gray-500">🐌 말썽이</p>
+          <p class="text-xs mt-1 text-gray-500">🐌 글썽이</p>
+        </div>
+        <!-- ✅ 글썽이 캐릭터 겹쳐진 구조 끝 -->
+        
+        <!-- 말썽이 캐릭터 -->
+        <div class="text-center cursor-pointer" onclick="selectCharacter('malssung')">
+          <div class="relative w-80 h-80 mx-auto character-malssung" id="malssung-container">
+            <img src="{% static 'images/character/malssung/malssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
           </div>
+          <p class="text-xs mt-1 text-gray-500">🐌 말썽이</p>
         </div>
       </div>
     </div>
-    <br>
-    <div class="text-center">
-      <div id="geulssung-buttons" class="flex justify-center space-x-4">
-        <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
-        <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
-        <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
-        <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
-      </div>
-
-      <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
-        <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
+  </div>
+  <br>
+  <div class="relative w-full max-w-2xl mx-auto flex flex-col items-center gap-1">
+    <a href="{% url 'store' %}" 
+      class="{% if request.path == '/geulssung/customizing/store' %} absolute -top-5 left-1/2 transform -translate-x-1/2 {% endif %} 
+        bg-[#00C9A7] hover:bg-[#00b498] text-black text-sm font-bold px-4 py-2 rounded-full shadow">
+        도우미 상점 가기
+    </a>
+    <div class="bg-white px-4 py-2 rounded shadow flex items-center w-fit mx-auto">
+      <p class="text-sm font-semibold">
+        현재 보유 따개비: <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개
+      </p>
+    </div>
+  </div>
+  <br>
+  <div class="text-center">
+    <div id="geulssung-buttons" class="flex justify-center space-x-4">
+      <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
+      <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
+      <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
+      <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
+    </div>
+    
+    <div id="malssung-buttons" class="hidden flex justify-center space-x-4">
+      <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">악세서리</button>
         <button onclick="activateButton(this, '옷')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">옷</button>
         <button onclick="activateButton(this, '모자')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition">모자</button>
         <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
@@ -285,6 +315,6 @@
     }
   }
 </script>
-  
+
 </body>
 </html>
