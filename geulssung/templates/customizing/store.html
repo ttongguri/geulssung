@@ -60,18 +60,18 @@
           <!-- 아이템 카드 -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
             {% for item in all_items %}
-              {% if item.character.id == char.id %}
+              {% if item.character.id == char.id and item.id not in owned_item_ids %}
                 <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
                   <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 object-cover">
                   <div class="p-4 flex flex-col flex-grow">
                     <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
                     <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
-                    {% if item.id in owned_item_ids %}
+                    <!-- {% if item.id in owned_item_ids %}
                       <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
-                    {% else %}
-                      <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
-                    {% endif %}
-                  </div>
+                    {% else %} -->
+                    <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
+                    <!-- {% endif %} -->
+                  <!-- </div> -->
                 </article>
               {% endif %}
             {% endfor %}
