@@ -33,7 +33,7 @@
               <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온이:{{ post.author.nickname }}</span>
               <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온 날:{{ post.created_at|date:'m/d' }}</span>
             </div>
-            <span class="w-1/8 text-lg font-bold text-right text-green-600">점수 {{ post.evaluation.score }}</span>
+            <span class="w-10 text-lg font-bold text-right text-green-600">    {{ post.evaluation.score }}점</span>
           </li>
         {% endfor %}
       </ul>
@@ -54,7 +54,7 @@
               <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온이:{{ post.author.nickname }}</span>
               <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온 날:{{ post.created_at|date:'m/d' }}</span>
             </div>
-            <span class="w-1/8 text-lg font-bold text-right text-pink-600">❤️ {{ post.like_count }}</span>
+            <span class="w-10 text-lg font-bold text-right text-pink-600">❤️ {{ post.like_count }}</span>
           </li>
         {% endfor %}
       </ul>
