@@ -2,23 +2,64 @@
 <div class="space-y-4">
   <div class="flex items-center justify-between mb-6">
     <div class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg">
-      이번주 좋아요 랭킹👑
+      이번주 글 랭킹👑
     </div>
     <span class="text-xs text-gray-400 ml-4">{{ ranking_period }} 집계</span>
   </div>
-  {% if top_liked_posts %}
-    <ul class="bg-white rounded-lg shadow p-6 space-y-4">
-      {% for post in top_liked_posts|slice:":5" %}
-        <li class="flex justify-between items-center border-b last:border-b-0 pb-4 text-lg">
-          <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate w-2/4 text-xl">
-            {{ post.title }}
-          </a>
-          <span class="text-gray-600 font-medium w-1/4 text-center truncate">{{ post.author.nickname }}</span>
-          <span class="text-lg text-pink-600 font-bold w-1/6 text-right">❤️ {{ post.like_count }}</span>
-        </li>
-      {% endfor %}
-    </ul>
+  <!-- 랭킹 정렬 버튼 (우측 정렬) -->
+  <div class="flex justify-end mb-4">
+    <div class="flex gap-2 mr-2">
+      <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}ranking=like"
+         class="px-4 py-1 rounded-full font-semibold text-sm {% if not request.GET.ranking or request.GET.ranking == 'like' %}bg-blue-300 text-white{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E]{% endif %}">
+        좋아요순
+      </a>
+      <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}ranking=score"
+         class="px-4 py-1 rounded-full font-semibold text-sm {% if request.GET.ranking == 'score' %}bg-blue-300 text-white{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E]{% endif %}">
+        점수순
+      </a>
+    </div>
+  </div>
+  {% if request.GET.ranking == 'score' %}
+    {% if top_scored_posts %}
+      <ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
+        {% for post in top_scored_posts|slice:':5' %}
+          <li class="flex justify-between items-center border-b last:border-b-0 pb-2 text-lg">
+            <div class="w-2/5 flex flex-col justify-center">
+              <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
+                {{ post.title }}
+              </a>
+            </div>
+            <div class="w-1/3 flex justify-end items-center gap-x-1">
+              <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온이:{{ post.author.nickname }}</span>
+              <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온 날:{{ post.created_at|date:'m/d' }}</span>
+            </div>
+            <span class="w-1/8 text-lg font-bold text-right text-green-600">점수 {{ post.evaluation.score }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-center text-gray-500">아직 평가된 글이 없습니다.평가를 받아보세요!</p>
+    {% endif %}
   {% else %}
-    <p class="text-center text-gray-500">아직 좋아요를 받은 글이 없습니다🥹 마음에 드는 글을 추천해주세요!</p>
+    {% if top_liked_posts %}
+      <ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
+        {% for post in top_liked_posts|slice:':5' %}
+          <li class="flex justify-between items-center border-b last:border-b-0 text-lg">
+            <div class="w-2/5 flex flex-col justify-center">
+              <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
+                {{ post.title }}
+              </a>
+            </div>
+            <div class="w-1/3 flex justify-end items-center gap-x-1">
+              <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온이:{{ post.author.nickname }}</span>
+              <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온 날:{{ post.created_at|date:'m/d' }}</span>
+            </div>
+            <span class="w-1/8 text-lg font-bold text-right text-pink-600">❤️ {{ post.like_count }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-center text-gray-500">아직 좋아요를 받은 글이 없습니다.마음에 드는 글을 추천해주세요!</p>
+    {% endif %}
   {% endif %}
 </div> 

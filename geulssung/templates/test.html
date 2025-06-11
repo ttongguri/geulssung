@@ -1,32 +1,65 @@
-{% load static %}
-<div class="relative w-80 h-80 mx-auto character-{{ character }}">
-  <!-- 기본 캐릭터 -->
-  {% if character == 'geulssung' %}
-    <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-  {% else %}
-    <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" class="absolute top-0 left-0 z-10 w-full">
-  {% endif %}
-
-  <!-- 착용된 아이템 이미지 -->
-  {% for ui in equipped_items %}
-    {% if character in ui.item.image_path and ui.equipped %}
-      {% with ui.item.image_path as path %}
-        {% if 'body' in path %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:11">
-        {% elif 'clothes' in path %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:12">
-        {% elif 'bag' in path %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:13">
-        {% elif 'glass' in path %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:14">
-        {% elif 'acc' in path %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:15">
-        {% elif 'head' in path %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:16">
-        {% else %}
-          <img src="{% static path %}" class="absolute top-0 left-0 w-full" style="z-index:20">
-        {% endif %}
-      {% endwith %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>닉네임 설정</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Gowun Dodum', sans-serif;
+      background-image: url("/static/images/수정.png"); /* 배경 이미지 경로 */
+      background-size: cover;
+      background-position: center 60%;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .nickname-box {
+      background-color: rgba(255, 255, 255, 0.85); /* 반투명 흰 배경 */
+      padding: 2rem 3rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+      width: 200px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #5FB49C; /* 앞서 정한 회청록 톤 */
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #4f9992;
+    }
+  </style>
+</head>
+<body>
+  <form method="POST" class="nickname-box">
+    {% csrf_token %}
+    <h2>닉네임 설정</h2>
+    <label for="nickname">닉네임을 입력하세요</label><br>
+    <input type="text" name="nickname" required>
+    {% if error %}
+      <p style="color: red;">{{ error }}</p>
     {% endif %}
-  {% endfor %}
-</div>
+    <br>
+    <button type="submit">설정</button>
+  </form>
+</body>
+</html>

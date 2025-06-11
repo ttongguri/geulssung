@@ -53,7 +53,7 @@
   <form method="POST" class="nickname-box">
     {% csrf_token %}
     <h2>닉네임 설정</h2>
-    <label for="nickname">닉네임을 입력하세요:</label><br>
+    <label for="nickname">닉네임을 입력하세요</label><br>
     <input type="text" name="nickname" required>
     {% if error %}
       <p style="color: red;">{{ error }}</p>
