@@ -4,16 +4,25 @@
 <head>
   <meta charset="UTF-8" />
   <title>{{ author.nickname }}님의 글자국🐾</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 한글 폰트 적용 -->
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap" rel="stylesheet">
+
   <style>
+    /* ======================== 공통 스타일 ======================== */
+
     body {
       font-family: 'Gowun Batang', serif;
       background-color: #FFF9F2;
       color: #493E3E;
     }
+
     .rounded-xl { border-radius: 1rem !important; }
     .shadow-xl { box-shadow: 0 8px 24px 0 rgba(73,62,62,0.08), 0 1.5px 4px 0 rgba(73,62,62,0.08) !important; }
+
+    /* 카드 컴포넌트 */
     .card {
       background: #fff;
       border-radius: 1rem;
@@ -21,62 +30,188 @@
       padding: 1.5rem;
       margin-bottom: 1.5rem;
     }
+
     .card-title {
       font-weight: bold;
       font-size: 1.25rem;
       color: #493E3E;
     }
+
     .card-meta {
       color: #8d7b68;
       font-size: 0.95rem;
     }
-  </style>
 
-<style>
-  .like-float {
-    position: absolute;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #f87171; /* 빨간색 */
-    animation: fadeUp 0.8s ease-out forwards;
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  @keyframes fadeUp {
-    0% {
-      opacity: 1;
-      transform: translateY(0);
+    /* 좋아요 클릭 시 애니메이션 */
+    .like-float {
+      position: absolute;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #f87171;
+      animation: fadeUp 0.8s ease-out forwards;
+      pointer-events: none;
+      z-index: 10;
     }
-    100% {
+
+    @keyframes fadeUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+
+    /* ======================== 히트맵 스타일 ======================== */
+
+    /* 반응형 변수 */
+    :root {
+      --cell-size: 15px;
+      --cell-gap: 3.5px;
+    }
+
+    @media (max-width: 1023px) {
+      :root {
+        --cell-size: 12px;
+        --cell-gap: 1.5px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      :root {
+        --cell-size: 9px;
+        --cell-gap: 1px;
+      }
+    }
+
+    /* 히트맵 레이아웃 */
+    .heatmap-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .heatmap-week-labels {
+      display: flex;
+      flex-direction: column;
+      gap: 0.05px;
+      margin-right: 8px;
+      font-size: 12px;
+      color: #555;
+      height: calc(var(--cell-size) * 7 + var(--cell-gap) * 6);
+    }
+
+    /* 반응형 글자 크기 */
+    @media (max-width: 1023px) {
+      .heatmap-week-labels {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .heatmap-week-labels {
+        font-size: 10px;
+      }
+    }
+
+    .heatmap-month-labels {
+      display: grid;
+      grid-template-columns: repeat(52, calc(var(--cell-size) + var(--cell-gap)));
+      column-gap: 0.1px;
+      margin-bottom: 4px;
+      margin-left: 32px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* 반응형 font-size */
+    @media (max-width: 1023px) {
+      .heatmap-month-labels {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .heatmap-month-labels {
+        font-size: 10px;
+      }
+    }
+
+    .heatmap-month-labels div {
+      text-align: center;
+      line-height: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-rows: repeat(7, var(--cell-size));
+      grid-auto-flow: column;
+      gap: var(--cell-gap);
+    }
+
+    .heatmap-cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      background: #ededed;
+      border-radius: calc(var(--cell-size) / 4);
+      cursor: pointer;
+      position: relative;
+    }
+
+    /* 커스텀 Tooltip */
+    .heatmap-cell::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
       opacity: 0;
-      transform: translateY(-20px);
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 10;
     }
-  }
-</style>
 
-<!-- 히트맵 -->
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/cal-heatmap@4.2.4/dist/cal-heatmap.css"/>
-<script src="https://unpkg.com/cal-heatmap@4.2.4/dist/cal-heatmap.min.js"></script>
-
+    .heatmap-cell:hover::after {
+      opacity: 1;
+    }
+  </style>
 </head>
+
 <body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
+
   {% include "nav_bar.html" %}
+
+  <!-- 상단 패딩 -->
   <div class="h-14"></div>
+
+  <!-- 메인 컨텐츠 영역 -->
   <div class="max-w-6xl mx-auto mt-8">
 
-    <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국🐾</h1>
-    <br>
+    <!-- 페이지 제목 -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국🐾</h1>
 
-    {# F글/T글 비율 막대 그래프 #}
+      <!-- 검색 폼 -->
+      <form method="get" action="" class="mb-6 flex">
+        <input type="text" name="q" placeholder="제목 또는 내용 검색" value="{{ q }}" class="text-sm border rounded-l px-3 py-2 w-56" />
+        <button type="submit" class="text-sm bg-blue-500 text-white px-4 py-2 rounded-r">검색</button>
+      </form>
+    </div>
+
+    <!-- F글/T글 비율 막대 그래프 -->
     {% if total_count > 0 %}
     <div class="w-full max-w-6xl mx-auto mb-10 flex items-center">
-      <!-- 왼쪽: 글썽이 캐릭터 -->
+      <!-- 글썽이 캐릭터 -->
       <div class="flex-shrink-0 w-64 h-64">
         {% include "customizing/character_render.html" with character=geulssung_character equipped_items=geulssung_equipped_items %}
       </div>
-      <!-- 그래프 -->
+
+      <!-- 비율 그래프 -->
       <div class="flex-1 mx-8">
         <div class="flex justify-between text-lg md:text-2xl font-semibold mb-4">
           <span class="text-blue-600">F글(감성) {{ f_count }}개 ({{ f_ratio }}%)</span>
@@ -87,51 +222,47 @@
           <div class="h-full bg-orange-400" style="width: {{ t_ratio }}%"></div>
         </div>
       </div>
-      <!-- 오른쪽: 말썽이 캐릭터 -->
+
+      <!-- 말썽이 캐릭터 -->
       <div class="flex-shrink-0 w-64 h-64">
         {% include "customizing/character_render.html" with character=malssung_character equipped_items=malssung_equipped_items %}
       </div>
     </div>
     {% endif %}
 
+    <!-- 구독(팔로우) 버튼 -->
     {% if user.is_authenticated and user.id != author.id %}
       <div class="mb-6">
         <button id="follow-btn"
                 data-user-id="{{ author.id }}"
                 class="px-4 py-2 font-bold rounded-full shadow transition
-                       {% if is_following %}
-                         bg-red-300 hover:bg-red-400
-                       {% else %}
-                         bg-blue-300 hover:bg-blue-400
-                       {% endif %}">
-          {% if is_following %}
-            언팔로우
-          {% else %}
-            구독
-          {% endif %}
+                       {% if is_following %} bg-red-300 hover:bg-red-400
+                       {% else %} bg-blue-300 hover:bg-blue-400 {% endif %}">
+          {% if is_following %} 언팔로우 {% else %} 구독 {% endif %}
         </button>
       </div>
     {% endif %}
-  
-  <!-- 히트맵 컨테이너 -->
-  <h2 class="text-2xl font-bold mb-4">✍️ 글 작성 히트맵</h2>
-  <div id="heatmap" style="min-height:200px;"></div> 
 
-  <form method="get" action="" class="mb-6 flex">
-    <input
-      type="text"
-      name="q"
-      placeholder="제목 또는 내용 검색"
-      value="{{ q }}"
-      class="border rounded-l px-4 py-2 w-full"
-    />
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r">
-      검색
-    </button>
-  </form>
+    <!-- 히트맵 월 레이블 -->
+    <div class="heatmap-month-labels" id="month-labels"></div>
+
+    <!-- 히트맵 본체 -->
+    <div class="heatmap-wrapper">
+      <!-- 요일 레이블 -->
+      <div class="heatmap-week-labels mb-10">
+        <div>월</div><div>화</div><div>수</div>
+        <div>목</div><div>금</div><div>토</div><div>일</div>
+      </div>
+
+      <!-- 히트맵 셀 -->
+      <div id="heatmap" class="heatmap-grid"></div>
+    </div>
+
+    <!-- 포스트 리스트 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
         <div class="relative card overflow-hidden">
+
           <!-- 커버 이미지 -->
           <a href="{% url 'post_detail' post_id=post.id %}">
             {% if post.postimage %}
@@ -141,7 +272,7 @@
             {% endif %}
           </a>
 
-          <!-- 좋아요 버튼 (제목 위) -->
+          <!-- 좋아요 버튼 -->
           <div class="flex justify-between items-center mt-2 mb-1">
             <div>
               {% if user.is_authenticated %}
@@ -150,9 +281,7 @@
                     <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
                   </div>
                 {% else %}
-                  <button type="button"
-                          class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1"
-                          data-post-id="{{ post.id }}">
+                  <button type="button" class="like-btn text-red-400 hover:text-red-600 text-2xl font-bold transition flex items-center gap-1" data-post-id="{{ post.id }}">
                     {% if user in post.like_users.all %}
                       <span class="heart">❤️</span><span class="like-count text-sm align-middle">({{ post.like_users.count }})</span>
                     {% else %}
@@ -163,16 +292,13 @@
               {% endif %}
             </div>
 
+            <!-- 커버 사진 변경 버튼 (본인만 표시) -->
             {% if user.is_authenticated and user == post.author %}
               <div class="flex flex-col items-start gap-0.5">
                 <form method="post" action="{% url 'update_cover_image' post.id %}" enctype="multipart/form-data" class="flex items-center gap-2">
                   {% csrf_token %}
-                  <input type="file" id="coverImageInput-{{ post.id }}" name="cover_image" accept="image/*"
-                        class="hidden"
-                        onchange="this.form.submit()" />
-                  <button type="button"
-                          onclick="document.getElementById('coverImageInput-{{ post.id }}').click();"
-                          class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
+                  <input type="file" id="coverImageInput-{{ post.id }}" name="cover_image" accept="image/*" class="hidden" onchange="this.form.submit()" />
+                  <button type="button" onclick="document.getElementById('coverImageInput-{{ post.id }}').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all">
                     커버 사진 변경📷
                   </button>
                 </form>
@@ -183,7 +309,7 @@
           <!-- 제목 -->
           <h2 class="card-title truncate text-left mb-2">{{ post.title }}</h2>
 
-          <!-- 작성일(우측 정렬, 작성자보다 위) -->
+          <!-- 작성일 -->
           <div class="flex justify-end">
             <div class="text-xs text-gray-400 mb-0.5 mr-0.5">작성일: {{ post.created_at|date:"y.m.d" }}</div>
           </div>
@@ -202,6 +328,7 @@
               <span class="italic">by {{ post.author.nickname }}</span>
             </div>
           </div>
+
         </div>
       {% empty %}
         <p class="text-gray-500 col-span-full text-center">아직 작성된 글이 없습니다.</p>
@@ -210,12 +337,12 @@
 
   </div>
 
+  <!-- follow 버튼 동작 -->
   <script>
     const followBtn = document.getElementById('follow-btn');
     if (followBtn) {
       followBtn.addEventListener('click', async function () {
         const userId = this.dataset.userId;
-
         const response = await fetch("/geulssung/accounts/follow/", {
           method: "POST",
           headers: {
@@ -224,71 +351,140 @@
           },
           body: `user_id=${userId}`,
         });
-
         const result = await response.json();
         if (result.status === 'followed' || result.status === 'unfollowed') {
           location.reload();
         }
       });
     }
-
-    document.querySelectorAll('.like-btn').forEach(btn => {
-  btn.addEventListener('click', async function () {
-    const postId = this.dataset.postId;
-    const response = await fetch("{% url 'like' 0 %}".replace('0', postId), {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    });
-
-    const data = await response.json();
-
-    const heart = this.querySelector('.heart');
-    const count = this.querySelector('.like-count');
-
-    // 애니메이션 효과 넣기
-    const float = document.createElement('div');
-    float.classList.add('like-float');
-    float.textContent = data.status === 'liked' ? '+1' : '-1';
-
-    // 버튼 위치 기준으로 float 위치 지정
-    const rect = this.getBoundingClientRect();
-    float.style.left = `${this.offsetLeft + 20}px`;
-    float.style.top = `${this.offsetTop - 10}px`;
-
-    // DOM에 삽입 (부모 기준 위치)
-    this.parentElement.appendChild(float);
-
-    // 0.8초 뒤 제거
-    setTimeout(() => {
-      float.remove();
-    }, 800);
-
-    // 하트 및 카운트 업데이트
-    heart.textContent = data.status === 'liked' ? '❤️' : '🤍';
-    count.textContent = `(${data.count})`;
-  });
-});
-
   </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const cal = new CalHeatmap();  // 반드시 소문자 m
+  <!-- like 버튼 동작 + 애니메이션 -->
+  <script>
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        const postId = this.dataset.postId;
+        const response = await fetch("{% url 'like' 0 %}".replace('0', postId), {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        });
+        const data = await response.json();
 
-  cal.paint({
-    itemSelector: '#heatmap',
-    date: { start: new Date("{{ earliest_date }}") },
-    range: 12,
-    domain: { type: 'month', gutter: 4 },
-    subDomain: { type: 'day', width: 12, height: 12, gutter: 2 },
-    data: { source: {{ heatmap_data|safe }} },
-    theme: 'light'
-  });
-});
-</script>
+        const heart = this.querySelector('.heart');
+        const count = this.querySelector('.like-count');
 
+        const float = document.createElement('div');
+        float.classList.add('like-float');
+        float.textContent = data.status === 'liked' ? '+1' : '-1';
+
+        const rect = this.getBoundingClientRect();
+        float.style.left = `${this.offsetLeft + 20}px`;
+        float.style.top = `${this.offsetTop - 10}px`;
+
+        this.parentElement.appendChild(float);
+
+        setTimeout(() => {
+          float.remove();
+        }, 800);
+
+        heart.textContent = data.status === 'liked' ? '❤️' : '🤍';
+        count.textContent = `(${data.count})`;
+      });
+    });
+  </script>
+
+  <!-- heatmap 그리기 스크립트 -->
+<!-- heatmap 그리기 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const dataMap = {{ heatmap_data|safe }};
+      const heatmap = document.getElementById('heatmap');
+      const monthLabels = document.getElementById('month-labels');
+
+      let startDate = new Date("{{ earliest_date }}");
+      startDate.setDate(1);
+
+      let endDate = new Date(startDate);
+      endDate.setFullYear(endDate.getFullYear() + 1);
+      endDate.setMonth(endDate.getMonth(), 0);
+
+      // startdate 월요일부터 시작되게 (히트맵)
+      const day = startDate.getDay();
+      const diffToMonday = (day === 0 ? -6 : 1) - day;
+      startDate.setDate(startDate.getDate() + diffToMonday);
+
+      const getColor = cnt => {
+        if (cnt >= 7) return '#c62828';
+        if (cnt >= 5) return '#ef5350';
+        if (cnt >= 3) return '#ef9a9a';
+        if (cnt >= 1) return '#ffcdd2';
+        return '#ededed';
+      };
+
+      let d = new Date(startDate);
+      let currentMonth = -1;
+      let weekIndex = 0;
+      const monthSpans = [];
+      let monthStartWeek = weekIndex;
+
+      while (d <= endDate) {
+        // 주 시작일 월요일 기준
+        if (d.getDay() === 1) {
+          const month = d.getMonth();
+
+          if (month !== currentMonth) {
+            // 이전 월 span width 계산
+            if (currentMonth !== -1) {
+              const span = monthSpans[monthSpans.length - 1];
+              const weekSpan = weekIndex - monthStartWeek;
+              span.style.gridColumn = `span ${weekSpan}`;
+            }
+
+            // 새 월 레이블 추가 (모든 월 표시)
+            const label = document.createElement('div');
+            label.textContent = `${month + 1}월`; // 숫자 + '월' 표시
+
+            // 중앙 정렬 적용
+            label.style.gridColumn = 'span 1';
+            label.style.justifySelf = 'center';
+
+            monthLabels.appendChild(label);
+            monthSpans.push(label);
+
+            currentMonth = month;
+            monthStartWeek = weekIndex;
+          }
+
+          weekIndex++;
+        }
+
+        // heatmap cell 생성
+        for (let i = 0; i < 7; i++) {
+          if (d > endDate) break;
+          const iso = d.toISOString().slice(0,10);
+          const cnt = dataMap[iso] || 0;
+
+          const cell = document.createElement('div');
+          cell.className = 'heatmap-cell';
+          cell.style.background = getColor(cnt);
+          cell.setAttribute('data-tooltip', `${iso}: ${cnt}개`);
+
+          heatmap.appendChild(cell);
+
+          d.setDate(d.getDate() + 1);
+        }
+      }
+
+      // 마지막 월 span width 계산
+      if (currentMonth !== -1 && monthSpans.length > 0) {
+        const span = monthSpans[monthSpans.length - 1];
+        const weekSpan = weekIndex - monthStartWeek;
+        span.style.gridColumn = `span ${weekSpan}`;
+      }
+    });
+  </script>
 </body>
 </html>

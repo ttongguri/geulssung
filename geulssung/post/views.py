@@ -28,6 +28,7 @@ from prompts.models import GeneratedPrompt
 from customizing.models import UserItem, Character
 from django.template.loader import render_to_string
 from django.db.models.functions import TruncDate
+from calendar import timegm
 import calendar
 
 
@@ -227,9 +228,10 @@ def public_posts_by_user(request, nickname):
     )
 
     heatmap_data = {
-        calendar.timegm(d['date'].timetuple()): d['count']
+        d['date'].strftime("%Y-%m-%d"): d['count']
         for d in date_counts
-    }
+    }  
+
     # 사용자의 최초 작성일부터 히트맵 적용 ISO 포맷 문자열 (ex. "2025-06-09")
     earliest_date = date_counts[0]['date'].isoformat() if date_counts else timezone.now().date().isoformat()
 
