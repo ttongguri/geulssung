@@ -27,6 +27,8 @@ from django.db.models import Q
 from prompts.models import GeneratedPrompt
 from customizing.models import UserItem, Character
 from django.template.loader import render_to_string
+from django.db.models.functions import TruncDate
+import calendar
 
 
 # hj - gemini_api_key 삽입
@@ -215,6 +217,22 @@ def public_posts_by_user(request, nickname):
     geulssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=geulssung_character)
     malssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=malssung_character)
 
+    # 히트맵을 위한 날짜별 글 개수 집계
+    date_counts = (
+        posts
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+
+    heatmap_data = {
+        calendar.timegm(d['date'].timetuple()): d['count']
+        for d in date_counts
+    }
+    # 사용자의 최초 작성일부터 히트맵 적용 ISO 포맷 문자열 (ex. "2025-06-09")
+    earliest_date = date_counts[0]['date'].isoformat() if date_counts else timezone.now().date().isoformat()
+
     return render(request, 'post/public_user_posts.html', {
         'author': author,
         'posts': posts,
@@ -229,6 +247,8 @@ def public_posts_by_user(request, nickname):
         'malssung_character': malssung_character,
         'geulssung_equipped_items': geulssung_equipped_items,
         'malssung_equipped_items': malssung_equipped_items,
+        'heatmap_data': json.dumps(heatmap_data),
+        'earliest_date': earliest_date,
     })
 
 # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
