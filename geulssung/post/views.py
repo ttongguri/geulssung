@@ -218,7 +218,7 @@ def public_posts_by_user(request, nickname):
     geulssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=geulssung_character)
     malssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=malssung_character)
 
-    # 히트맵을 위한 날짜별 글 개수 집계
+    # 히트맵을 위한 날짜별 글 개수 집계 → public_user_posts.html 에서 heatmap_data, earliest_date 로 사용됨
     date_counts = (
         posts
         .annotate(date=TruncDate('created_at'))
@@ -227,12 +227,13 @@ def public_posts_by_user(request, nickname):
         .order_by('date')
     )
 
+    # heatmap_data → 히트맵 셀 색상 표시용 (날짜별 글 개수)
     heatmap_data = {
         d['date'].strftime("%Y-%m-%d"): d['count']
         for d in date_counts
     }  
 
-    # 사용자의 최초 작성일부터 히트맵 적용 ISO 포맷 문자열 (ex. "2025-06-09")
+    # # earliest_date → 히트맵 시작 날짜 지정 (히트맵 렌더링 기준 날짜)
     earliest_date = date_counts[0]['date'].isoformat() if date_counts else timezone.now().date().isoformat()
 
     return render(request, 'post/public_user_posts.html', {
