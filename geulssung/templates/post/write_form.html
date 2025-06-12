@@ -35,7 +35,7 @@
   </style>
   {% include "nav_bar.html" %}
 <!-- 전체 래퍼 -->
-<div class="bg-white max-w-[1100px] min-h-[600px] mx-auto mt-20 rounded-xl shadow-lg overflow-hidden flex">
+<div class="bg-white max-w-[1200px] min-h-[600px] ml-[50px] mt-20 rounded-xl shadow-lg overflow-hidden flex">
   
     <!-- 왼쪽: 가이드 사이드바 -->
     <aside id="guide-sidebar"
@@ -278,7 +278,7 @@
     if (displayBox) displayBox.classList.add("hidden");
 
     // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
-    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
+    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 4 : characterId);
     // 캐릭터 이미지 다시 렌더링해서 넣기
     fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
       .then(res => res.text())

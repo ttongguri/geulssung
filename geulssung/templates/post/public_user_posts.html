@@ -32,40 +32,56 @@
     }
   </style>
 
-<style>
-  .like-float {
-    position: absolute;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #f87171; /* 빨간색 */
-    animation: fadeUp 0.8s ease-out forwards;
-    pointer-events: none;
-    z-index: 10;
-  }
+  <style>
+    .like-float {
+      position: absolute;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #f87171; /* 빨간색 */
+      animation: fadeUp 0.8s ease-out forwards;
+      pointer-events: none;
+      z-index: 10;  
+    }
 
-  @keyframes fadeUp {
-    0% {
-      opacity: 1;
-      transform: translateY(0);
+    @keyframes fadeUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
     }
-    100% {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-  }
-</style>
+  </style>
 </head>
 <body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
   {% include "nav_bar.html" %}
   <div class="h-14"></div>
   <div class="max-w-6xl mx-auto mt-8">
 
-    <h1 class="text-3xl font-bold mb-6">{{ author.nickname }}님의 글자국🐾</h1>
-    <br>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">
+        {{ author.nickname }}님의 글자국🐾
+      </h1>
+      <br>
+      <form method="get" action="" class="flex">
+        <input
+          type="text"
+          name="q"
+          placeholder="제목 또는 내용 검색"
+          value="{{ q }}"
+          class="text-sm border rounded-l px-3 py-2 w-56"
+        />
+        <button type="submit" class="text-sm bg-blue-500 text-white px-4 py-2 rounded-r">
+          검색
+        </button>
+      </form>
+    </div>
 
     {# F글/T글 비율 막대 그래프 #}
     {% if total_count > 0 %}
-    <div class="w-full max-w-6xl mx-auto mb-10 flex items-center">
+    <div class="w-full max-w-7xl mx-auto mb-10 flex items-center">
       <!-- 왼쪽: 글썽이 캐릭터 -->
       <div class="flex-shrink-0 w-64 h-64">
         {% include "customizing/character_render.html" with character=geulssung_character equipped_items=geulssung_equipped_items %}
@@ -106,19 +122,7 @@
         </button>
       </div>
     {% endif %}
-  <form method="get" action="" class="mb-6 flex">
-    <input
-      type="text"
-      name="q"
-      placeholder="제목 또는 내용 검색"
-      value="{{ q }}"
-      class="border rounded-l px-4 py-2 w-full"
-    />
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r">
-      검색
-    </button>
-  </form>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
       {% for post in posts %}
         <div class="relative card overflow-hidden">
           <!-- 커버 이미지 -->

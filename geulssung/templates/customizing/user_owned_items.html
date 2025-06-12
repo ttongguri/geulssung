@@ -1,21 +1,23 @@
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" style="font-size: 80%;">
 <head>
-  <meta charset="UTF-8">
-  <title>내 아이템</title>
+  <meta charset="UTF-8" />
+  <title>🛒상점</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font -->
+  <style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');</style>
 </head>
 <body class="bg-[#f0f9ff] text-gray-800 font-sans p-8">
   
   {% include "nav_bar.html" %}
   <br>
   <br>
+  <br>
   
-  <h1 class="text-3xl font-bold mb-6 text-center">🍀 글말썽이 옷장</h1>
+  <h1 class="text-3xl font-bold mb-2 text-center">🍀 글말썽이 옷장</h1>
   <!-- 🔸 캐릭터 탭 UI (도우미 상점 버튼 포함) -->
-  <div id="character-tab" class="relative bg-white px-4 pt-1 pb-1 max-h-[420px] overflow-hidden rounded-t-lg shadow max-w-6xl mx-auto">
 
     <!-- 🛒 도우미 상점 버튼: 상단 중앙 고정 -->
       <div class="absolute top-2 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-4 bg-white px-4 py-2 rounded-full shadow">
@@ -29,7 +31,7 @@
       </div>  
 
     <!-- 🔹 캐릭터 선택 영역 (버튼과 겹치지 않도록 mt 추가) -->
-    <div class="flex justify-center items-end gap-4 mt-0">
+    <div class="flex justify-center items-end gap-4 mt-[-20px]">
       {% for char in characters %}
         <div class="text-center cursor-pointer" onclick="selectCharacter({{ char.id }})">
           {% include "customizing/character_render.html" with character=char equipped_items=equipped_items %}
@@ -53,7 +55,7 @@
       </div>
     </div>
     <br><br>
-  </div>
+
 
   <div class="border-t border-gray-300 max-w-6xl mx-auto"></div>
 
@@ -153,7 +155,7 @@
     selectedCharacter = characterId;
     selectedCategory = null;
     document.getElementById('char-1-buttons').classList.toggle('hidden', characterId !== 1);
-    document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 2);
+    document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 4);
     filterItems();
   }
 
@@ -220,7 +222,7 @@
   // 🔹 장착 상태 반영 (id 기반)
   function updateItemStatus(itemId, equipped, imagePath) {
     // 캐릭터 id 추출 (글썽이: 1, 말썽이: 2)
-    let character = imagePath.includes('malssung') ? 2 : 1;
+    let character = imagePath.includes('malssung') ? 4 : 1;
     const targetContainer = document.querySelector(`.character-${character}`);
     const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
     const part = partMatch ? partMatch[1] : null;
