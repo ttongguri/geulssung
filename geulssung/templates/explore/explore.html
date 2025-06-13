@@ -70,7 +70,18 @@
   {% include "nav_bar.html" %}
   
   <div class="max-w-6xl mx-auto pt-20">
-    <h1 class="text-4xl font-bold mb-2 text-center">🌊 글바다</h1>
+  <!-- 제목 + 검색창을 한 줄에 -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-4xl font-bold">🌊 글바다</h1>
+
+      <form method="get" action="{% url 'explore' %}" class="flex items-center space-x-2">
+        <input type="text" name="q" placeholder="제목 또는 내용 검색" value="{{ q }}"
+              class="text-sm border rounded-l px-3 py-2 w-56" />
+        <button type="submit" class="text-sm bg-blue-500 text-white px-4 py-2 rounded-r">검색</button>
+      </form>
+    </div>
+    <br>
+    <br>
 
     <!-- 구독글 섹션 -->
     <div class="w-fit bg-white px-4 py-2 rounded-full shadow mb-6 ml-0 mx-auto font-semibold text-lg">내 구독글</div>
