@@ -314,7 +314,7 @@
     if (displayBox) displayBox.classList.add("hidden");
 
     // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
-    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
+    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 4 : characterId);
     // 캐릭터 이미지 다시 렌더링해서 넣기
     fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
       .then(res => res.text())

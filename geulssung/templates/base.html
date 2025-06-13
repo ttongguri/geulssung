@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko" style="font-size: 80%;">
 <head>
@@ -38,6 +39,12 @@
 
 <body class="relative flex flex-col items-center justify-between min-h-screen text-[#493E3E]">
   <div class="overlay"></div>
+
+  <!-- 덧붙이는 배경 이미지 (브라우저 창 전체에 꽉 차게) -->
+      <img src="{% static 'images/배경2.png' %}" 
+          alt="덧붙이는 배경" 
+          class="absolute top-[-300px] left-0 w-[100%] h-auto object-contain z-[-1] pointer-events-none select-none" />
+
 
   <!-- 로그인/회원가입 -->
   <div class="absolute top-6 left-6 md:left-8 text-[15px] md:text-base font-semibold space-x-4 z-10">
