@@ -29,6 +29,16 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleBtn.style.zIndex = '40';
     toggleBtn.style.border = 'none';
     toggleBtn.style.cursor = 'pointer';
+    toggleBtn.className = "bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white focus:outline-none focus:ring-2 focus:ring-[#bae6fd]";
+    toggleBtn.innerText = "💬 도움 열기/닫기";
+    toggleBtn.style.position = "absolute";
+    toggleBtn.style.top = "0";
+    toggleBtn.style.right = "0";
+    toggleBtn.style.zIndex = "40";
+    toggleBtn.style.border = "none";
+    toggleBtn.style.cursor = "pointer";
+    toggleBtn.style.backgroundColor = "#bae6fd";
+
     wrapper.appendChild(toggleBtn);
   }
 
@@ -41,12 +51,23 @@ document.addEventListener("DOMContentLoaded", function () {
     chatBox.id = "chat-box";
     chatBox.classList.add("hidden"); // 기본 상태는 숨김
     chatBox.style.position = "absolute";
-    chatBox.style.bottom = "40px";
+    chatBox.style.bottom = "calc(100% + 20px)";
     chatBox.style.left = "50%";
     chatBox.style.transform = "translateX(-50%)";
     chatBox.style.zIndex = "30";
     chatBox.style.pointerEvents = "auto";
-    chatBox.style.width = "min(100vw, 400px)";
+    chatBox.style.width = "min(60vw, 280px)";  
+    chatBox.style.boxShadow = "0 8px 32px rgba(0,0,0,0.18)";
+    chatBox.style.pointerEvents = "auto";
+    chatBox.style.backgroundColor = "#f8fafc";
+    chatBox.style.borderRadius = "16px";
+    chatBox.style.border = "2px solid #bae6fd";
+    chatBox.style.padding = "12px 16px 10px 16px";
+    chatBox.style.display = "flex";
+    chatBox.style.flexDirection = "column";
+    chatBox.style.position = "relative";
+    chatBox.style.paddingBottom = "18px";
+
     chatBox.innerHTML = `
       <div style="
         width: 100%;
