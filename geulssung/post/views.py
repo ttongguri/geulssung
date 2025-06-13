@@ -210,7 +210,7 @@ def public_posts_by_user(request, nickname):
 
     # 글썽이/말썽이 캐릭터 객체 쿼리 (id 고정)
     geulssung_character = Character.objects.filter(id=1).first()
-    malssung_character = Character.objects.filter(id=4).first()
+    malssung_character = Character.objects.filter(id=2).first()
     # 각 캐릭터별 착용 아이템 쿼리
     geulssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=geulssung_character)
     malssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=malssung_character)
