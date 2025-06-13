@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleBtn = document.createElement('button');
     toggleBtn.id = 'chat-toggle-btn';
     toggleBtn.type = 'button';
-    toggleBtn.innerText = '💬';
+    toggleBtn.innerText = '도움 열기';
     toggleBtn.style.position = 'absolute';
     toggleBtn.style.top = '0';
     toggleBtn.style.right = '0';
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleBtn.style.border = 'none';
     toggleBtn.style.cursor = 'pointer';
     toggleBtn.className = "bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white focus:outline-none focus:ring-2 focus:ring-[#bae6fd]";
-    toggleBtn.innerText = "💬 도움 열기/닫기";
+    toggleBtn.innerText = "도움 열기/닫기";
     toggleBtn.style.position = "absolute";
     toggleBtn.style.top = "0";
     toggleBtn.style.right = "0";
@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const introMap  = {
         emotion: {
           poem:   "🌸 글썽이가 시 쓰기를 도와드려요.",
-          essay:  "💖 글썽이와 에세이 쓰기를 도와드려요."
+          essay:  "💖 글썽이가 에세이 쓰기를 도와드려요."
         },
         logic: {
           column:   "📢 말썽이가 칼럼 쓰기를 도와줄게요.",
@@ -277,6 +277,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // └────────────────────────────────────────────────────────────────┘
   toggleBtn.onclick = function() {
     chatBox.classList.toggle("hidden");
-    toggleBtn.innerText = chatBox.classList.contains("hidden") ? "💬" : "닫기";
+    toggleBtn.innerText = chatBox.classList.contains("hidden") ? "도움 열기" : "도움 닫기";
   };
 });
