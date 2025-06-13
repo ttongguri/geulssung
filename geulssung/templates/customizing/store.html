@@ -70,7 +70,7 @@
                 {% for item in all_items %}
                   {% if item.character.id == char.id and item.id not in owned_item_ids %}
                     <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
-                      <div class="relative w-full h-48">
+                      <div class="relative w-full h-64">
                         <!-- 기본 캐릭터 이미지 -->
                         {% if char.id == 1 %}
                           <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
