@@ -1,3 +1,9 @@
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'geulssung.settings')
+django.setup()
+
 import csv
 from customizing.models import Item, Character
 csv_path = 'geulssung/data/character_items.csv'  # ← 수정된 경로!
