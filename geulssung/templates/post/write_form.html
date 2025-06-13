@@ -503,17 +503,15 @@ function prevStep() {
 </script>
 
 
-<!-- 캐릭터 전체 박스 -->
-<div class="fixed right-8 bottom-4 z-50 flex flex-col items-end" style="width: 30rem;">
-
-    <!-- 챗봇 말풍선 -->
-    <div id="chat-box"
+<!-- 캐릭터 전체 박스: 작성폼 우측 하단에 고정, width 20rem, right-4, bottom-4 -->
+<div class="fixed right-4 bottom-4 z-50 flex flex-col items-end" style="width: 20rem;">
+  <!-- 챗봇 말풍선 -->
+  <div id="chat-box"
     class="hidden max-w-[90vw] w-[300px] bg-white rounded-2xl shadow-2xl p-5 border border-[#bae6fd]"
-    style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto; position: fixed; bottom: 360px; right: 40px; z-index: 50;">
+    style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto; position: fixed; bottom: 320px; right: 40px; z-index: 50;">
     <div class="relative">
-
-      <!-- 말풍선 꼬리: 말풍선 중앙 하단에 자연스럽게 위치 -->
-      <div style="position: absolute; left: 50%; bottom: -40px; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 18px solid #bae6fd;"></div>
+      <!-- 말풍선 꼬리 ... -->
+      <div style="position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 18px solid #bae6fd;"></div>
       <div class="font-bold text-[#2563eb] text-lg mb-2 flex items-center gap-2">📚 글쓰기 도우미</div>
       <div id="chat-log" style="flex: 1; overflow-y: auto; min-height: 60px; max-height: 220px; padding: 10px 0 8px 0; font-size: 1rem;"></div>
       <div style="padding: 8px 0 0 0; display: flex; gap: 8px; align-items: flex-end; background: #f8fafc; border-radius: 0 0 16px 16px;">
@@ -522,24 +520,28 @@ function prevStep() {
       </div>
     </div>
   </div>
-  <!-- 캐릭터 컨테이너: 이미지 크기에 맞게 자동 조정 -->
-  <div id="character-container" class="relative z-40 inline-block w-[320px] h-[320px] pointer-events-auto">
-    {% if not genre %}
-      <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg">
-        도우미를 선택해 주세요!
-      </div>
-    {% else %}
-      {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
-    {% endif %}
+  <!-- 캐릭터 컨테이너: relative 제거, 기존처럼 -->
+  <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
+    <div id="character-container" class="relative inline-block w-[320px] h-[320px] pointer-events-auto">
+      {% if not genre %}
+        <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none z-10">
+          도우미를 선택해 주세요!
+        </div>
+      {% else %}
+        {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
+      {% endif %}
+    </div>
   </div>
-  <!-- 챗봇 열기/닫기 버튼 -->
+</div>
+
 <button id="chat-toggle-btn" type="button"
-class="mt-6 bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
-도와줘!
+  class="fixed bottom-[90px] right-[11rem] z-[999]
+         bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 
+         rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white 
+         focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
+  도와줘!
 </button>
 
-</div>
-<input type="hidden" name="character" id="character-input" value="none">  
 
 <script>
 // 챗봇 토글 함수: chat-box의 hidden 토글만 담당
