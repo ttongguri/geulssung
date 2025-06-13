@@ -242,7 +242,9 @@
         </button>
       </div>
     {% endif %}
-
+    
+    <!-- 글자국 총 개수 표시 -->
+    <h2 class="text-lg font-semibold mb-4">총 {{ contributions_count }} 개의 글자국🐾을 남겼습니다. </h2>
     <!-- 히트맵 월 레이블 -->
     <div class="heatmap-month-labels" id="month-labels"></div>
 
@@ -396,7 +398,7 @@
     });
   </script>
 
-  <!-- heatmap 그리기 스크립트 -->
+
 <!-- heatmap 그리기 스크립트 -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -404,14 +406,12 @@
       const heatmap = document.getElementById('heatmap');
       const monthLabels = document.getElementById('month-labels');
 
-      let startDate = new Date("{{ earliest_date }}");
-      startDate.setDate(1);
+       // 오늘 기준으로 365일 범위 설정
+      let endDate = new Date();  // 오늘
+      let startDate = new Date(endDate);
+      startDate.setDate(startDate.getDate() - 364);
 
-      let endDate = new Date(startDate);
-      endDate.setFullYear(endDate.getFullYear() + 1);
-      endDate.setMonth(endDate.getMonth(), 0);
-
-      // startdate 월요일부터 시작되게 (히트맵)
+      // startDate를 월요일 시작으로 맞추기
       const day = startDate.getDay();
       const diffToMonday = (day === 0 ? -6 : 1) - day;
       startDate.setDate(startDate.getDate() + diffToMonday);
@@ -426,44 +426,36 @@
 
       let d = new Date(startDate);
       let currentMonth = -1;
+      let lastMonth = -1;
       let weekIndex = 0;
-      const monthSpans = [];
-      let monthStartWeek = weekIndex;
 
+      // 월 레이블 첫 등장 column만 표시 (GitHub 스타일)
       while (d <= endDate) {
-        // 주 시작일 월요일 기준
-        if (d.getDay() === 1) {
+        if (d.getDay() === 1) {  // 주 시작일 (월요일 기준)
           const month = d.getMonth();
 
-          if (month !== currentMonth) {
-            // 이전 월 span width 계산
-            if (currentMonth !== -1) {
-              const span = monthSpans[monthSpans.length - 1];
-              const weekSpan = weekIndex - monthStartWeek;
-              span.style.gridColumn = `span ${weekSpan}`;
-            }
-
-            // 새 월 레이블 추가 (모든 월 표시)
+          if (month !== lastMonth) {
             const label = document.createElement('div');
-            label.textContent = `${month + 1}월`; // 숫자 + '월' 표시
-
-            // 중앙 정렬 적용
-            label.style.gridColumn = 'span 1';
-            label.style.justifySelf = 'center';
-
+            label.textContent = `${month + 1}월`;  // 한글 월 표시
+            label.style.gridColumn = `${weekIndex + 1}`;
+            label.style.justifySelf = 'start';
             monthLabels.appendChild(label);
-            monthSpans.push(label);
 
-            currentMonth = month;
-            monthStartWeek = weekIndex;
+            lastMonth = month;
           }
 
           weekIndex++;
         }
 
-        // heatmap cell 생성
+        d.setDate(d.getDate() + 1);
+      }
+
+      // heatmap 셀 그리기 (week 단위 column → GitHub 스타일)
+      d = new Date(startDate);
+      while (d <= endDate) {
         for (let i = 0; i < 7; i++) {
           if (d > endDate) break;
+
           const iso = d.toISOString().slice(0,10);
           const cnt = dataMap[iso] || 0;
 
@@ -476,13 +468,6 @@
 
           d.setDate(d.getDate() + 1);
         }
-      }
-
-      // 마지막 월 span width 계산
-      if (currentMonth !== -1 && monthSpans.length > 0) {
-        const span = monthSpans[monthSpans.length - 1];
-        const weekSpan = weekIndex - monthStartWeek;
-        span.style.gridColumn = `span ${weekSpan}`;
       }
     });
   </script>

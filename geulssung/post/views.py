@@ -233,8 +233,11 @@ def public_posts_by_user(request, nickname):
         for d in date_counts
     }  
 
-    # # earliest_date → 히트맵 시작 날짜 지정 (히트맵 렌더링 기준 날짜)
-    earliest_date = date_counts[0]['date'].isoformat() if date_counts else timezone.now().date().isoformat()
+    # earliest_date → 히트맵 시작 날짜 지정 (히트맵 렌더링 기준 날짜)
+    earliest_date = timezone.now().date().isoformat()
+
+    # contributions count (총 글 수)
+    contributions_count = sum(d['count'] for d in date_counts)
 
     return render(request, 'post/public_user_posts.html', {
         'author': author,
@@ -252,6 +255,7 @@ def public_posts_by_user(request, nickname):
         'malssung_equipped_items': malssung_equipped_items,
         'heatmap_data': json.dumps(heatmap_data),
         'earliest_date': earliest_date,
+        'contributions_count': contributions_count,
     })
 
 # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
