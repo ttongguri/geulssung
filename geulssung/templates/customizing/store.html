@@ -70,7 +70,21 @@
                 {% for item in all_items %}
                   {% if item.character.id == char.id and item.id not in owned_item_ids %}
                     <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
-                      <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 object-cover">
+                      <div class="relative w-full h-48">
+                        <!-- 기본 캐릭터 이미지 -->
+                        {% if char.id == 1 %}
+                          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
+                              class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                        {% elif char.id == 4 %}
+                          <img src="{% static 'images/character/malssung/malssung_default.png' %}" 
+                              class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                        {% endif %}
+
+                        <!-- 아이템 PNG (투명배경) 위에 겹치기 -->
+                        <img src="{% static item.image_path %}" 
+                            class="absolute top-0 left-0 w-full h-full object-contain z-10">
+                      </div>
+
                       <div class="p-4 flex flex-col flex-grow">
                         <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
                         <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
@@ -79,14 +93,10 @@
                         {% else %} -->
                         <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
                         <!-- {% endif %} -->
-                      <!-- </div> -->
+                      </div>
                     </article>
                   {% endif %}
                 {% endfor %}
-              </div>
-
-              <div id="preview-box" class="fixed bottom-10 right-10 w-80 h-80 bg-white shadow rounded-lg overflow-hidden z-50 hidden">
-                <div id="preview-character" class="w-full h-full relative"></div>
               </div>
 
             <!-- 페이지네이션 -->
@@ -123,16 +133,6 @@
       btns.forEach(b => b.classList.remove('active'));
       items.forEach(i => i.style.display = 'none');
       if (btns.length) selectCategory(btns[0]);
-
-        // ✅ 미리보기 캐릭터 렌더링
-      fetch(`/customizing/preview-character/${charId}/`)
-        .then(res => res.text())
-        .then(html => {
-          const box = document.getElementById('preview-box');
-          const content = document.getElementById('preview-character');
-          content.innerHTML = html;
-          box.classList.remove('hidden');
-        });
     }
 
     function selectCategory(btn) {
@@ -188,22 +188,6 @@
             }
           });
         });
-      });
-
-      // ✅ 2. 아이템 이미지 클릭 시 미리보기
-      document.querySelectorAll('.item img').forEach(img => {
-          img.addEventListener('click', function () {
-            const itemId = this.closest('.item').dataset.itemId;
-            fetch(`/customizing/preview-character/${itemId}/`)
-              .then(res => res.text())
-              .then(html => {
-                const box = document.getElementById('preview-box');
-                const content = document.getElementById('preview-character');
-                content.innerHTML = html;
-                box.classList.remove('hidden');
-              });
-          });
-        
       });
     });
   </script>
