@@ -339,6 +339,20 @@
 
   </div>
 
+  <!-- 페이지네이션 -->
+  <div class="flex justify-center space-x-2 mt-8" id="{{ char.name }}-pagination">
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <span class="px-3 py-1 bg-blue-500 text-white rounded">{{ num }}</span>
+      {% else %}
+        <a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}"
+            class="px-3 py-1 bg-white text-blue-500 rounded border border-blue-500 hover:bg-blue-100">
+          {{ num }}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+
   <!-- follow 버튼 동작 -->
   <script>
     const followBtn = document.getElementById('follow-btn');

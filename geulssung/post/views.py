@@ -30,6 +30,7 @@ from django.template.loader import render_to_string
 from django.db.models.functions import TruncDate
 from calendar import timegm
 import calendar
+from django.core.paginator import Paginator
 
 
 # hj - gemini_api_key 삽입
@@ -206,6 +207,11 @@ def public_posts_by_user(request, nickname):
     f_ratio = int(f_count / total_count * 100) if total_count else 0
     t_ratio = 100 - f_ratio if total_count else 0
 
+    # 페이지네이션Add commentMore actions
+    paginator = Paginator(posts, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     # 팔로잉 여부 체크 (다른 사람 프로필일 때만)
     is_following = False
     if request.user.is_authenticated and request.user != author:
@@ -241,7 +247,8 @@ def public_posts_by_user(request, nickname):
 
     return render(request, 'post/public_user_posts.html', {
         'author': author,
-        'posts': posts,
+        'posts': page_obj,
+        'page_obj': page_obj,
         'is_following': is_following,
         'q': q,
         'f_count': f_count,
