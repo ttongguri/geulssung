@@ -11,6 +11,7 @@ urlpatterns = [
     path('delete/<int:post_id>/', views.delete_post_view, name='delete_post'),
     path('geulssung/chat', views.chat_view, name='chat'),
     path('evaluate/<int:post_id>/', views.evaluate_post_ajax, name='evaluate_post_ajax'),
+    path('top_liked_posts_ajax/', views.top_liked_posts_ajax, name='top_liked_posts_ajax'),
     ]
 
 # ✅ 디버그 모드에서만 미디어 파일 서빙 허용

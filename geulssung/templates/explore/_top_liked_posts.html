@@ -9,16 +9,17 @@
   <!-- 랭킹 정렬 버튼 (우측 정렬) -->
   <div class="flex justify-end mb-4">
     <div class="flex gap-2 mr-2">
-      <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}ranking=like"
+      <a href="#" id="like-btn"
          class="px-4 py-1 rounded-full font-semibold text-sm {% if not request.GET.ranking or request.GET.ranking == 'like' %}bg-blue-300 text-white{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E]{% endif %}">
         좋아요순
       </a>
-      <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}ranking=score"
+      <a href="#" id="score-btn"
          class="px-4 py-1 rounded-full font-semibold text-sm {% if request.GET.ranking == 'score' %}bg-blue-300 text-white{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E]{% endif %}">
         점수순
       </a>
     </div>
   </div>
+  <div id="ranking-list">
   {% if request.GET.ranking == 'score' %}
     {% if top_scored_posts %}
       <ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
@@ -62,4 +63,35 @@
       <p class="text-center text-gray-500">아직 좋아요를 받은 글이 없습니다.마음에 드는 글을 추천해주세요!</p>
     {% endif %}
   {% endif %}
+  </div>
+  <script>
+  function fetchRanking(ranking) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('ranking', ranking);
+    fetch('/explore/top_liked_posts_ajax/?' + params.toString(), {
+      headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('ranking-list').innerHTML = data.html;
+      // 버튼 스타일 토글
+      document.getElementById('like-btn').classList.toggle('bg-blue-300', ranking === 'like');
+      document.getElementById('like-btn').classList.toggle('text-white', ranking === 'like');
+      document.getElementById('like-btn').classList.toggle('bg-[#F9DCC4]', ranking !== 'like');
+      document.getElementById('like-btn').classList.toggle('text-[#493E3E]', ranking !== 'like');
+      document.getElementById('score-btn').classList.toggle('bg-blue-300', ranking === 'score');
+      document.getElementById('score-btn').classList.toggle('text-white', ranking === 'score');
+      document.getElementById('score-btn').classList.toggle('bg-[#F9DCC4]', ranking !== 'score');
+      document.getElementById('score-btn').classList.toggle('text-[#493E3E]', ranking !== 'score');
+    });
+  }
+  document.getElementById('like-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    fetchRanking('like');
+  });
+  document.getElementById('score-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    fetchRanking('score');
+  });
+  </script>
 </div> 

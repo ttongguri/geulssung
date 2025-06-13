@@ -1,0 +1,20 @@
+{% if posts %}
+<ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
+  {% for post in posts %}
+    <li class="flex justify-between items-center border-b last:border-b-0 text-lg">
+      <div class="w-2/5 flex flex-col justify-center">
+        <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
+          {{ post.title }}
+        </a>
+      </div>
+      <div class="w-1/3 flex justify-end items-center gap-x-1">
+        <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온이:{{ post.author.nickname }}</span>
+        <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온 날:{{ post.created_at|date:'m/d' }}</span>
+      </div>
+      <span class="w-10 text-lg font-bold text-right text-green-600">{{ post.evaluation.score }}점</span>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-center text-gray-500">아직 평가된 글이 없습니다.평가를 받아보세요!</p>
+{% endif %} 
