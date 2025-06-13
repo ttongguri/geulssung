@@ -73,20 +73,20 @@
   
         <div id="step-1" class="step-form flex-1">
       <div class="mb-6">
-        <p class="font-semibold text-[#493E3E] mb-2">오늘의 글쓰기 도우미</p>
+        <p class="font-semibold text-[#493E3E] mb-2">오늘의 글쓰기 도우미를 선택해보세요!</p>
         <div class="flex gap-4">
           <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="handleCharacterSelection(this.value)">
           <label for="emotion"
             class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
                   peer-checked/emotion:bg-[#00C9A7] peer-checked/emotion:text-white">
-            F 글썽이
+            F 감성의 글썽이
           </label>
 
           <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="handleCharacterSelection(this.value)">
           <label for="logic"
             class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
                   peer-checked/logic:bg-[#00C9A7] peer-checked/logic:text-white">
-            T 말썽이
+            T 감성의 말썽이
           </label>
         </div>
       </div>
@@ -94,19 +94,17 @@
       <div class="mb-6" id="genre-emotion" style="display:none;">
         <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (글썽이)</p>
         <div class="flex gap-4">
-          <input type="radio" name="genre" value="essay" id="essay" class="hidden peer" onchange="showGuide(this.value)">
+          <input type="radio" name="genre" value="essay" id="essay" class="hidden peer/essay" onchange="showGuide(this.value)">
           <label for="essay"
-            class="block-checked:bg-[#00C9A7] peer-checked:text-white 
-                  bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300
-                  font-semibold cursor-pointer transition">
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/essay:bg-[#00C9A7] peer-checked/essay:text-white">
             에세이
           </label>
 
-          <input type="radio" name="genre" value="poem" id="poem" class="hidden peer" onchange="showGuide(this.value)">
+          <input type="radio" name="genre" value="poem" id="poem" class="hidden peer/poem" onchange="showGuide(this.value)">
           <label for="poem"
-            class="block-checked:bg-[#00C9A7] peer-checked:text-white 
-                  bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300
-                  font-semibold cursor-pointer transition">
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/poem:bg-[#00C9A7] peer-checked/poem:text-white">
             시
           </label>
         </div>
@@ -116,19 +114,17 @@
       <div class="mb-6" id="genre-logic" style="display:none;">
         <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (말썽이)</p>
         <div class="flex gap-4">
-          <input type="radio" name="genre" value="column" id="column" class="hidden peer" onchange="showGuide(this.value)">
+          <input type="radio" name="genre" value="column" id="column" class="hidden peer/column" onchange="showGuide(this.value)">
           <label for="column"
-            class="peer-checked:bg-[#00C9A7] peer-checked:text-white 
-                  bg-white text-[#493E3E] px-4 py-2 rounded-full 
-                  border border-gray-300 font-semibold cursor-pointer transition">
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/column:bg-[#00C9A7] peer-checked/column:text-white">
             칼럼
           </label>
 
-          <input type="radio" name="genre" value="analysis" id="analysis" class="hidden peer" onchange="showGuide(this.value)">
+          <input type="radio" name="genre" value="analysis" id="analysis" class="hidden peer/analysis" onchange="showGuide(this.value)">
           <label for="analysis"
-            class="peer-checked:bg-[#00C9A7] peer-checked:text-white 
-                  bg-white text-[#493E3E] px-4 py-2 rounded-full 
-                  border border-gray-300 font-semibold cursor-pointer transition">
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/analysis:bg-[#00C9A7] peer-checked/analysis:text-white">
             분석글
           </label>
         </div>
