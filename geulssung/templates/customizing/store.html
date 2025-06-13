@@ -17,6 +17,13 @@
   <div class="max-w-6xl mx-auto pt-20">
     <h1 class="text-4xl font-bold mb-10 text-center">🛒도우미 상점</h1>
 
+    <div class="flex justify-end mb-4">
+      <a href="{% url 'user_owned_items' %}" 
+          class="text-sm bg-[#00C9A7] hover:bg-[#00b498] text-white font-semibold px-4 py-1 rounded-full shadow transition">
+           🤚 캐릭터 꾸미러 가기
+      </a>
+    </div>
+
     <main>
       <!-- 유저 따개비 info -->
       <div class="bg-white p-6 rounded-lg shadow mb-10">
@@ -25,62 +32,79 @@
           현재 보유 따개비: <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개
         </p>
       </div>
-
+      
       <!-- Step 1: 캐릭터 선택 -->
       <section id="step-character" class="mb-12">
         <h2 class="text-xl font-semibold mb-4">도우미를 선택하세요</h2>
         <div class="flex flex-wrap gap-4">
           {% for char in characters %}
-            <button id="btn-{{ char.name }}" class="char-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100" onclick="showStore('{{ char.name }}')">
-              {{ char.name }}
-            </button>
+          <button id="btn-{{ char.name }}" class="char-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100" onclick="showStore('{{ char.name }}', {{ char.id }});">
+            {{ char.name }}
+          </button>
           {% endfor %}
         </div>
       </section>
-
+      
       <!-- Step 2: 캐릭터별 카테고리 선택 -->
-      {% for char in characters %}
-        <section id="store-{{ char.name }}" class="hidden mb-16">
-          <h2 class="text-xl font-semibold mb-4">{{ char.name }} 카테고리</h2>
+      <div id="store-container" class="transform transition-transform duration-500">
+          {% for char in characters %}
+            <section id="store-{{ char.name }}" class="hidden mb-16">
+              <h2 class="text-xl font-semibold mb-4">{{ char.name }} 카테고리</h2>
 
-          <!-- 캐릭터별 카테고리 버튼 -->
-          <div class="flex flex-wrap gap-4 mb-6">
-            <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
-            {% if char.name == '글썽이' %}
-              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
-              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
-              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
-            {% elif char.name == '말썽이' %}
-              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
-              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
-              <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
-            {% endif %}
-          </div>
+              <!-- 캐릭터별 카테고리 버튼 -->
+              <div class="flex flex-wrap gap-4 mb-6">
+                <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
+                {% if char.name == '글썽이' %}
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
+                {% elif char.name == '말썽이' %}
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
+                {% endif %}
+              </div>
 
-          <!-- 아이템 카드 -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
-            {% for item in all_items %}
-              {% if item.character.id == char.id and item.id not in owned_item_ids %}
-                <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
-                  <img src="{% static item.image_path %}" alt="{{ item.name }}" class="w-full h-48 object-cover">
-                  <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
-                    <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
-                    <!-- {% if item.id in owned_item_ids %}
-                      <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
-                    {% else %} -->
-                    <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
-                    <!-- {% endif %} -->
-                  <!-- </div> -->
-                </article>
-              {% endif %}
-            {% endfor %}
-          </div>
+              <!-- 아이템 카드 -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
+                {% for item in all_items %}
+                  {% if item.character.id == char.id and item.id not in owned_item_ids %}
+                    <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
+                      <div class="relative w-full h-64">
+                        <!-- 기본 캐릭터 이미지 -->
+                        {% if char.id == 1 %}
+                          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
+                              class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                        {% elif char.id == 4 %}
+                          <img src="{% static 'images/character/malssung/malssung_default.png' %}" 
+                              class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                        {% endif %}
 
-          <!-- 페이지네이션 -->
-          <div class="flex justify-center space-x-2 mt-8" id="{{ char.name }}-pagination"></div>
-        </section>
-      {% endfor %}
+                        <!-- 아이템 PNG (투명배경) 위에 겹치기 -->
+                        <img src="{% static item.image_path %}" 
+                            class="absolute top-0 left-0 w-full h-full object-contain z-10">
+                      </div>
+
+                      <div class="p-4 flex flex-col flex-grow">
+                        <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
+                        <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
+                        <!-- {% if item.id in owned_item_ids %}
+                          <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
+                        {% else %} -->
+                        <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
+                        <!-- {% endif %} -->
+                      </div>
+                    </article>
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+            <!-- 페이지네이션 -->
+            <div class="flex justify-center space-x-2 mt-8" id="{{ char.name }}-pagination"></div>
+          </section>
+          {% endfor %}
+        </div>
+      </div>
     </main>
   </div>
 
@@ -103,6 +127,7 @@
       document.querySelectorAll('section[id^="store-"]').forEach(sec => sec.classList.add('hidden'));
       const sec = document.getElementById(`store-${charName}`);
       sec.classList.remove('hidden');
+
       const btns = sec.querySelectorAll('.category-btn');
       const items = sec.querySelectorAll('.item');
       btns.forEach(b => b.classList.remove('active'));

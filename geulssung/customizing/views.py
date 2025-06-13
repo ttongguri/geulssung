@@ -117,3 +117,12 @@ def render_character_partial(request, character_id):
         'character': character_obj,
         'equipped_items': equipped_items
     })
+
+# @login_required
+# def preview_character(request, character_id):
+#     character = get_object_or_404(Character, id=character_id)
+#     equipped_items = UserItem.objects.filter(user=request.user, item__character=character, equipped=True)
+#     return render(request, 'customizing/character_render.html', {
+#         'character': character,
+#         'equipped_items': equipped_items
+#     })
