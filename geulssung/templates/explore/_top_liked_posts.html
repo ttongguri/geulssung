@@ -118,7 +118,7 @@
   function fetchRanking(ranking) {
     const params = new URLSearchParams(window.location.search);
     params.set('ranking', ranking);
-    fetch('/explore/top_liked_posts_ajax/?' + params.toString(), {
+    fetch('/geulssung/post/top_liked_posts_ajax/?' + params.toString(), {
       headers: {'X-Requested-With': 'XMLHttpRequest'}
     })
     .then(res => res.json())
