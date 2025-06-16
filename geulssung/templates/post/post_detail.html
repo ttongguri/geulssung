@@ -48,14 +48,14 @@
     }
   </style>
 </head>
-<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;"></body>
+<body class="bg-[#BAE6FD] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;"></body>
 
   <div class="blurred-bg"></div>
   
   <div id="detail-content" class="max-w-3xl mx-auto card mt-8 relative">
 
     <!-- 글 본문 카드 -->
-    <div class="bg-white rounded-2xl shadow-xl border border-[#f9dcc4] px-8 pt-8 pb-10 mb-10 flex flex-col items-center relative">
+    <div class="bg-white rounded-2xl shadow-xl border border-[#89ACDB] px-8 pt-8 pb-10 mb-10 flex flex-col items-center relative">
       {% if user == post.author %}
         <!-- 카드 내부 상단 우측에 발행/삭제 버튼 -->
         <div class="absolute top-8 right-8 z-20 flex space-x-2">
@@ -147,7 +147,7 @@
       </div>
       <div class="prose w-full mt-4" style="color:#493E3E;">
         <p class="font-bold text-xl mb-2">🧩 글줄기</p>
-        <div class="bg-[#f9dcc4]/30 rounded-xl px-6 py-6 border border-[#f9dcc4] shadow-sm">
+        <div class="bg-[#F0F9FF]/30 rounded-xl px-6 py-6 border border-[#89ACDB] shadow-sm">
           <p class="mt-2">{{ post.final_content|linebreaks }}</p>
         </div>
       </div>
