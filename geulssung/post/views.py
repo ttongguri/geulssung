@@ -360,12 +360,22 @@ def explore_view(request):
         .filter(is_public=True, **({'genre': genre_filter} if genre_filter else {}))
         .order_by('-created_at')[:10]
     )
+    latest_posts_count = latest_posts.count() if hasattr(latest_posts, 'count') else len(latest_posts)
+    latest_posts_empty_count = max(0, 5 - latest_posts_count)
+
+    top_liked_posts_count = len(top_liked_posts)
+    top_liked_posts_empty_count = max(0, 5 - top_liked_posts_count)
+    top_scored_posts_count = len(top_scored_posts)
+    top_scored_posts_empty_count = max(0, 5 - top_scored_posts_count)
 
     context = {
         'subscribed_posts': subscribed_posts,
         'top_liked_posts': top_liked_posts,
         'top_scored_posts': top_scored_posts,
         'latest_posts': latest_posts,
+        'latest_posts_empty_count': latest_posts_empty_count,
+        'top_liked_posts_empty_count': top_liked_posts_empty_count,
+        'top_scored_posts_empty_count': top_scored_posts_empty_count,
         'selected_genre': genre_filter,
         'ranking_period': f"{week_start.strftime('%Y-%m-%d')} ~ {week_end.strftime('%Y-%m-%d')}",
     }
@@ -526,7 +536,9 @@ def top_liked_posts_ajax(request):
             .select_related('evaluation', 'author')
             .order_by('-evaluation__score', '-created_at')[:5]
         )
-        html = render_to_string('explore/_top_scored_posts_partial.html', {'posts': posts}, request=request)
+        posts_count = len(posts)
+        empty_count = max(0, 5 - posts_count)
+        html = render_to_string('explore/_top_scored_posts_partial.html', {'posts': posts, 'top_scored_posts_empty_count': empty_count}, request=request)
     else:
         posts = (
             Post.objects
@@ -534,7 +546,9 @@ def top_liked_posts_ajax(request):
             .annotate(like_count=Count('like_users'))
             .order_by('-like_count', '-created_at')[:5]
         )
-        html = render_to_string('explore/_top_liked_posts_partial.html', {'posts': posts}, request=request)
+        posts_count = len(posts)
+        empty_count = max(0, 5 - posts_count)
+        html = render_to_string('explore/_top_liked_posts_partial.html', {'posts': posts, 'top_liked_posts_empty_count': empty_count}, request=request)
     return JsonResponse({'html': html})
     
 def explore_view(request):
