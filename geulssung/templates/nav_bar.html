@@ -21,26 +21,17 @@
       <a href="{% url 'write' %}"
         class="{% if request.path == '/geulssung/write/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
         ✍️ 글쓰러 가기
+        </a>
+      {% endif %}
+  
+      <a href="{% url 'explore' %}"
+        class="{% if request.path == '/geulssung/explore/' %}bg-blue-300{% else %}bg-[#FFEDE0] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        🌊 글바다로
       </a>
-      <a href="{% url 'public_user_posts' user.nickname %}"
-      class="{% if request.path == '/geulssung/post/geulssunglog/'|add:user.nickname|add:'/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-      🐾 내 글자국
+  
+      <a href="{% url 'home' %}"
+        class="{% if request.path == '/geulssung/' %}bg-blue-300{% else %}bg-[#FFEDE0] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        🏠 홈으로
       </a>
-    {% else %}
-      <a href="{% url 'login' %}?next={% url 'write' %}"
-      class="{% if request.path == '/geulssung/write/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-      ✍️ 글쓰러 가기
-      </a>
-    {% endif %}
-
-    <a href="{% url 'explore' %}"
-      class="{% if request.path == '/geulssung/explore/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-      🌊 글바다로
-    </a>
-
-    <a href="{% url 'home' %}"
-      class="{% if request.path == '/geulssung/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
-      🏠 홈으로
-    </a>
+    </div>
   </div>
-</div>

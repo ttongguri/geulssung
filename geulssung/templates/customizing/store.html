@@ -10,35 +10,34 @@
   <style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');</style>
 </head>
 
-<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
+<body class="bg-[#F0F9FF] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
 
   <!-- 상단 네비게이션 -->
   {% include "nav_bar.html" %}
   <div class="max-w-6xl mx-auto pt-20">
-    <h1 class="text-4xl font-bold mb-10 text-center">🛒도우미 상점</h1>
-
-    <div class="flex justify-end mb-4">
-      <a href="{% url 'user_owned_items' %}" 
-          class="text-sm bg-[#00C9A7] hover:bg-[#00b498] text-white font-semibold px-4 py-1 rounded-full shadow transition">
-           🤚 캐릭터 꾸미러 가기
-      </a>
-    </div>
+    <h1 class="text-4xl font-bold mb-10 text-center">🛒상점</h1><br>
 
     <main>
       <!-- 유저 따개비 info -->
-      <div class="bg-white p-6 rounded-lg shadow mb-10">
-        <p class="text-lg">
-          안녕하세요, <strong>{{ user.nickname }}</strong>님!<br />
-          현재 보유 따개비: <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개
-        </p>
+      <div class="flex items-center justify-start gap-2 mb-4">
+        <img src="{% static 'images/ddageabi_s.png' %}" class="h-8">
+        <h2 class="text-xl font-semibold">{{ user.nickname }}님의 보유 따개비는 <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개 입니다.</h2>
       </div>
+
+      <div class="flex justify-start mb-12">
+        <a href="{% url 'user_owned_items' %}" 
+            class="text-sm bg-[#FDE68A] hover:bg-[#4393F5] font-semibold px-4 py-1 rounded-full shadow transition">
+            ✨ 도우미 꾸미러 가기
+        </a>
+      </div>
+      <!-- <br> -->
       
       <!-- Step 1: 캐릭터 선택 -->
       <section id="step-character" class="mb-12">
-        <h2 class="text-xl font-semibold mb-4">도우미를 선택하세요</h2>
-        <div class="flex flex-wrap gap-4">
+        <h2 class="text-xl font-semibold mb-4 text-left">도우미를 선택하세요</h2>
+        <div class="flex flex-wrap gap-4 justify-start">
           {% for char in characters %}
-          <button id="btn-{{ char.name }}" class="char-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100" onclick="showStore('{{ char.name }}', {{ char.id }});">
+          <button id="btn-{{ char.name }}" class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" onclick="showStore('{{ char.name }}', {{ char.id }});">
             {{ char.name }}
           </button>
           {% endfor %}
@@ -49,19 +48,19 @@
       <div id="store-container" class="transform transition-transform duration-500">
           {% for char in characters %}
             <section id="store-{{ char.name }}" class="hidden mb-16">
-              <h2 class="text-xl font-semibold mb-4">{{ char.name }} 카테고리</h2>
+              <h2 class="text-xl font-semibold mb-4 text-left">{{ char.name }} 카테고리</h2>
 
               <!-- 캐릭터별 카테고리 버튼 -->
-              <div class="flex flex-wrap gap-4 mb-6">
-                <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
+              <div class="flex flex-wrap gap-4 mb-6 justify-start">
+                <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
                 {% if char.name == '글썽이' %}
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
+                  <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
+                  <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
+                  <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
                 {% elif char.name == '말썽이' %}
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
+                  <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
+                  <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
+                  <button class="category-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
                 {% endif %}
               </div>
 
@@ -69,7 +68,7 @@
               <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
                 {% for item in all_items %}
                   {% if item.character.id == char.id and item.id not in owned_item_ids %}
-                    <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
+                    <article class="item bg-white rounded-2xl shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
                       <div class="relative w-full h-64">
                         <!-- 기본 캐릭터 이미지 -->
                         {% if char.id == 1 %}
@@ -86,12 +85,12 @@
                       </div>
 
                       <div class="p-4 flex flex-col flex-grow">
-                        <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
-                        <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
+                        <h3 class="item-name font-semibold text-lg mb-2 text-center">{{ item.name }}</h3>
+                        <p class="item-price text-red-500 mb-4 text-center">{{ item.credit }} 따개비</p>
                         <!-- {% if item.id in owned_item_ids %}
                           <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
                         {% else %} -->
-                        <button class="buy-button mt-auto bg-[#4a90e2] text-white py-2 rounded-md hover:bg-[#3b7bc1]">구매하기</button>
+                        <button class="buy-button mt-auto bg-[#89ACDB] text-white py-2 rounded-2xl hover:bg-[#3b7bc1]">구매하기</button>
                         <!-- {% endif %} -->
                       </div>
                     </article>
@@ -122,15 +121,24 @@
     const creditSpan = document.getElementById('user-credit');
 
     function showStore(charName) {
-      document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${charName}`).classList.add('active');
+      document.querySelectorAll('.char-btn').forEach(btn => {
+        btn.classList.remove('bg-[#00C9A7]', 'text-white');
+        btn.classList.add('bg-white', 'text-[#493E3E]');
+      });
+      const selectedBtn = document.getElementById(`btn-${charName}`);
+      selectedBtn.classList.remove('bg-white', 'text-[#493E3E]');
+      selectedBtn.classList.add('bg-[#00C9A7]', 'text-white');
+      
       document.querySelectorAll('section[id^="store-"]').forEach(sec => sec.classList.add('hidden'));
       const sec = document.getElementById(`store-${charName}`);
       sec.classList.remove('hidden');
 
       const btns = sec.querySelectorAll('.category-btn');
       const items = sec.querySelectorAll('.item');
-      btns.forEach(b => b.classList.remove('active'));
+      btns.forEach(b => {
+        b.classList.remove('bg-[#00C9A7]', 'text-white');
+        b.classList.add('bg-white', 'text-[#493E3E]');
+      });
       items.forEach(i => i.style.display = 'none');
       if (btns.length) selectCategory(btns[0]);
     }
@@ -138,8 +146,13 @@
     function selectCategory(btn) {
       const charName = btn.getAttribute('data-char');
       const partCode = btn.getAttribute('data-part');
-      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => {
+        b.classList.remove('bg-[#00C9A7]', 'text-white');
+        b.classList.add('bg-white', 'text-[#493E3E]');
+      });
+      btn.classList.remove('bg-white', 'text-[#493E3E]');
+      btn.classList.add('bg-[#00C9A7]', 'text-white');
+      
       const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
       const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
       const perPage = 8;
