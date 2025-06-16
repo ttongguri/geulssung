@@ -1,5 +1,5 @@
 {# 좋아요 랭킹(주간) 리스트 UI 템플릿 #}
-<div class="space-y-4">
+<div class="space-y-4 h-full">
   <div class="flex items-center justify-between mb-6">
     <div class="w-fit bg-white px-4 py-2 rounded-full shadow font-semibold text-lg">
       이번주 글 랭킹👑
@@ -22,9 +22,9 @@
   <div id="ranking-list">
   {% if request.GET.ranking == 'score' %}
     {% if top_scored_posts %}
-      <ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
+      <ul class="bg-white rounded-lg shadow p-6 flex flex-col h-96 overflow-y-auto">
         {% for post in top_scored_posts|slice:':5' %}
-          <li class="flex justify-between items-center border-b last:border-b-0 text-lg">
+          <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg">
             <div class="w-2/5 flex flex-col justify-center">
               <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
                 {{ post.title }}
@@ -43,9 +43,9 @@
     {% endif %}
   {% else %}
     {% if top_liked_posts %}
-      <ul class="bg-white rounded-lg shadow p-3 space-y-2 flex flex-col justify-center">
+      <ul class="bg-white rounded-lg shadow p-6 flex flex-col h-96 overflow-y-auto">
         {% for post in top_liked_posts|slice:':5' %}
-          <li class="flex justify-between items-center border-b last:border-b-0 text-lg">
+          <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg">
             <div class="w-2/5 flex flex-col justify-center">
               <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
                 {{ post.title }}
