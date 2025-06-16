@@ -9,7 +9,8 @@
   <!-- Google Font -->
   <style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');</style>
 </head>
-<body class="bg-[#f0f9ff] text-gray-800 font-sans p-8">
+
+<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
   
   {% include "nav_bar.html" %}
   <br>
@@ -109,43 +110,34 @@
       <div id="all-items" class="grid grid-cols-5 gap-6">
         {% for ui in owned_items %}
           {% with path=ui.item.image_path char_id=ui.item.character.id %}
-            {% if not 'clothes' in path %}
-              <div class="item-card hidden inline-block text-center"
-                  data-character="{{ char_id }}"
-                  data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
-                <img src="{% static ui.item.image_path %}"
-                    onclick="toggleEquip('{{ ui.item.id }}')"
-                    class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
-                <p class="text-xs mt-1">
-                  {% if ui.equipped %}
-                    <span class="text-green-500">착용 중</span>
-                  {% else %}
-                    <span class="text-gray-400">미착용</span>
-                  {% endif %}
-                </p>
-              </div>
-            {% endif %}
-          {% endwith %}
-        {% endfor %}
+            <div class="item-card hidden inline-block text-center"
+                data-character="{{ char_id }}"
+                data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
 
-        {% for ui in owned_items %}
-          {% with path=ui.item.image_path char_id=ui.item.character.id %}
-            {% if 'clothes' in path %}
-              <div class="item-card hidden inline-block text-center"
-                  data-character="{{ char_id }}"
-                  data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
-                <img src="{% static ui.item.image_path %}"
-                    onclick="toggleEquip('{{ ui.item.id }}')"
-                    class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
-                <p class="text-xs mt-1">
-                  {% if ui.equipped %}
-                    <span class="text-green-500">착용 중</span>
-                  {% else %}
-                    <span class="text-gray-400">미착용</span>
-                  {% endif %}
-                </p>
+              <!-- 카드 박스 -->
+              <div class="bg-white rounded-xl border border-gray-300 w-56 h-[240px] p-3 shadow-md flex flex-col justify-between">
+
+                <!-- 이미지 테두리 박스 -->
+                <div class="border border-gray-200 rounded-md bg-gray-50 w-full h-[160px] flex items-center justify-center">
+                  <img src="{% static ui.item.image_path %}"
+                      onclick="toggleEquip('{{ ui.item.id }}')"
+                      class="h-[85%] object-contain cursor-pointer hover:scale-110 transition">
+                </div>
+
+                <!-- 아이템 이름 + 착용 상태 -->
+                <div class="mt-3">
+                  <div class="text-sm font-semibold text-gray-700 truncate">{{ ui.item.name }}</div>
+                  <p class="text-xs mt-1">
+                    {% if ui.equipped %}
+                      <span class="text-green-500">착용 중</span>
+                    {% else %}
+                      <span class="text-gray-400">미착용</span>
+                    {% endif %}
+                  </p>
+                </div>
+
               </div>
-            {% endif %}
+            </div>
           {% endwith %}
         {% endfor %}
       </div>
@@ -193,6 +185,7 @@
       } else {
         target.appendChild(img);
       }
+
     });
 
     // 기본 글썽이 버튼만 보이게
