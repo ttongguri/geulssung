@@ -92,3 +92,11 @@ class PostEvaluation(models.Model):
 
     def __str__(self):
         return f"{self.post.title} 평가 결과"
+
+class MyPick(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mypick')
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='picked_by')
+    picked_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.nickname}의 대표글: {self.post.title}"
