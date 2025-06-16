@@ -50,11 +50,9 @@
 </head>
 <body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;"></body>
 
-    <!-- 상단 네비게이션 -->
-  {% include "nav_bar.html" %}
   <div class="blurred-bg"></div>
   
-  <div id="detail-content" class="max-w-3xl mx-auto card mt-16 relative">
+  <div id="detail-content" class="max-w-3xl mx-auto card mt-8 relative">
 
     <!-- 글 본문 카드 -->
     <div class="bg-white rounded-2xl shadow-xl border border-[#f9dcc4] px-8 pt-8 pb-10 mb-10 flex flex-col items-center relative">
@@ -154,9 +152,9 @@
         </div>
       </div>
       <div class="flex justify-center mt-8 space-x-4 w-full">
-        <a href="{% url 'home' %}" class="px-5 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">홈으로🏠</a>
-        <a href="{% url 'public_user_posts' post.author.nickname %}" class="px-5 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">{{ post.author.nickname }}님의 글자국🐾</a>
         <a href="{% url 'explore' %}" class="px-5 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">글바다🌊</a>
+        <a href="{% url 'public_user_posts' post.author.nickname %}" class="px-5 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">{{ post.author.nickname }}님의 글자국🐾</a>
+        <a href="{% url 'home' %}" class="px-5 py-2 bg-[#F9DCC4] hover:bg-[#f7cbaa] text-[#493E3E] rounded-full font-bold transition">홈으로🏠</a> 
       </div>
     </div>
   </div>
