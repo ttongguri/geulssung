@@ -61,7 +61,7 @@
                 {% elif char.name == '말썽이' %}
                   <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
                   <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
+                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
                 {% endif %}
               </div>
 
@@ -75,7 +75,7 @@
                         {% if char.id == 1 %}
                           <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
                               class="absolute top-0 left-0 w-full h-full object-contain z-0">
-                        {% elif char.id == 4 %}
+                        {% elif char.id == 2 %}
                           <img src="{% static 'images/character/malssung/malssung_default.png' %}" 
                               class="absolute top-0 left-0 w-full h-full object-contain z-0">
                         {% endif %}
