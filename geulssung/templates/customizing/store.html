@@ -24,13 +24,13 @@
         <h2 class="text-xl font-semibold">{{ user.nickname }}님의 보유 따개비는 <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개 입니다.</h2>
       </div>
 
-      <div class="flex justify-start mb-4">
+      <div class="flex justify-start mb-12">
         <a href="{% url 'user_owned_items' %}" 
             class="text-sm bg-[#00C9A7] hover:bg-[#00b498] text-white font-semibold px-4 py-1 rounded-full shadow transition">
-             🤚 캐릭터 꾸미러 가기
+            ✨ 도우미 꾸미러 가기
         </a>
       </div>
-      <br>
+      <!-- <br> -->
       
       <!-- Step 1: 캐릭터 선택 -->
       <section id="step-character" class="mb-12">
@@ -121,15 +121,24 @@
     const creditSpan = document.getElementById('user-credit');
 
     function showStore(charName) {
-      document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${charName}`).classList.add('active');
+      document.querySelectorAll('.char-btn').forEach(btn => {
+        btn.classList.remove('bg-[#3E83A8]', 'text-white');
+        btn.classList.add('bg-white', 'text-[#493E3E]');
+      });
+      const selectedBtn = document.getElementById(`btn-${charName}`);
+      selectedBtn.classList.remove('bg-white', 'text-[#493E3E]');
+      selectedBtn.classList.add('bg-[#3E83A8]', 'text-white');
+      
       document.querySelectorAll('section[id^="store-"]').forEach(sec => sec.classList.add('hidden'));
       const sec = document.getElementById(`store-${charName}`);
       sec.classList.remove('hidden');
 
       const btns = sec.querySelectorAll('.category-btn');
       const items = sec.querySelectorAll('.item');
-      btns.forEach(b => b.classList.remove('active'));
+      btns.forEach(b => {
+        b.classList.remove('bg-[#3E83A8]', 'text-white');
+        b.classList.add('bg-white', 'text-[#493E3E]');
+      });
       items.forEach(i => i.style.display = 'none');
       if (btns.length) selectCategory(btns[0]);
     }
@@ -137,8 +146,13 @@
     function selectCategory(btn) {
       const charName = btn.getAttribute('data-char');
       const partCode = btn.getAttribute('data-part');
-      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => {
+        b.classList.remove('bg-[#3E83A8]', 'text-white');
+        b.classList.add('bg-white', 'text-[#493E3E]');
+      });
+      btn.classList.remove('bg-white', 'text-[#493E3E]');
+      btn.classList.add('bg-[#3E83A8]', 'text-white');
+      
       const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
       const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
       const perPage = 8;
