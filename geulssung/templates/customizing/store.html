@@ -26,42 +26,42 @@
 
     <main>
       <!-- 유저 따개비 info -->
-      <div class="bg-white p-6 rounded-lg shadow mb-10">
-        <p class="text-lg">
-          안녕하세요, <strong>{{ user.nickname }}</strong>님!<br />
-          현재 보유 따개비: <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개
-        </p>
-      </div>
-      
+      <!-- <p class="text-lg"> -->
+      <h2 class="text-xl font-semibold mb-4 flex justify-center">
+        <div class="flex items-center gap-2">
+          <img src="{% static 'images/ddageabi_2.png' %}" class="h-8">{{ user.nickname }}님의 보유 따개비는 <span id="user-credit" class="text-red-500 strong">{{ user.credit }}</span>개입니다
+        </div>
+      </h2>
+      <br><br>
       <!-- Step 1: 캐릭터 선택 -->
       <section id="step-character" class="mb-12">
-        <h2 class="text-xl font-semibold mb-4">도우미를 선택하세요</h2>
-        <div class="flex flex-wrap gap-4">
+        <h2 class="text-xl font-semibold mb-4 text-center">도우미를 선택하세요</h2>
+        <div class="flex flex-wrap gap-4 justify-center">
           {% for char in characters %}
-          <button id="btn-{{ char.name }}" class="char-btn px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100" onclick="showStore('{{ char.name }}', {{ char.id }});">
+          <button id="btn-{{ char.name }}" class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" onclick="showStore('{{ char.name }}', {{ char.id }});">
             {{ char.name }}
           </button>
           {% endfor %}
         </div>
-      </section>
+      </section><br>
       
       <!-- Step 2: 캐릭터별 카테고리 선택 -->
       <div id="store-container" class="transform transition-transform duration-500">
           {% for char in characters %}
             <section id="store-{{ char.name }}" class="hidden mb-16">
-              <h2 class="text-xl font-semibold mb-4">{{ char.name }} 카테고리</h2>
+              <h2 class="text-xl font-semibold mb-4 text-center">{{ char.name }} 카테고리</h2>
 
               <!-- 캐릭터별 카테고리 버튼 -->
-              <div class="flex flex-wrap gap-4 mb-6">
-                <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
+              <div class="flex flex-wrap gap-4 mb-6 justify-center">
+                <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="all" onclick="selectCategory(this)">전체보기</button>
                 {% if char.name == '글썽이' %}
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
+                  <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="1" onclick="selectCategory(this)">수트</button>
+                  <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="2" onclick="selectCategory(this)">수경</button>
+                  <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="3" onclick="selectCategory(this)">악세서리</button>
                 {% elif char.name == '말썽이' %}
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
-                  <button class="category-btn px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-100" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
+                  <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="5" onclick="selectCategory(this)">옷</button>
+                  <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="4" onclick="selectCategory(this)">머리</button>
+                  <button class="char-btn bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-gray-100 hover:text-black" data-char="{{ char.name }}" data-part="6" onclick="selectCategory(this)">악세서리</button>
                 {% endif %}
               </div>
 
@@ -69,7 +69,7 @@
               <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
                 {% for item in all_items %}
                   {% if item.character.id == char.id and item.id not in owned_item_ids %}
-                    <article class="item bg-white rounded-lg shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
+                    <article class="item bg-white rounded-2xl shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
                       <div class="relative w-full h-64">
                         <!-- 기본 캐릭터 이미지 -->
                         {% if char.id == 1 %}
