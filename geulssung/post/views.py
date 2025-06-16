@@ -580,6 +580,11 @@ def set_mypick_view(request):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'error': '권한이 없습니다.'}, status=403)
         return redirect('public_user_posts', nickname=request.user.nickname)
+    if not post.is_public:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': '먼저 글을 발행해 주세요!'}, status=400)
+        messages.error(request, '먼저 글을 발행해 주세요!')
+        return redirect('public_user_posts', nickname=request.user.nickname)
     mypick = MyPick.objects.filter(user=request.user).first()
     changed = (not mypick) or (mypick.post_id != post.id)
     if not mypick:
