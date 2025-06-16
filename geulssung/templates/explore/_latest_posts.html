@@ -10,11 +10,15 @@
   {% if latest_posts %}
     <ul class="bg-white rounded-lg shadow p-6 flex flex-col h-96 overflow-y-auto">
       {% for post in latest_posts|slice:":5" %}
-        <li class="flex-1 flex flex-col md:flex-row md:items-center md:justify-between border-b pb-4">
-          <div class="flex flex-col md:flex-row md:items-center gap-2 w-full">
-            <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-lg md:w-2/4">{{ post.title }}</a>
-            <span class="text-gray-600 text-sm md:text-base w-full md:w-1/4 truncate">{{ post.author.nickname }}</span>
-            <span class="text-xs text-gray-400 w-full md:w-1/4 text-right">{{ post.created_at|date:"Y-m-d H:i" }}</span>
+        <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg">
+          <div class="w-2/5 flex flex-col justify-center">
+            <a href="{% url 'post_detail' post.id %}" class="text-[#493E3E] font-semibold hover:underline truncate text-xl">
+              {{ post.title }}
+            </a>
+          </div>
+          <div class="w-1/3 flex justify-end items-center gap-x-1">
+            <span class="text-xs font-bold text-sky-400 whitespace-nowrap">작성자:{{ post.author.nickname }}</span>
+            <span class="text-xs font-bold text-sky-400 whitespace-nowrap">작성일:{{ post.created_at|date:'m/d H:i' }}</span>
           </div>
         </li>
       {% endfor %}
