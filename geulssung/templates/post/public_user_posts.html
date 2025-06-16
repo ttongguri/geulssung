@@ -260,10 +260,72 @@
       <div id="heatmap" class="heatmap-grid"></div>
     </div>
 
+    <!-- 상단 고정 포스트(최고 좋아요, 최고 점수, My Pick) -->
+    {% if top_liked_post or top_score_post or my_pick_post %}
+      <div class="mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {% if top_liked_post %}
+            <div class="card border-2 border-pink-300">
+              <div class="text-xs text-pink-500 font-bold mb-1">최고 좋아요</div>
+              <a href="{% url 'post_detail' post_id=top_liked_post.id %}">
+                {% if top_liked_post.postimage %}
+                  <img src="{{ top_liked_post.postimage.image.url }}" class="w-full aspect-square object-cover rounded-xl border-b" />
+                {% else %}
+                  <img src="{% static 'images/피그민.png' %}" class="w-full aspect-square object-cover rounded-xl border-b" />
+                {% endif %}
+              </a>
+              <div class="mt-2 font-bold truncate">{{ top_liked_post.title }}</div>
+              <div class="text-sm text-gray-500">❤️ {{ top_liked_post.like_users.count }}</div>
+            </div>
+          {% endif %}
+          {% if top_score_post %}
+            <div class="card border-2 border-blue-300">
+              <div class="text-xs text-blue-500 font-bold mb-1">최고 점수</div>
+              <a href="{% url 'post_detail' post_id=top_score_post.id %}">
+                {% if top_score_post.postimage %}
+                  <img src="{{ top_score_post.postimage.image.url }}" class="w-full aspect-square object-cover rounded-xl border-b" />
+                {% else %}
+                  <img src="{% static 'images/피그민.png' %}" class="w-full aspect-square object-cover rounded-xl border-b" />
+                {% endif %}
+              </a>
+              <div class="mt-2 font-bold truncate">{{ top_score_post.title }}</div>
+              <div class="text-sm text-gray-500">점수: {{ top_score_post.evaluation.score }}</div>
+            </div>
+          {% endif %}
+          {% if my_pick_post %}
+            <div class="card border-2 border-green-300">
+              <div class="text-xs text-green-500 font-bold mb-1">My Pick!</div>
+              <a href="{% url 'post_detail' post_id=my_pick_post.id %}">
+                {% if my_pick_post.postimage %}
+                  <img src="{{ my_pick_post.postimage.image.url }}" class="w-full aspect-square object-cover rounded-xl border-b" />
+                {% else %}
+                  <img src="{% static 'images/피그민.png' %}" class="w-full aspect-square object-cover rounded-xl border-b" />
+                {% endif %}
+              </a>
+              <div class="mt-2 font-bold truncate">{{ my_pick_post.title }}</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
     <!-- 포스트 리스트 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {% for post in posts %}
         <div class="relative card overflow-hidden">
+          <!-- My Pick 버튼 (본인 글만, 대표 이미지 상단) -->
+          {% if user.is_authenticated and user == post.author %}
+            <button type="button"
+                    class="absolute top-2 left-2 z-10 px-3 py-1 rounded-full text-xs font-bold shadow border border-green-400 bg-white hover:bg-green-100 transition mypick-btn"
+                    data-post-id="{{ post.id }}"
+                    {% if user.mypick and user.mypick.post.id == post.id %}disabled style="background:#bbf7d0;color:#166534;cursor:default;"{% endif %}>
+              {% if user.mypick and user.mypick.post.id == post.id %}
+                🌟 My Pick
+              {% else %}
+                My Pick!
+              {% endif %}
+            </button>
+          {% endif %}
 
           <!-- 커버 이미지 -->
           <a href="{% url 'post_detail' post_id=post.id %}">
@@ -412,6 +474,28 @@
     });
   </script>
 
+  <!-- My Pick 버튼 Ajax -->
+  <script>
+    document.querySelectorAll('.mypick-btn').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        const postId = this.dataset.postId;
+        const response = await fetch("{% url 'set_mypick' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          body: new URLSearchParams({ post_id: postId })
+        });
+        const data = await response.json();
+        if (data.success) {
+          location.reload();
+        } else {
+          alert(data.error || 'My Pick 지정에 실패했습니다.');
+        }
+      });
+    });
+  </script>
 
 <!-- heatmap 그리기 스크립트 -->
   <script>
