@@ -10,7 +10,7 @@
   <style>@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');</style>
 </head>
 
-<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
+<body class="bg-[#F0F9FF] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
 
   <!-- 상단 네비게이션 -->
   {% include "nav_bar.html" %}
@@ -26,7 +26,7 @@
 
       <div class="flex justify-start mb-12">
         <a href="{% url 'user_owned_items' %}" 
-            class="text-sm bg-[#00C9A7] hover:bg-[#00b498] text-white font-semibold px-4 py-1 rounded-full shadow transition">
+            class="text-sm bg-[#FDE68A] hover:bg-[#4393F5] font-semibold px-4 py-1 rounded-full shadow transition">
             ✨ 도우미 꾸미러 가기
         </a>
       </div>
@@ -85,12 +85,12 @@
                       </div>
 
                       <div class="p-4 flex flex-col flex-grow">
-                        <h3 class="item-name font-semibold text-lg mb-2">{{ item.name }}</h3>
-                        <p class="item-price text-red-500 mb-4">{{ item.credit }} 따개비</p>
+                        <h3 class="item-name font-semibold text-lg mb-2 text-center">{{ item.name }}</h3>
+                        <p class="item-price text-red-500 mb-4 text-center">{{ item.credit }} 따개비</p>
                         <!-- {% if item.id in owned_item_ids %}
                           <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
                         {% else %} -->
-                        <button class="buy-button mt-auto bg-[#3e83a8] text-white py-2 rounded-2xl hover:bg-[#3b7bc1]">구매하기</button>
+                        <button class="buy-button mt-auto bg-[#89ACDB] text-white py-2 rounded-2xl hover:bg-[#3b7bc1]">구매하기</button>
                         <!-- {% endif %} -->
                       </div>
                     </article>
@@ -122,12 +122,12 @@
 
     function showStore(charName) {
       document.querySelectorAll('.char-btn').forEach(btn => {
-        btn.classList.remove('bg-[#8AC4D0]', 'text-white');
+        btn.classList.remove('bg-[#00C9A7]', 'text-white');
         btn.classList.add('bg-white', 'text-[#493E3E]');
       });
       const selectedBtn = document.getElementById(`btn-${charName}`);
       selectedBtn.classList.remove('bg-white', 'text-[#493E3E]');
-      selectedBtn.classList.add('bg-[#8AC4D0]', 'text-white');
+      selectedBtn.classList.add('bg-[#00C9A7]', 'text-white');
       
       document.querySelectorAll('section[id^="store-"]').forEach(sec => sec.classList.add('hidden'));
       const sec = document.getElementById(`store-${charName}`);
@@ -136,7 +136,7 @@
       const btns = sec.querySelectorAll('.category-btn');
       const items = sec.querySelectorAll('.item');
       btns.forEach(b => {
-        b.classList.remove('bg-[#8AC4D0]', 'text-white');
+        b.classList.remove('bg-[#00C9A7]', 'text-white');
         b.classList.add('bg-white', 'text-[#493E3E]');
       });
       items.forEach(i => i.style.display = 'none');
@@ -147,11 +147,11 @@
       const charName = btn.getAttribute('data-char');
       const partCode = btn.getAttribute('data-part');
       document.querySelectorAll(`#store-${charName} .category-btn`).forEach(b => {
-        b.classList.remove('bg-[#8AC4D0]', 'text-white');
+        b.classList.remove('bg-[#00C9A7]', 'text-white');
         b.classList.add('bg-white', 'text-[#493E3E]');
       });
       btn.classList.remove('bg-white', 'text-[#493E3E]');
-      btn.classList.add('bg-[#8AC4D0]', 'text-white');
+      btn.classList.add('bg-[#00C9A7]', 'text-white');
       
       const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
       const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
