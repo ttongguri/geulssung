@@ -31,6 +31,7 @@ from django.db.models.functions import TruncDate
 from calendar import timegm
 import calendar
 from django.core.paginator import Paginator
+from .models import MyPick
 
 
 # hj - gemini_api_key 삽입
@@ -207,6 +208,22 @@ def public_posts_by_user(request, nickname):
     f_ratio = int(f_count / total_count * 100) if total_count else 0
     t_ratio = 100 - f_ratio if total_count else 0
 
+    # 상단 고정 포스트 쿼리
+    # 1. 최고 좋아요
+    top_liked_post = posts.annotate(like_count=Count('like_users')).order_by('-like_count', '-created_at').first()
+    # 2. 최고 점수
+    top_score_post = posts.filter(evaluation__score__isnull=False).order_by('-evaluation__score', '-created_at').first()
+    # 3. My Pick (author가 지정한 대표글)
+    my_pick_post = None
+    if hasattr(author, 'mypick') and author.mypick.post:
+        my_pick_post = author.mypick.post
+
+    # 중복 방지: 3개가 겹치면 한 번만 노출 (템플릿에서 posts에서 제외)
+    top_ids = set()
+    for p in [top_liked_post, top_score_post, my_pick_post]:
+        if p: top_ids.add(p.id)
+    posts = posts.exclude(id__in=top_ids)
+
     # 페이지네이션Add commentMore actions
     paginator = Paginator(posts, 6)
     page_number = request.GET.get('page')
@@ -263,6 +280,9 @@ def public_posts_by_user(request, nickname):
         'heatmap_data': json.dumps(heatmap_data),
         'earliest_date': earliest_date,
         'contributions_count': contributions_count,
+        'top_liked_post': top_liked_post,
+        'top_score_post': top_score_post,
+        'my_pick_post': my_pick_post,
     })
 
 # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
@@ -550,6 +570,7 @@ def top_liked_posts_ajax(request):
         empty_count = max(0, 5 - posts_count)
         html = render_to_string('explore/_top_liked_posts_partial.html', {'posts': posts, 'top_liked_posts_empty_count': empty_count}, request=request)
     return JsonResponse({'html': html})
+<<<<<<< HEAD
     
 def explore_view(request):
     subscribed_posts = []
@@ -620,3 +641,25 @@ def explore_view(request):
     return render(request, 'explore/explore.html', context)
 
 
+=======
+
+@require_POST
+@login_required
+def set_mypick_view(request):
+    post_id = request.POST.get('post_id')
+    post = get_object_or_404(Post, id=post_id)
+    if post.author != request.user:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': '권한이 없습니다.'}, status=403)
+        return redirect('public_user_posts', nickname=request.user.nickname)
+    mypick = MyPick.objects.filter(user=request.user).first()
+    changed = (not mypick) or (mypick.post_id != post.id)
+    if not mypick:
+        mypick = MyPick(user=request.user, post=post)
+    else:
+        mypick.post = post
+    mypick.save()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'post_id': post.id, 'changed': changed})
+    return redirect('public_user_posts', nickname=request.user.nickname)
+>>>>>>> 5a73aed7ff6a5d0aa3907574986505c02b7c2e24
