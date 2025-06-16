@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'accounts',
     'prompts',
     'customizing',
+    'suggestion',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
