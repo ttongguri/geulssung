@@ -40,96 +40,68 @@
       {% endfor %}
     </div>
     <br>
-    <div id="char-1-buttons" class="flex justify-center gap-4">
-      <input type="radio" name="part-char1" value="몸체" id="char1-body" class="hidden peer/body" onchange="activateCategory('몸체')">
-      <label for="char1-body"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-              peer-checked/body:bg-[#00C9A7] peer-checked/body:text-white">
-        몸체
-      </label>
-
-      <input type="radio" name="part-char1" value="가방" id="char1-bag" class="hidden peer/bag" onchange="activateCategory('가방')">
-      <label for="char1-bag"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-              peer-checked/bag:bg-[#00C9A7] peer-checked/bag:text-white">
-        가방
-      </label>
-
-      <input type="radio" name="part-char1" value="안경" id="char1-glass" class="hidden peer/glass" onchange="activateCategory('안경')">
-      <label for="char1-glass"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-              peer-checked/glass:bg-[#00C9A7] peer-checked/glass:text-white">
-        안경
-      </label>
-
-      <button onclick="showAllItems()"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-[#f0f0f0]">
-        모두 보기
-      </button>
+    <div class="text-center">
+      <div id="char-1-buttons" class="flex justify-center space-x-4">
+        <button onclick="activateButton(this, '몸체')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">몸체</button>
+        <button onclick="activateButton(this, '가방')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">가방</button>
+        <button onclick="activateButton(this, '안경')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">안경</button>
+        <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
+      </div>
+      <div id="char-2-buttons" class="hidden flex justify-center space-x-4">
+        <button onclick="activateButton(this, '악세서리')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">악세서리</button>
+        <button onclick="activateButton(this, '옷')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">옷</button>
+        <button onclick="activateButton(this, '모자')" class="category-btn text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold transition transform">모자</button>
+        <button onclick="showAllItems()" class="text-sm px-4 py-1 rounded-full bg-gray-100 text-gray-500 font-semibold">모두 보기</button>
+      </div>
     </div>
-
-    <div id="char-2-buttons" class="flex justify-center gap-4 hidden">
-      <input type="radio" name="part-char2" value="악세서리" id="char2-acc" class="hidden peer/acc" onchange="activateCategory('악세서리')">
-      <label for="char2-acc"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-              peer-checked/acc:bg-[#00C9A7] peer-checked/acc:text-white">
-        악세서리
-      </label>
-
-      <input type="radio" name="part-char2" value="옷" id="char2-clothes" class="hidden peer/clothes" onchange="activateCategory('옷')">
-      <label for="char2-clothes"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-              peer-checked/clothes:bg-[#00C9A7] peer-checked/clothes:text-white">
-        옷
-      </label>
-
-      <input type="radio" name="part-char2" value="모자" id="char2-head" class="hidden peer/head" onchange="activateCategory('모자')">
-      <label for="char2-head"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-              peer-checked/head:bg-[#00C9A7] peer-checked/head:text-white">
-        모자
-      </label>
-
-      <button onclick="showAllItems()"
-        class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition hover:bg-[#f0f0f0]">
-        모두 보기
-      </button>
-    </div>
-
-
     <br><br>
 
-  <!-- 🔹 전체 아이템 카드 저장소 (숨김) -->
-  <div id="all-items" class="hidden">
-    {% for ui in owned_items %}
-      {% with path=ui.item.image_path char_id=ui.item.character.id %}
-        <div class="item-card inline-block text-center"
-            data-character="{{ char_id }}"
-            data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
-          <img src="{% static ui.item.image_path %}"
-              onclick="toggleEquip('{{ ui.item.id }}')"
-              class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
-          <p class="text-xs mt-1">
-            {% if ui.equipped %}
-              <span class="text-green-500">착용 중</span>
-            {% else %}
-              <span class="text-gray-400">미착용</span>
-            {% endif %}
-          </p>
-        </div>
-      {% endwith %}
-    {% endfor %}
-  </div>
+  <!-- 🔹 아이템 카드 중앙 정렬 -->
+  <div class="flex justify-center">
+    <div id="all-items" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {% for ui in owned_items %}
+        {% with path=ui.item.image_path char_id=ui.item.character.id %}
+          {% if not 'clothes' in path %}
+            <div class="item-card hidden inline-block text-center"
+                data-character="{{ char_id }}"
+                data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
+              <img src="{% static ui.item.image_path %}"
+                  onclick="toggleEquip('{{ ui.item.id }}')"
+                  class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
+              <p class="text-xs mt-1">
+                {% if ui.equipped %}
+                  <span class="text-green-500">착용 중</span>
+                {% else %}
+                  <span class="text-gray-400">미착용</span>
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
 
-  <!-- 🔹 보여줄 페이지 영역 -->
-  <div class="flex justify-center mt-6">
-    <div id="paged-items" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+      {% for ui in owned_items %}
+        {% with path=ui.item.image_path char_id=ui.item.character.id %}
+          {% if 'clothes' in path %}
+            <div class="item-card hidden inline-block text-center"
+                data-character="{{ char_id }}"
+                data-category="{% if 'body' in path %}몸체{% elif 'bag' in path %}가방{% elif 'glass' in path %}안경{% elif 'acc' in path %}악세서리{% elif 'head' in path %}모자{% elif 'clothes' in path %}옷{% else %}기타{% endif %}">
+              <img src="{% static ui.item.image_path %}"
+                  onclick="toggleEquip('{{ ui.item.id }}')"
+                  class="w-52 h-52 rounded shadow cursor-pointer hover:scale-110 transition">
+              <p class="text-xs mt-1">
+                {% if ui.equipped %}
+                  <span class="text-green-500">착용 중</span>
+                {% else %}
+                  <span class="text-gray-400">미착용</span>
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    </div>
   </div>
-
-  <!-- 🔹 페이지 버튼 -->
-  <div id="pagination" class="flex justify-center mt-6 space-x-2"></div>
-  <br>
-  <br>
 
 <script>
   let selectedCharacter = 1; // 기본: 글썽이
@@ -180,7 +152,7 @@
     selectedCategory = null;
     document.getElementById('char-1-buttons').classList.toggle('hidden', characterId !== 1);
     document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 2);
-    renderPage(1);
+    filterItems();
   }
 
   // 🔹 부위 버튼 클릭 시
@@ -197,24 +169,22 @@
 
   // 🔹 아이템 필터링 (id 기반)
   function filterItems() {
-    return allItems.filter(card => {
-      const matchChar = Number(card.dataset.character) === selectedCharacter;
+    document.querySelectorAll('.item-card').forEach(card => {
+      const matchChar = selectedCharacter === null || Number(card.dataset.character) === selectedCharacter;
       const matchCat = selectedCategory === null || card.dataset.category === selectedCategory;
-      return matchChar && matchCat;
+      card.classList.toggle('hidden', !(matchChar && matchCat));
     });
   }
 
   // 🔹 모두 보기
   function showAllItems() {
     selectedCategory = null;
-    renderPage(1);
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('bg-[#00C9A7]', 'text-white');
+      btn.classList.add('bg-gray-100', 'text-gray-500');
+    });
+    filterItems();
   }
-    // 🔹 카테고리 선택 시
-  function activateCategory(category) {
-    selectedCategory = category;
-    renderPage(1);
-  }
-
 
   // 🔹 장착/해제 toggle (id 기반)
   function toggleEquip(itemId) {
@@ -296,47 +266,6 @@
       default: return '';
     }
   }
-
-  const ITEMS_PER_PAGE = 5;
-  const allItems = Array.from(document.querySelectorAll('#all-items .item-card'));
-  const pagedContainer = document.getElementById('paged-items');
-  const pagination = document.getElementById('pagination');
-
-  let currentPage = 1;
-  const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
-
-  function renderPage(page) {
-    pagedContainer.innerHTML = '';
-    const filteredItems = filterItems();
-    const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    const pageItems = filteredItems.slice(start, end);
-
-    pageItems.forEach(item => {
-      pagedContainer.appendChild(item.cloneNode(true));
-    });
-
-    renderPagination(page, totalPages);
-  }
-
-  function renderPagination(currentPage, totalPages) {
-    pagination.innerHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = i;
-      btn.className = `px-3 py-1 rounded-full border text-sm ${
-        i === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'
-      } hover:bg-blue-100`;
-      btn.addEventListener('click', () => renderPage(i));
-      pagination.appendChild(btn);
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    renderPage(1);
-  });
-
 </script>
   
 </body>
