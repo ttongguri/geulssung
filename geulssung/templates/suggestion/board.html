@@ -1,6 +1,8 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ko">
+
+<html lang="ko"style="font-size:80%" >
+
 <head>
   <meta charset="UTF-8">
   <title>건의사항 - 글썽글썽</title>
@@ -9,7 +11,7 @@
   <style>
     body {
       font-family: 'Gowun Batang', serif;
-      background-color: #f0f9ff;
+      background-color: #f0f9ff; /* 💧 하늘+바다톤 */
       color: #493E3E;
     }
 
@@ -18,7 +20,6 @@
       border-radius: 1rem;
       box-shadow: 0 8px 24px rgba(73, 62, 62, 0.08), 0 1.5px 4px rgba(73, 62, 62, 0.08);
       padding: 1.5rem;
-      position: relative;
     }
 
     .form-area {
@@ -27,24 +28,12 @@
       padding: 1.5rem;
       box-shadow: 0 8px 24px rgba(73, 62, 62, 0.08), 0 1.5px 4px rgba(73, 62, 62, 0.08);
     }
-
-    .vote-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.9rem;
-      font-weight: 500;
-      padding: 0.3rem 0.6rem;
-      border-radius: 9999px;
-    }
-
-    .vote-btn:hover {
-      background-color: #e0f2fe;
-    }
   </style>
 </head>
 
-<body class="min-h-screen px-6 py-10">
+<body class="min-h-screen px-6 pt-24 pb-10" style="font-size:100%">
+  {% include "nav_bar.html" %}
+
   <div class="max-w-3xl mx-auto">
 
     <!-- 제목 -->
@@ -71,34 +60,7 @@
       {% for s in suggestions %}
         <div class="card">
           <p class="text-sm text-gray-500 mb-1">익명 · {{ s.created_at|date:"Y.m.d H:i" }}</p>
-          <p class="whitespace-pre-line leading-relaxed mb-4">{{ s.content }}</p>
-
-          <!-- 추천/비추천 버튼 -->
-          {% if user.is_authenticated %}
-            <div class="flex items-center gap-4 mb-2">
-              <button class="vote-btn text-blue-500 hover:text-blue-600 transition"
-                      data-id="{{ s.id }}" data-action="upvote">
-                👍 <span class="vote-count">{{ s.upvoted_users.count }}</span>
-              </button>
-              <button class="vote-btn text-red-500 hover:text-red-600 transition"
-                      data-id="{{ s.id }}" data-action="downvote">
-                👎 <span class="vote-count">{{ s.downvoted_users.count }}</span>
-              </button>
-            </div>
-          {% else %}
-            <div class="text-sm text-gray-400 mb-2">로그인 후 추천/비추천할 수 있습니다.</div>
-          {% endif %}
-
-          <!-- 삭제 버튼 (관리자 전용) -->
-          {% if user.is_staff %}
-            <form method="post" action="{% url 'delete_suggestion' s.id %}" onsubmit="return confirm('정말 삭제하시겠습니까?');" class="text-right mt-1">
-              {% csrf_token %}
-              <button type="submit"
-                      class="text-sm text-red-500 hover:underline">
-                삭제
-              </button>
-            </form>
-          {% endif %}
+          <p class="whitespace-pre-line leading-relaxed">{{ s.content }}</p>
         </div>
       {% empty %}
         <div class="text-gray-400 text-center py-10">아직 건의사항이 없습니다.</div>
@@ -106,34 +68,5 @@
     </div>
 
   </div>
-
-  <!-- 추천/비추천 버튼 동작 -->
-  <script>
-    document.querySelectorAll('.vote-btn').forEach(btn => {
-      btn.addEventListener('click', async function () {
-        const id = this.dataset.id;
-        const action = this.dataset.action;
-
-        const response = await fetch(`/geulssung/suggestion/vote/${id}/`, {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: `action=${action}`
-        });
-
-        const data = await response.json();
-        const parent = this.parentElement;
-        const upvoteBtn = parent.querySelector('[data-action="upvote"]');
-        const downvoteBtn = parent.querySelector('[data-action="downvote"]');
-
-        // 카운트 업데이트
-        upvoteBtn.querySelector('.vote-count').textContent = data.upvotes;
-        downvoteBtn.querySelector('.vote-count').textContent = data.downvotes;
-      });
-    });
-  </script>
 </body>
 </html>
