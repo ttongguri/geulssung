@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-from django.shortcuts import render, redirect
-from .models import Suggestion
-from django.contrib.auth.decorators import login_required
-=======
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Suggestion
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import require_POST
->>>>>>> 5a73aed7ff6a5d0aa3907574986505c02b7c2e24
 
 # 건의 게시판 페이지
 @login_required
@@ -22,8 +16,6 @@ def suggestion_board_view(request):
     suggestions = Suggestion.objects.order_by('-created_at')
     return render(request, 'suggestion/board.html', {'suggestions': suggestions})
 
-<<<<<<< HEAD
-=======
 # 건의 삭제 기능
 @login_required
 def delete_suggestion_view(request, suggestion_id):
@@ -60,4 +52,3 @@ def vote_suggestion_view(request, suggestion_id):
         'downvotes': suggestion.downvoted_users.count(),
         'user_action': action
     })
->>>>>>> 5a73aed7ff6a5d0aa3907574986505c02b7c2e24
