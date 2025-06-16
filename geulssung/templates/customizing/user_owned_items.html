@@ -155,7 +155,7 @@
     selectedCharacter = characterId;
     selectedCategory = null;
     document.getElementById('char-1-buttons').classList.toggle('hidden', characterId !== 1);
-    document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 4);
+    document.getElementById('char-2-buttons').classList.toggle('hidden', characterId !== 2);
     filterItems();
   }
 
@@ -222,7 +222,7 @@
   // 🔹 장착 상태 반영 (id 기반)
   function updateItemStatus(itemId, equipped, imagePath) {
     // 캐릭터 id 추출 (글썽이: 1, 말썽이: 2)
-    let character = imagePath.includes('malssung') ? 4 : 1;
+    let character = imagePath.includes('malssung') ? 2 : 1;
     const targetContainer = document.querySelector(`.character-${character}`);
     const partMatch = imagePath.match(/(body|bag|glass|acc|clothes|head)/);
     const part = partMatch ? partMatch[1] : null;
