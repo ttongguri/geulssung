@@ -217,6 +217,9 @@ def public_posts_by_user(request, nickname):
     my_pick_post = None
     if hasattr(author, 'mypick') and author.mypick.post:
         my_pick_post = author.mypick.post
+        # 비공개글이면 본인만 볼 수 있도록, 공개글이면 모두 볼 수 있도록
+        if not my_pick_post.is_public and (not request.user.is_authenticated or request.user != author):
+            my_pick_post = None
 
     # 중복 방지: 3개가 겹치면 한 번만 노출 (템플릿에서 posts에서 제외)
     top_ids = set()
