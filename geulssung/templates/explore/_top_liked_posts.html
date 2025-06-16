@@ -37,9 +37,34 @@
             <span class="w-10 text-lg font-bold text-right text-green-600">    {{ post.evaluation.score }}점</span>
           </li>
         {% endfor %}
+        {% for _ in ''|center:top_scored_posts_empty_count %}
+          <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg opacity-0 select-none pointer-events-none">
+            <div class="w-2/5 flex flex-col justify-center">
+              <span>-</span>
+            </div>
+            <div class="w-1/3 flex justify-end items-center gap-x-1">
+              <span>-</span>
+              <span>-</span>
+            </div>
+            <span class="w-10 text-lg font-bold text-right">-</span>
+          </li>
+        {% endfor %}
       </ul>
     {% else %}
-      <p class="text-center text-gray-500">아직 평가된 글이 없습니다.평가를 받아보세요!</p>
+      <ul class="bg-white rounded-lg shadow p-6 flex flex-col h-96 overflow-y-auto">
+        {% for _ in ''|center:5 %}
+          <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg opacity-0 select-none pointer-events-none">
+            <div class="w-2/5 flex flex-col justify-center">
+              <span>-</span>
+            </div>
+            <div class="w-1/3 flex justify-end items-center gap-x-1">
+              <span>-</span>
+              <span>-</span>
+            </div>
+            <span class="w-10 text-lg font-bold text-right">-</span>
+          </li>
+        {% endfor %}
+      </ul>
     {% endif %}
   {% else %}
     {% if top_liked_posts %}
@@ -58,9 +83,34 @@
             <span class="w-10 text-lg font-bold text-right text-pink-600">❤️ {{ post.like_count }}</span>
           </li>
         {% endfor %}
+        {% for _ in ''|center:top_liked_posts_empty_count %}
+          <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg opacity-0 select-none pointer-events-none">
+            <div class="w-2/5 flex flex-col justify-center">
+              <span>-</span>
+            </div>
+            <div class="w-1/3 flex justify-end items-center gap-x-1">
+              <span>-</span>
+              <span>-</span>
+            </div>
+            <span class="w-10 text-lg font-bold text-right">-</span>
+          </li>
+        {% endfor %}
       </ul>
     {% else %}
-      <p class="text-center text-gray-500">아직 좋아요를 받은 글이 없습니다.마음에 드는 글을 추천해주세요!</p>
+      <ul class="bg-white rounded-lg shadow p-6 flex flex-col h-96 overflow-y-auto">
+        {% for _ in ''|center:5 %}
+          <li class="flex-1 flex justify-between items-center border-b last:border-b-0 text-lg opacity-0 select-none pointer-events-none">
+            <div class="w-2/5 flex flex-col justify-center">
+              <span>-</span>
+            </div>
+            <div class="w-1/3 flex justify-end items-center gap-x-1">
+              <span>-</span>
+              <span>-</span>
+            </div>
+            <span class="w-10 text-lg font-bold text-right">-</span>
+          </li>
+        {% endfor %}
+      </ul>
     {% endif %}
   {% endif %}
   </div>
@@ -68,7 +118,7 @@
   function fetchRanking(ranking) {
     const params = new URLSearchParams(window.location.search);
     params.set('ranking', ranking);
-    fetch('/explore/top_liked_posts_ajax/?' + params.toString(), {
+    fetch('/geulssung/post/top_liked_posts_ajax/?' + params.toString(), {
       headers: {'X-Requested-With': 'XMLHttpRequest'}
     })
     .then(res => res.json())

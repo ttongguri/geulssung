@@ -104,16 +104,9 @@
     </div>
     <br><br>
 
-  <div class="relative group w-full flex justify-center">
-    <!-- 왼쪽 버튼 -->
-    <button id="scroll-left" class="absolute left-20 top-1/2 -translate-y-1/2 hidden group-hover:flex 
-            bg-white border border-gray-300 rounded-full px-3 py-2 shadow hover:bg-gray-200 z-10">
-      ◀
-    </button>
-
   <!-- 🔹 아이템 카드 중앙 정렬 -->
     <div class="flex justify-center">
-      <div id="all-items" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div id="all-items" class="grid grid-cols-5 gap-6">
         {% for ui in owned_items %}
           {% with path=ui.item.image_path char_id=ui.item.character.id %}
             {% if not 'clothes' in path %}
@@ -157,12 +150,6 @@
         {% endfor %}
       </div>
     </div>
-
-    <!-- 오른쪽 버튼 -->
-    <button id="scroll-right" class="absolute right-20 top-1/2 -translate-y-1/2 hidden group-hover:flex 
-            bg-white border border-gray-300 rounded-full px-3 py-2 shadow hover:bg-gray-200 z-10">
-      ▶
-    </button>
   </div>
 
   <!-- 🔹 페이지네이션 버튼 -->
@@ -206,28 +193,6 @@
       } else {
         target.appendChild(img);
       }
-
-      document.getElementById('scroll-left').addEventListener('click', () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderPage(currentPage);
-        }
-      });
-
-      document.getElementById('scroll-right').addEventListener('click', () => {
-        const totalFiltered = allItems.filter(card => {
-          const cardChar = Number(card.dataset.character);
-          const cardCat = card.dataset.category?.trim();
-          const matchChar = cardChar === selectedCharacter;
-          const matchCat = selectedCategory === null || cardCat === selectedCategory;
-          return matchChar && matchCat;
-        });
-        const totalPages = Math.ceil(totalFiltered.length / ITEMS_PER_PAGE);
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderPage(currentPage);
-        }
-      });
     });
 
     // 기본 글썽이 버튼만 보이게
