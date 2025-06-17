@@ -52,30 +52,47 @@ def toggle_equip_item(request, item_id):
         return JsonResponse({'error': 'POST 요청만 허용됨'}, status=405)
 
 # 상점 페이지 보기
-@login_required
 def store_view(request):
-    owned_item_ids = (
-        UserItem.objects
-        .filter(user=request.user, owned=True)
-        .values_list('item_id', flat=True)
-    )
-    characters = Character.objects.all().order_by('name')
-    all_items = (
-        Item.objects
-        .select_related('character')
-        .all()
-        .order_by('character__name', 'part_code')
-    )
-
-    return render(
-        request,
-        'customizing/store.html',
-        {
-            'characters': characters,
-            'all_items': all_items,
-            'owned_item_ids': set(owned_item_ids),
-        },
-    )
+    if request.user.is_authenticated:
+        owned_item_ids = (
+            UserItem.objects
+            .filter(user=request.user, owned=True)
+            .values_list('item_id', flat=True)
+        )
+        characters = Character.objects.all().order_by('name')
+        all_items = (
+            Item.objects
+            .select_related('character')
+            .all()
+            .order_by('character__name', 'part_code')
+        )
+        return render(
+            request,
+            'customizing/store.html',
+            {
+                'characters': characters,
+                'all_items': all_items,
+                'owned_item_ids': set(owned_item_ids),
+            },
+        )
+    else:
+        characters = Character.objects.all().order_by('name')
+        all_items = (
+            Item.objects
+            .select_related('character')
+            .all()
+            .order_by('character__name', 'part_code')
+        )
+        # owned_item_ids는 빈 set
+        return render(
+            request,
+            'customizing/store.html',
+            {
+                'characters': characters,
+                'all_items': all_items,
+                'owned_item_ids': set(),
+            },
+        )
 
 # 구매 처리 (사용 중)
 @require_POST

@@ -18,18 +18,31 @@
     <h1 class="text-4xl font-bold mb-10 text-center">🛒상점</h1><br>
 
     <main>
+      {% if user.is_authenticated %}
       <!-- 유저 따개비 info -->
       <div class="flex items-center justify-start gap-2 mb-4">
         <img src="{% static 'images/ddageabi_s.png' %}" class="h-8">
         <h2 class="text-xl font-semibold">{{ user.nickname }}님의 보유 따개비는 <span id="user-credit" class="text-red-500">{{ user.credit }}</span> 개 입니다.</h2>
       </div>
-
       <div class="flex justify-start mb-12">
         <a href="{% url 'user_owned_items' %}" 
             class="text-sm bg-[#FDE68A] hover:bg-[#4393F5] font-semibold px-4 py-1 rounded-full shadow transition">
             ✨ 도우미 꾸미러 가기
         </a>
       </div>
+      {% else %}
+      <!-- 비로그인 안내 -->
+      <div class="flex items-center justify-start gap-2 mb-4">
+        <img src="{% static 'images/ddageabi_s.png' %}" class="h-8">
+        <h2 class="text-xl font-semibold text-gray-500">로그인하고 도우미를 꾸며주세요!</h2>
+      </div>
+      <div class="flex justify-start mb-12">
+        <a href="{% url 'login' %}"
+            class="text-sm bg-[#FDE68A] hover:bg-[#4393F5] font-semibold px-4 py-1 rounded-full shadow transition">
+            🔑 로그인하러 가기
+        </a>
+      </div>
+      {% endif %}
       <!-- <br> -->
       
       <!-- Step 1: 캐릭터 선택 -->
@@ -67,33 +80,52 @@
               <!-- 아이템 카드 -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="{{ char.name }}-items">
                 {% for item in all_items %}
-                  {% if item.character.id == char.id and item.id not in owned_item_ids %}
-                    <article class="item bg-white rounded-2xl shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
-                      <div class="relative w-full h-64">
-                        <!-- 기본 캐릭터 이미지 -->
-                        {% if char.id == 1 %}
-                          <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
-                              class="absolute top-0 left-0 w-full h-full object-contain z-0">
-                        {% elif char.id == 2 %}
-                          <img src="{% static 'images/character/malssung/malssung_default.png' %}" 
-                              class="absolute top-0 left-0 w-full h-full object-contain z-0">
-                        {% endif %}
+                  {% if user.is_authenticated %}
+                    {% if item.character.id == char.id and item.id not in owned_item_ids %}
+                      <article class="item bg-white rounded-2xl shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
+                        <div class="relative w-full h-64">
+                          <!-- 기본 캐릭터 이미지 -->
+                          {% if char.id == 1 %}
+                            <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
+                                class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                          {% elif char.id == 2 %}
+                            <img src="{% static 'images/character/malssung/malssung_default.png' %}" 
+                                class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                          {% endif %}
 
-                        <!-- 아이템 PNG (투명배경) 위에 겹치기 -->
-                        <img src="{% static item.image_path %}" 
-                            class="absolute top-0 left-0 w-full h-full object-contain z-10">
-                      </div>
+                          <!-- 아이템 PNG (투명배경) 위에 겹치기 -->
+                          <img src="{% static item.image_path %}" 
+                              class="absolute top-0 left-0 w-full h-full object-contain z-10">
+                        </div>
 
-                      <div class="p-4 flex flex-col flex-grow">
-                        <h3 class="item-name font-semibold text-lg mb-2 text-center">{{ item.name }}</h3>
-                        <p class="item-price text-red-500 mb-4 text-center">{{ item.credit }} 따개비</p>
-                        <!-- {% if item.id in owned_item_ids %}
-                          <div class="owned-text text-gray-500 mt-auto">이미 보유한 아이템입니다.</div>
-                        {% else %} -->
-                        <button class="buy-button mt-auto bg-[#89ACDB] text-white py-2 rounded-2xl hover:bg-[#3b7bc1]">구매하기</button>
-                        <!-- {% endif %} -->
-                      </div>
-                    </article>
+                        <div class="p-4 flex flex-col flex-grow">
+                          <h3 class="item-name font-semibold text-lg mb-2 text-center">{{ item.name }}</h3>
+                          <p class="item-price text-red-500 mb-4 text-center">{{ item.credit }} 따개비</p>
+                          <button class="buy-button mt-auto bg-[#89ACDB] text-white py-2 rounded-2xl hover:bg-[#3b7bc1]">구매하기</button>
+                        </div>
+                      </article>
+                    {% endif %}
+                  {% else %}
+                    {% if item.character.id == char.id %}
+                      <article class="item bg-white rounded-2xl shadow flex flex-col overflow-hidden" data-cat-part="{{ item.part_code }}" data-item-id="{{ item.id }}" style="display: none;">
+                        <div class="relative w-full h-64">
+                          {% if char.id == 1 %}
+                            <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" 
+                                class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                          {% elif char.id == 2 %}
+                            <img src="{% static 'images/character/malssung/malssung_default.png' %}" 
+                                class="absolute top-0 left-0 w-full h-full object-contain z-0">
+                          {% endif %}
+                          <img src="{% static item.image_path %}" 
+                              class="absolute top-0 left-0 w-full h-full object-contain z-10">
+                        </div>
+                        <div class="p-4 flex flex-col flex-grow">
+                          <h3 class="item-name font-semibold text-lg mb-2 text-center">{{ item.name }}</h3>
+                          <p class="item-price text-red-500 mb-4 text-center">{{ item.credit }} 따개비</p>
+                          <button class="buy-button mt-auto bg-[#89ACDB] text-white py-2 rounded-2xl hover:bg-[#3b7bc1]">구매하기</button>
+                        </div>
+                      </article>
+                    {% endif %}
                   {% endif %}
                 {% endfor %}
               </div>
@@ -128,11 +160,9 @@
       const selectedBtn = document.getElementById(`btn-${charName}`);
       selectedBtn.classList.remove('bg-white', 'text-[#493E3E]');
       selectedBtn.classList.add('bg-[#00C9A7]', 'text-white');
-      
       document.querySelectorAll('section[id^="store-"]').forEach(sec => sec.classList.add('hidden'));
       const sec = document.getElementById(`store-${charName}`);
       sec.classList.remove('hidden');
-
       const btns = sec.querySelectorAll('.category-btn');
       const items = sec.querySelectorAll('.item');
       btns.forEach(b => {
@@ -152,7 +182,6 @@
       });
       btn.classList.remove('bg-white', 'text-[#493E3E]');
       btn.classList.add('bg-[#00C9A7]', 'text-white');
-      
       const allItems = Array.from(document.querySelectorAll(`#store-${charName} .item`));
       const filtered = allItems.filter(item => partCode === 'all' || item.dataset.catPart === partCode);
       const perPage = 8;
@@ -174,7 +203,9 @@
       }
       render(1);
     }
-
+  </script>
+  {% if user.is_authenticated %}
+  <script>
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.buy-button').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -204,5 +235,17 @@
       });
     });
   </script>
+  {% else %}
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.buy-button').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          window.location.href = '{% url "login" %}?next={% url "store" %}';
+        });
+      });
+    });
+  </script>
+  {% endif %}
 </body>
 </html>
