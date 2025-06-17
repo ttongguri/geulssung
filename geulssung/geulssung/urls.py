@@ -20,9 +20,12 @@ from post import views
 from django.conf import settings
 from django.conf.urls.static import static
 from post.views import chat_view
+from django.views.generic import RedirectView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', RedirectView.as_view(url='/geulssung/', permanent=False)),
     path("geulssung/", views.home_view, name="home"),
     # path("geulssung/test/", views.test_page_view, name="test"),
     path("geulssung/write/", views.write_post_view, name="write"),
