@@ -3,13 +3,13 @@
 <html lang="ko" style="font-size: 80%;">
 <head>
   <meta charset="UTF-8" />
-  <title>테스트 페이지</title>
+  <title>글썽글썽✍️</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Gowun Dodum', sans-serif;
-      background-image: url('/static/images/수정.png');
+      background-image: url("{% static 'images/수정.png' %}");
       background-size: cover;
       background-position: center 60%;
       background-repeat: no-repeat;
@@ -52,20 +52,21 @@
       <span>{{ user.nickname }}님</span>
       <a href="{% url 'logout' %}" class="underline hover:text-gray-600">로그아웃</a>
       <a href="{% url 'suggestion_board' %}" class="underline hover:text-blue-600 ml-2">건의사항</a>
-      <div class="mt-2">
-        <a href="{% url 'user_owned_items' %}"
-           class="inline-block bg-white/70 text-sm px-3 py-1 rounded-full shadow hover:bg-white/90 transition">
-          🎨 도우미 꾸미기
-        </a>
-        <a href="{% url 'store' %}"
-           class="inline-block bg-white/70 text-sm px-3 py-1 rounded-full shadow hover:bg-white/90 transition">
-          🛒 상점 가기
-        </a>
-      </div>
+      <a href="{% url 'store' %}"
+         class="inline-block bg-white/70 text-sm px-3 py-1 rounded-full shadow hover:bg-white/90 transition ml-2">
+        🛒 상점 가기
+      </a>
+      <a href="{% url 'user_owned_items' %}"
+         class="inline-block bg-white/70 text-sm px-3 py-1 rounded-full shadow hover:bg-white/90 transition ml-2">
+        🎨 도우미 꾸미기
+      </a>
     {% else %}
       <a href="{% url 'login' %}" class="underline hover:text-gray-600">로그인/회원가입</a>
-      <a href="{% url 'suggestion_board' %}" class="underline hover:text-blue-600 ml-2">건의사항</a>
-      <!-- <a href="{% url 'signup' %}" class="underline hover:text-gray-600">회원가입</a> -->
+      <a href="{% url 'login' %}?next={% url 'suggestion_board' %}" class="underline hover:text-blue-600 ml-2">건의사항</a>
+      <a href="{% url 'store' %}"
+         class="inline-block bg-white/70 text-sm px-3 py-1 rounded-full shadow hover:bg-white/90 transition ml-2">
+        🛒 상점 가기
+      </a>
     {% endif %}
   </div>
 

@@ -24,7 +24,7 @@ from post.views import chat_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("geulssung/", views.home_view, name="home"),
-    path("geulssung/test/", views.test_page_view, name="test"),
+    # path("geulssung/test/", views.test_page_view, name="test"),
     path("geulssung/write/", views.write_post_view, name="write"),
     path("geulssung/explore/", views.explore_view, name="explore"),
     path("geulssung/accounts/", include("accounts.urls")),      # 사용자 계정 관련 URL
@@ -39,4 +39,5 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

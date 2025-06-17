@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 from accounts.models import CustomUser
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
 from django.views.decorators.csrf import csrf_exempt
 import google.generativeai as gemini
 from dotenv import load_dotenv
@@ -46,8 +46,8 @@ User = get_user_model()
 #     return render(request, "write_form.html")
 
 # 테스트용 페이지를 렌더링합니다.
-def test_page_view(request):
-    return render(request, "test.html")
+# def test_page_view(request):
+    # return render(request, "test.html")
 
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
@@ -164,9 +164,16 @@ def reward_credit_if_first_today(user, category, request=None):
             messages.success(request, "🎁 오늘 첫 글! 따개비 25개가 지급되었어요.")
 
 # 글 상세 페이지를 렌더링합니다.
-@login_required
 def post_detail_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+
+    # 비공개글이면 본인만 볼 수 있음
+    if not post.is_public:
+        if not request.user.is_authenticated:
+            # 로그인 페이지로 리다이렉트
+            return redirect(f'/accounts/login/?{REDIRECT_FIELD_NAME}={request.path}')
+        if request.user != post.author:
+            return HttpResponseForbidden()
 
     # 평가 요청 처리 (POST + 버튼 name="evaluate" 존재할 때)
     if request.method == "POST" and "evaluate" in request.POST:
