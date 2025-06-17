@@ -47,13 +47,20 @@
     button:hover {
       background-color: #4f9992;
     }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.4);
+      z-index: 0;
+    }
   </style>
 </head>
 <body>
-  <form method="POST" class="nickname-box">
+  <div class="overlay"></div>
+  <form method="POST" class="nickname-box" style="position: relative; z-index: 10;">
     {% csrf_token %}
     <h2>닉네임 설정</h2>
-    <label for="nickname">닉네임을 입력하세요</label><br>
+    <label for="nickname">닉네임을 입력하세요(변경 불가)</label><br>
     <input type="text" name="nickname" required>
     {% if error %}
       <p style="color: red;">{{ error }}</p>
