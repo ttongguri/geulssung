@@ -1,0 +1,87 @@
+[2025-06-18 02:49:58 +0000] [24190] [INFO] Starting gunicorn 23.0.0
+[2025-06-18 02:49:58 +0000] [24190] [INFO] Listening at: http://127.0.0.1:8000 (24190)
+[2025-06-18 02:49:58 +0000] [24190] [INFO] Using worker: sync
+[2025-06-18 02:49:58 +0000] [24191] [INFO] Booting worker with pid: 24191
+[2025-06-18 11:50:03 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:03 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:03 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:04 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:04 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:04 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:04 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:04 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:05 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 11:50:05 +0900] [24191] [ERROR] Error handling request /geulssung/
+Traceback (most recent call last):
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/geulssung/geulssung/venv/lib/python3.13/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+TypeError: ASGIHandler.__call__() missing 1 required positional argument: 'send'
+[2025-06-18 02:50:45 +0000] [24190] [INFO] Handling signal: int
+[2025-06-18 11:50:45 +0900] [24191] [INFO] Worker exiting (pid: 24191)
+[2025-06-18 02:50:45 +0000] [24190] [INFO] Shutting down: Master
