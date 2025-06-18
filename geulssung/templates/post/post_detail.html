@@ -56,7 +56,7 @@
 
     <!-- 글 본문 카드 -->
     <div class="bg-white rounded-2xl shadow-xl border border-[#89ACDB] px-8 pt-8 pb-10 mb-10 flex flex-col items-center relative">
-      {% if user == post.author %}
+      {% if user == post.author or user.is_staff %}
         <!-- 카드 내부 상단 우측에 발행/삭제 버튼 -->
         <div class="absolute top-8 right-8 z-20 flex space-x-2">
           <form method="post" action="{% url 'toggle_post_visibility' post.id %}" class="inline">
