@@ -40,14 +40,6 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 User = get_user_model()
 
-# 글쓰기 폼 페이지를 렌더링합니다.
-# def write_view(request):
-#     return render(request, "write_form.html")
-
-# 테스트용 페이지를 렌더링합니다.
-# def test_page_view(request):
-    # return render(request, "test.html")
-
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
     if request.user.is_authenticated and not request.user.nickname:
@@ -215,9 +207,6 @@ def public_posts_by_user(request, nickname):
     f_ratio = int(f_count / total_count * 100) if total_count else 0
     t_ratio = 100 - f_ratio if total_count else 0
 
-    # 히트맵 데이터 게산을 위해 고정 포스트 제외되기 전 상태 full_posts지정
-    full_posts = posts
-    
     # 상단 고정 포스트 쿼리
     # 1. 최고 좋아요
     top_liked_post = posts.annotate(like_count=Count('like_users')).order_by('-like_count', '-created_at').first()
@@ -230,10 +219,10 @@ def public_posts_by_user(request, nickname):
         # 비공개글이면 본인만 볼 수 있도록, 공개글이면 모두 볼 수 있도록
         if not my_pick_post.is_public and (not request.user.is_authenticated or request.user != author):
             my_pick_post = None
-
+            
     # 히트맵을 위한 날짜별 글 개수 집계 → public_user_posts.html 에서 heatmap_data, earliest_date 로 사용됨
     date_counts = (
-        full_posts
+        posts
         .annotate(date=TruncDate('created_at'))
         .values('date')
         .annotate(count=Count('id'))
@@ -246,9 +235,11 @@ def public_posts_by_user(request, nickname):
         for d in date_counts
     }  
 
+    # earliest_date → 히트맵 시작 날짜 지정 (히트맵 렌더링 기준 날짜)
+    earliest_date = timezone.now().date().isoformat()
+
     # contributions count (총 글 수)
     contributions_count = sum(d['count'] for d in date_counts)
-
     # 중복 방지: 3개가 겹치면 한 번만 노출 (템플릿에서 posts에서 제외)
     top_ids = set()
     for p in [top_liked_post, top_score_post, my_pick_post]:
@@ -288,6 +279,7 @@ def public_posts_by_user(request, nickname):
         'geulssung_equipped_items': geulssung_equipped_items,
         'malssung_equipped_items': malssung_equipped_items,
         'heatmap_data': json.dumps(heatmap_data),
+        'earliest_date': earliest_date,
         'contributions_count': contributions_count,
         'top_liked_post': top_liked_post,
         'top_score_post': top_score_post,
