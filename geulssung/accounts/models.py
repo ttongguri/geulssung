@@ -6,7 +6,7 @@ from django.conf import settings
 # 사용자(회원) 모델: 닉네임 필드 추가
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=False, null=True, blank=True)
     nickname = models.CharField(max_length=30, null=True, blank=True, unique=True)
     credit = models.PositiveIntegerField(default=50)
 

@@ -210,8 +210,8 @@ def public_posts_by_user(request, nickname):
         )
 
     # F글/T글 비율 계산 (emotion/logic 기준)
-    f_count = posts.filter(category='emotion').count()
-    t_count = posts.filter(category='logic').count()
+    f_count = posts.filter(category='F').count()
+    t_count = posts.filter(category='T').count()
     total_count = f_count + t_count
     f_ratio = int(f_count / total_count * 100) if total_count else 0
     t_ratio = 100 - f_ratio if total_count else 0
@@ -338,33 +338,6 @@ def get_week_range():
 from django.db.models import Q
 
 def explore_view(request):
-    query = request.GET.get('q', '')
-    genre_filter = request.GET.get('category')
-    ranking_type = request.GET.get('ranking', 'like')
-
-    if query:
-        # 🔍 검색 모드
-        search_filter = Q(is_public=True) & (Q(title__icontains=query) | Q(final_content__icontains=query))
-        if genre_filter:
-            search_filter &= Q(genre=genre_filter)
-
-        latest_posts = (
-            Post.objects
-            .filter(search_filter)
-            .order_by('-created_at')[:10]
-        )
-
-        context = {
-            'latest_posts': latest_posts,
-            'latest_posts_empty_count': max(0, 5 - latest_posts.count()),  # ✅ 이 줄 추가
-            'q': query,
-            'selected_genre': genre_filter,
-            'search_mode': True,
-        }
-        return render(request, 'explore/explore.html', context)
-
-
-    # ✅ 검색어가 없을 때: 원래 explore 동작
     subscribed_posts = []
     if request.user.is_authenticated:
         following_ids = request.user.following_set.values_list('following_id', flat=True)
@@ -424,6 +397,7 @@ def explore_view(request):
     }
 
     return render(request, 'explore/explore.html', context)
+
 
 # 글 삭제 기능: 본인 글만 삭제할 수 있습니다.
 @login_required

@@ -182,7 +182,7 @@
   </style>
 </head>
 
-<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
+<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] pt-0 px-10 pb-10" style="font-family: 'Gowun Batang', serif;">
 
   {% include "nav_bar.html" %}
 
@@ -274,6 +274,17 @@
                   <img src="{% static 'images/피그민.png' %}" class="w-full aspect-square object-cover rounded-xl border-b" />
                 {% endif %}
               </a>
+              {% if user.is_authenticated and user == top_liked_post.author %}
+                <div class="flex flex-col items-start gap-0.5 mt-2">
+                  <form method="post" action="{% url 'update_cover_image' top_liked_post.id %}" enctype="multipart/form-data" class="flex items-center gap-2">
+                    {% csrf_token %}
+                    <input type="file" id="coverImageInput-top-liked-{{ top_liked_post.id }}" name="cover_image" accept="image/*" class="hidden" onchange="this.form.submit()" />
+                    <button type="button" onclick="document.getElementById('coverImageInput-top-liked-{{ top_liked_post.id }}').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all">
+                      커버 사진 변경📷
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
               <div class="mt-2 font-bold truncate">{{ top_liked_post.title }}</div>
               <div class="text-sm text-gray-500">❤️ {{ top_liked_post.like_users.count }}</div>
             </div>
@@ -288,6 +299,17 @@
                   <img src="{% static 'images/피그민.png' %}" class="w-full aspect-square object-cover rounded-xl border-b" />
                 {% endif %}
               </a>
+              {% if user.is_authenticated and user == top_score_post.author %}
+                <div class="flex flex-col items-start gap-0.5 mt-2">
+                  <form method="post" action="{% url 'update_cover_image' top_score_post.id %}" enctype="multipart/form-data" class="flex items-center gap-2">
+                    {% csrf_token %}
+                    <input type="file" id="coverImageInput-top-score-{{ top_score_post.id }}" name="cover_image" accept="image/*" class="hidden" onchange="this.form.submit()" />
+                    <button type="button" onclick="document.getElementById('coverImageInput-top-score-{{ top_score_post.id }}').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all">
+                      커버 사진 변경📷
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
               <div class="mt-2 font-bold truncate">{{ top_score_post.title }}</div>
               <div class="text-sm text-gray-500">점수: {{ top_score_post.evaluation.score }}</div>
             </div>
@@ -302,6 +324,17 @@
                   <img src="{% static 'images/피그민.png' %}" class="w-full aspect-square object-cover rounded-xl border-b" />
                 {% endif %}
               </a>
+              {% if user.is_authenticated and user == my_pick_post.author %}
+                <div class="flex flex-col items-start gap-0.5 mt-2">
+                  <form method="post" action="{% url 'update_cover_image' my_pick_post.id %}" enctype="multipart/form-data" class="flex items-center gap-2">
+                    {% csrf_token %}
+                    <input type="file" id="coverImageInput-my-pick-{{ my_pick_post.id }}" name="cover_image" accept="image/*" class="hidden" onchange="this.form.submit()" />
+                    <button type="button" onclick="document.getElementById('coverImageInput-my-pick-{{ my_pick_post.id }}').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-1 rounded-full shadow border border-[#7dd3fc] hover:bg-[#7dd3fc] hover:text-black transition-all">
+                      커버 사진 변경📷
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
               <div class="mt-2 font-bold truncate">{{ my_pick_post.title }}</div>
             </div>
           {% endif %}

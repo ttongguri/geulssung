@@ -29,7 +29,11 @@ SECRET_KEY = 'django-insecure-m=a^(cs6ceee@!0-lk5n*w1qfm-ukvy&)wma6g=#d4qs7q^c#u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'ec2-43-202-45-67.ap-northeast-2.compute.amazonaws.com'
+]
 
 # Application definition
 
@@ -196,6 +200,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 사용자 모델 설정
 AUTH_USER_MODEL = 'accounts.CustomUser'
-
 
 

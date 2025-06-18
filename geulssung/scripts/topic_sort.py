@@ -12,7 +12,10 @@ from selenium.webdriver.chrome.options import Options
 # === 브라우저 설정 ===
 options = Options()
 options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 options.add_argument("user-agent=Mozilla/5.0")
+
 driver = webdriver.Chrome(options=options)
 
 # === 사이트 접속 ===
@@ -58,7 +61,7 @@ for item in issue_data:
     if category and topic:
         grouped[category].append(topic)
 
-# === 저장
+# === 저장 ===
 today = date.today().strftime("%Y-%m-%d")
 BASE_DIR = Path(__file__).resolve().parent.parent
 output_dir = BASE_DIR / "scripts" / "data"
