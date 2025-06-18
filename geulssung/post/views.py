@@ -418,7 +418,7 @@ def delete_post_view(request, post_id):
 def toggle_post_visibility(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
-    if request.user != post.author:
+    if request.user != post.author and not request.user.is_staff:
         return redirect('post_detail', post_id=post.id)  # 권한 없음
 
     if request.method == 'POST':
