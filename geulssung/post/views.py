@@ -202,8 +202,8 @@ def public_posts_by_user(request, nickname):
         )
 
     # F글/T글 비율 계산 (emotion/logic 기준)
-    f_count = posts.filter(category='F').count()
-    t_count = posts.filter(category='T').count()
+    f_count = posts.filter(category='emotion').count()
+    t_count = posts.filter(category='logic').count()
     total_count = f_count + t_count
     f_ratio = int(f_count / total_count * 100) if total_count else 0
     t_ratio = 100 - f_ratio if total_count else 0
