@@ -406,7 +406,7 @@ def explore_view(request):
 @login_required
 def delete_post_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    if request.user != post.author:
+    if request.user != post.author and not request.user.is_staff:
         return HttpResponseForbidden()
     if request.method == 'POST':
         post.delete()
