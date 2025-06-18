@@ -41,14 +41,6 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 User = get_user_model()
 
-# 글쓰기 폼 페이지를 렌더링합니다.
-# def write_view(request):
-#     return render(request, "write_form.html")
-
-# 테스트용 페이지를 렌더링합니다.
-# def test_page_view(request):
-    # return render(request, "test.html")
-
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
     if request.user.is_authenticated and not request.user.nickname:
@@ -228,7 +220,27 @@ def public_posts_by_user(request, nickname):
         # 비공개글이면 본인만 볼 수 있도록, 공개글이면 모두 볼 수 있도록
         if not my_pick_post.is_public and (not request.user.is_authenticated or request.user != author):
             my_pick_post = None
+            
+    # 히트맵을 위한 날짜별 글 개수 집계 → public_user_posts.html 에서 heatmap_data, earliest_date 로 사용됨
+    date_counts = (
+        posts
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
 
+    # heatmap_data → 히트맵 셀 색상 표시용 (날짜별 글 개수)
+    heatmap_data = {
+        d['date'].strftime("%Y-%m-%d"): d['count']
+        for d in date_counts
+    }  
+
+    # earliest_date → 히트맵 시작 날짜 지정 (히트맵 렌더링 기준 날짜)
+    earliest_date = timezone.now().date().isoformat()
+
+    # contributions count (총 글 수)
+    contributions_count = sum(d['count'] for d in date_counts)
     # 중복 방지: 3개가 겹치면 한 번만 노출 (템플릿에서 posts에서 제외)
     top_ids = set()
     for p in [top_liked_post, top_score_post, my_pick_post]:
@@ -251,27 +263,6 @@ def public_posts_by_user(request, nickname):
     # 각 캐릭터별 착용 아이템 쿼리
     geulssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=geulssung_character)
     malssung_equipped_items = UserItem.objects.filter(user=author, equipped=True, item__character=malssung_character)
-
-    # 히트맵을 위한 날짜별 글 개수 집계 → public_user_posts.html 에서 heatmap_data, earliest_date 로 사용됨
-    date_counts = (
-        posts
-        .annotate(date=TruncDate('created_at'))
-        .values('date')
-        .annotate(count=Count('id'))
-        .order_by('date')
-    )
-
-    # heatmap_data → 히트맵 셀 색상 표시용 (날짜별 글 개수)
-    heatmap_data = {
-        d['date'].strftime("%Y-%m-%d"): d['count']
-        for d in date_counts
-    }  
-
-    # earliest_date → 히트맵 시작 날짜 지정 (히트맵 렌더링 기준 날짜)
-    earliest_date = timezone.now().date().isoformat()
-
-    # contributions count (총 글 수)
-    contributions_count = sum(d['count'] for d in date_counts)
 
     return render(request, 'post/public_user_posts.html', {
         'author': author,
@@ -415,7 +406,7 @@ def delete_post_view(request, post_id):
 def toggle_post_visibility(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
-    if request.user != post.author:
+    if request.user != post.author and not request.user.is_staff:
         return redirect('post_detail', post_id=post.id)  # 권한 없음
 
     if request.method == 'POST':
