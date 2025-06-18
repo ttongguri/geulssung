@@ -326,9 +326,33 @@ def get_week_range():
     return start_of_week, end_of_week
 
 # 탐색(글바다) 페이지: 구독글, 좋아요 랭킹, 최신글 등 메인 탐색 기능을 제공합니다.
-from django.db.models import Q
-
 def explore_view(request):
+    query = request.GET.get('q', '')
+    genre_filter = request.GET.get('category')
+    ranking_type = request.GET.get('ranking', 'like')
+
+    if query:
+        # 🔍 검색 기능만 활성화
+        search_filter = Q(is_public=True) & (Q(title__icontains=query) | Q(final_content__icontains=query))
+        if genre_filter:
+            search_filter &= Q(genre=genre_filter)
+
+        latest_posts = (
+            Post.objects
+            .filter(search_filter)
+            .order_by('-created_at')[:10]
+        )
+
+        context = {
+            'latest_posts': latest_posts,
+            'latest_posts_empty_count': max(0, 5 - latest_posts.count()),  # ✅ 이 줄 추가  
+            'q': query,
+            'selected_genre': genre_filter,
+            'search_mode': True,  # 템플릿에서 구분용
+        }
+        return render(request, 'explore/explore.html', context)
+
+    # ✅ 검색어가 없을 때: 원래 explore 동작
     subscribed_posts = []
     if request.user.is_authenticated:
         following_ids = request.user.following_set.values_list('following_id', flat=True)
@@ -386,7 +410,6 @@ def explore_view(request):
         'ranking_period': f"{week_start.strftime('%Y-%m-%d')} ~ {week_end.strftime('%Y-%m-%d')}",
         'search_mode': False,
     }
-
     return render(request, 'explore/explore.html', context)
 
 
