@@ -561,5 +561,32 @@ function toggleChat() {
 </div>
 
 <script src="{% static 'js/chatbot.js' %}"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const textarea = document.querySelector('textarea[name="final_text"]');
+    const STORAGE_KEY = "geulssung_draft_final_text";
+  
+    // 1. 저장된 내용 복원
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      textarea.value = saved;
+    }
+  
+    // 2. 입력 변경 시 저장
+    textarea.addEventListener('input', () => {
+      localStorage.setItem(STORAGE_KEY, textarea.value);
+    });
+  
+    // 3. 제출하면 저장 삭제
+    const form = textarea.closest('form');
+    if (form) {
+      form.addEventListener('submit', () => {
+        localStorage.removeItem(STORAGE_KEY);
+      });
+    }
+  });
+  </script>
+  
 </body>
 </html>
