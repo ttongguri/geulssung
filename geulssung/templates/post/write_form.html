@@ -564,63 +564,66 @@ function toggleChat() {
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const STORAGE_KEYS = {
-      title: "geulssung_draft_title",
-      final: "geulssung_draft_final_text",
-      step1: "geulssung_draft_step1",
-      step2: "geulssung_draft_step2",
-      step3: "geulssung_draft_step3",
-    };
+    setTimeout(() => {
+      const STORAGE_KEYS = {
+        title: "geulssung_draft_title",
+        final: "geulssung_draft_final_text",
+      };
   
-    const titleInput = document.querySelector('input[name="title"]');
-    const finalTextarea = document.querySelector('textarea[name="final_text"]');
-    const step1Textarea = document.querySelector('textarea[name="step1"]');
-    const step2Textarea = document.querySelector('textarea[name="step2"]');
-    const step3Textarea = document.querySelector('textarea[name="step3"]');
-    const form = document.querySelector("form");
+      // 장르 추출
+      const genre = document.querySelector('input[name="genre"]:checked')?.value || 
+                    document.querySelector('input[name="genre"]')?.value;
   
-    // 복원 함수
-    function restoreDraft(input, key) {
-      if (input && localStorage.getItem(key)) {
-        input.value = localStorage.getItem(key);
+      if (genre) {
+        for (let i = 1; i <= 3; i++) {
+          const key = `${genre}_step${i}`;
+          STORAGE_KEYS[`step${i}`] = `geulssung_draft_${key}`;
+        }
       }
-    }
   
-    // 저장 함수
-    function saveDraft(input, key) {
-      if (input) {
-        input.addEventListener("input", () => {
-          localStorage.setItem(key, input.value);
-        });
+      const titleInput = document.querySelector('input[name="title"]');
+      const finalTextarea = document.querySelector('textarea[name="final_text"]');
+      const step1Textarea = document.querySelector(`textarea[name="${genre}_step1"]`);
+      const step2Textarea = document.querySelector(`textarea[name="${genre}_step2"]`);
+      const step3Textarea = document.querySelector(`textarea[name="${genre}_step3"]`);
+      const form = document.querySelector("form");
+  
+      function restoreDraft(input, key) {
+        if (input && localStorage.getItem(key)) {
+          input.value = localStorage.getItem(key);
+        }
       }
-    }
   
-    // 삭제 함수
-    function clearDrafts() {
-      Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
-    }
+      function saveDraft(input, key) {
+        if (input) {
+          input.addEventListener("input", () => {
+            localStorage.setItem(key, input.value);
+          });
+        }
+      }
   
-    // 복원 실행
-    restoreDraft(titleInput, STORAGE_KEYS.title);
-    restoreDraft(finalTextarea, STORAGE_KEYS.final);
-    restoreDraft(step1Textarea, STORAGE_KEYS.step1);
-    restoreDraft(step2Textarea, STORAGE_KEYS.step2);
-    restoreDraft(step3Textarea, STORAGE_KEYS.step3);
+      function clearDrafts() {
+        Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+      }
   
-    // 저장 실행
-    saveDraft(titleInput, STORAGE_KEYS.title);
-    saveDraft(finalTextarea, STORAGE_KEYS.final);
-    saveDraft(step1Textarea, STORAGE_KEYS.step1);
-    saveDraft(step2Textarea, STORAGE_KEYS.step2);
-    saveDraft(step3Textarea, STORAGE_KEYS.step3);
+      restoreDraft(titleInput, STORAGE_KEYS.title);
+      restoreDraft(finalTextarea, STORAGE_KEYS.final);
+      restoreDraft(step1Textarea, STORAGE_KEYS.step1);
+      restoreDraft(step2Textarea, STORAGE_KEYS.step2);
+      restoreDraft(step3Textarea, STORAGE_KEYS.step3);
   
-    // 제출 시 삭제
-    if (form) {
-      form.addEventListener("submit", clearDrafts);
-    }
+      saveDraft(titleInput, STORAGE_KEYS.title);
+      saveDraft(finalTextarea, STORAGE_KEYS.final);
+      saveDraft(step1Textarea, STORAGE_KEYS.step1);
+      saveDraft(step2Textarea, STORAGE_KEYS.step2);
+      saveDraft(step3Textarea, STORAGE_KEYS.step3);
+  
+      if (form) {
+        form.addEventListener("submit", clearDrafts);
+      }
+    }, 50);
   });
-  </script>
-  
+  </script>  
   
 </body>
 </html>
