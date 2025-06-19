@@ -248,6 +248,8 @@
   function showGuide(value) {
     const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
     currentGenre = genreMap[value];
+    // ★ 형식(genre_type) 저장
+    localStorage.setItem('geulssung_draft_genre_type', value);
     fetchPrompts(currentGenre, renderPrompts);
     showGuideSidebar(value);
   }
@@ -274,14 +276,23 @@
   }
 
   function fetchPrompts(genre, callback, forceRefresh = false) {
-    if (!forceRefresh && promptCache[genre]) {
-      if (callback) callback();
-      return;
+    // localStorage 캐시 키
+    const cacheKey = `geulssung_prompt_cache_${genre}`;
+    if (!forceRefresh && localStorage.getItem(cacheKey)) {
+      try {
+        promptCache[genre] = JSON.parse(localStorage.getItem(cacheKey));
+        if (callback) callback();
+        return;
+      } catch (e) {
+        // 파싱 실패 시 캐시 무시
+      }
     }
     fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
       .then(res => res.json())
       .then(data => {
         promptCache[genre] = data.prompts;
+        // 캐시에 저장
+        localStorage.setItem(cacheKey, JSON.stringify(data.prompts));
         if (callback) callback();
       });
   }
@@ -334,6 +345,8 @@
         const container = document.getElementById("character-container");
         container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
       });
+    // ★ 도우미(감성/논리) 저장
+    localStorage.setItem('geulssung_draft_genre', characterId);
   }
 
 
@@ -361,6 +374,11 @@
       promptOptions.appendChild(btn);
     });
     document.getElementById("prompt-box").style.display = "block";
+    // ★ 글감 복원 (localStorage)
+    if (window._restorePrompt) {
+      window._restorePrompt();
+      window._restorePrompt = null;
+    }
   }
 
   function selectPrompt(button, prompt, promptId) {
@@ -393,6 +411,9 @@
     } else {
       customPromptHidden.value = "";
     }
+    // ★ 글감 저장
+    localStorage.setItem('geulssung_draft_prompt', prompt);
+    localStorage.setItem('geulssung_draft_prompt_id', promptId);
   }
 
   function showCoverPreview(event) {
@@ -415,6 +436,8 @@
   document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("refreshPromptsBtn").onclick = function () {
       if (!currentGenre) return;
+      // 캐시 삭제
+      localStorage.removeItem(`geulssung_prompt_cache_${currentGenre}`);
       fetchPrompts(currentGenre, renderPrompts, true);
     };
     document.getElementById("customPromptBtn").onclick = function () {
@@ -463,6 +486,46 @@
     // 초기화 시 글감 표시 영역 숨기기
     const displayBox = document.getElementById('selected-prompt-display');
     if (displayBox) displayBox.classList.add('hidden');
+    // genre, genre_type, prompt 복원
+    const savedGenre = localStorage.getItem('geulssung_draft_genre');
+    const savedGenreType = localStorage.getItem('geulssung_draft_genre_type');
+    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
+    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
+
+    if (savedGenre) {
+      // 도우미(감성/논리) 라디오 체크 및 트리거
+      const genreRadio = document.getElementById(savedGenre);
+      if (genreRadio) {
+        genreRadio.checked = true;
+        handleCharacterSelection(savedGenre);
+      }
+    }
+    if (savedGenreType) {
+      // 형식(essay, poem 등) 라디오 체크 및 트리거
+      const genreTypeRadio = document.getElementById(savedGenreType);
+      if (genreTypeRadio) {
+        genreTypeRadio.checked = true;
+        showGuide(savedGenreType);
+      }
+    }
+    // 글감 복원은 fetchPrompts 이후에 실행해야 하므로 renderPrompts에서 처리
+    window._restorePrompt = function() {
+      if (savedPrompt && savedPromptId) {
+        // 글감 버튼이 렌더링된 후에만 실행
+        const promptBtns = document.querySelectorAll('.prompt-option');
+        let found = false;
+        promptBtns.forEach(btn => {
+          if (btn.textContent === savedPrompt && btn.getAttribute('data-id') == savedPromptId) {
+            btn.click();
+            found = true;
+          }
+        });
+        // custom prompt일 경우
+        if (!found && savedPromptId === 'custom') {
+          selectPrompt(null, savedPrompt, 'custom');
+        }
+      }
+    }
   });
 
   let isGuideVisible = true;
