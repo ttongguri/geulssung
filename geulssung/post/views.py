@@ -42,9 +42,16 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 User = get_user_model()
 
 def is_mobile(request):
-    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-    mobile_keywords = ['mobile', 'iphone', 'android', 'ipad', 'sm-', 'tablet']
-    return any(keyword in user_agent for keyword in mobile_keywords)
+    ua = request.META.get('HTTP_USER_AGENT', '').lower()
+
+    # 데스크톱 환경 우선 배제
+    if 'windows nt' in ua or 'macintosh' in ua or 'x11' in ua:
+        return False
+
+    # 나머지는 모바일로 간주
+    return any(keyword in ua for keyword in ['iphone', 'android', 'ipad', 'mobile', 'tablet'])
+
+
 
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):

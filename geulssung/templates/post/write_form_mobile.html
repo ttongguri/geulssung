@@ -1,4 +1,4 @@
-<!-- write_form_mobile.html -->
+<!-- 수정된 write_form_mobile.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
@@ -15,7 +15,7 @@
 </head>
 <body class="bg-[#bae6fd] min-h-screen text-[#493E3E]">
   {% include "nav_bar.html" %}
-  <div class="p-4 space-y-6">
+  <div class="p-4 mt-28 space-y-6">
     <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="character" id="character-input" value="none">
@@ -25,14 +25,10 @@
       <div>
         <p class="font-semibold mb-2">오늘의 글쓰기 도우미를 선택해보세요!</p>
         <div class="flex gap-3">
-          <label class="flex items-center gap-2">
-            <input type="radio" name="category" value="emotion" onchange="handleCharacterSelection(this.value)">
-            글썽이
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="radio" name="category" value="logic" onchange="handleCharacterSelection(this.value)">
-            말썽이
-          </label>
+          <input type="radio" name="category" value="emotion" id="emotion">
+          <label for="emotion">글썽이</label>
+          <input type="radio" name="category" value="logic" id="logic">
+          <label for="logic">말썽이</label>
         </div>
       </div>
 
@@ -40,15 +36,19 @@
       <div id="genre-emotion" class="hidden">
         <p class="font-semibold mt-4 mb-2">형식을 골라보세요 (글썽이)</p>
         <div class="flex gap-3">
-          <label><input type="radio" name="genre" value="essay" onchange="showGuide(this.value)"> 에세이</label>
-          <label><input type="radio" name="genre" value="poem" onchange="showGuide(this.value)"> 시</label>
+          <input type="radio" name="genre" value="essay" id="essay">
+          <label for="essay">에세이</label>
+          <input type="radio" name="genre" value="poem" id="poem">
+          <label for="poem">시</label>
         </div>
       </div>
       <div id="genre-logic" class="hidden">
         <p class="font-semibold mt-4 mb-2">형식을 골라보세요 (말썽이)</p>
         <div class="flex gap-3">
-          <label><input type="radio" name="genre" value="column" onchange="showGuide(this.value)"> 칼럼</label>
-          <label><input type="radio" name="genre" value="analysis" onchange="showGuide(this.value)"> 분석글</label>
+          <input type="radio" name="genre" value="column" id="column">
+          <label for="column">칼럼</label>
+          <input type="radio" name="genre" value="analysis" id="analysis">
+          <label for="analysis">분석글</label>
         </div>
       </div>
 
@@ -68,7 +68,7 @@
         <input type="hidden" name="prompt_id" id="selectedPromptId">
       </div>
 
-      <!-- 4. 글쓰기 가이드 (접고 펴기) -->
+      <!-- 4. 글쓰기 가이드 -->
       <div id="guide-scrollable" class="bg-white p-4 rounded-lg shadow">
         <details class="guide-toggle">
           <summary>💧 한 방울</summary>
@@ -84,7 +84,7 @@
         </details>
       </div>
 
-      <!-- 5. 글쓰기 입력 영역 -->
+      <!-- 5. 글쓰기 입력 -->
       <div class="mt-6">
         <label class="block mb-1 font-semibold">제목</label>
         <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
@@ -101,22 +101,45 @@
     </form>
   </div>
 
-  <!-- 챗봇 토글 버튼 + 챗봇 (모바일용 고정) -->
-  <button id="chat-toggle-btn" type="button"
-    class="fixed bottom-4 right-4 z-50 bg-[#bae6fd] text-[#493E3E] px-4 py-2 rounded-full shadow-lg text-sm">
-    도와줘
-  </button>
-  <div id="chat-box" class="hidden fixed bottom-16 right-4 z-50 w-80 bg-white rounded-lg shadow-lg p-4">
-    <div id="chat-log" class="h-40 overflow-y-auto text-sm mb-2"></div>
-    <textarea id="chat-input" class="w-full border rounded p-2 text-sm" rows="2" placeholder="도움을 받아보세요!"></textarea>
-    <button id="chat-send-btn" class="mt-2 w-full bg-blue-100 text-[#493E3E] font-bold px-4 py-2 rounded">전송</button>
-  </div>
-
-  <script src="{% static 'js/write_form_common.js' %}"></script>
   <script>
-    document.getElementById("chat-toggle-btn").onclick = () => {
-      document.getElementById("chat-box").classList.toggle("hidden");
-    };
+    document.addEventListener("DOMContentLoaded", function () {
+      const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+
+      document.querySelectorAll('input[name="category"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+          document.getElementById('character-input').value = this.value;
+          document.getElementById('genre-emotion').classList.add('hidden');
+          document.getElementById('genre-logic').classList.add('hidden');
+          if (this.value === 'emotion') document.getElementById('genre-emotion').classList.remove('hidden');
+          else if (this.value === 'logic') document.getElementById('genre-logic').classList.remove('hidden');
+          document.getElementById('prompt-box').classList.add('hidden');
+        });
+      });
+
+      document.querySelectorAll('input[name="genre"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+          const genre = genreMap[this.value];
+          document.getElementById('prompt-box').classList.remove('hidden');
+          document.getElementById("guide-template-step1").textContent = `한 방울 가이드: ${genre}`;
+          document.getElementById("guide-template-step2").textContent = `두 방울 가이드: ${genre}`;
+          document.getElementById("guide-template-step3").textContent = `세 방울 가이드: ${genre}`;
+        });
+      });
+
+      document.getElementById("customPromptBtn").onclick = () => {
+        document.getElementById("customPromptInputBox").classList.toggle("hidden");
+      };
+
+      document.getElementById("customPromptSelectBtn").onclick = () => {
+        const value = document.getElementById("customPromptInput").value.trim();
+        if (value) {
+          document.getElementById("selectedPrompt").value = value;
+          document.getElementById("selectedPromptId").value = "custom";
+          document.getElementById("customPromptInputBox").classList.add("hidden");
+          document.getElementById("customPromptInput").value = "";
+        }
+      };
+    });
   </script>
 </body>
 </html>
