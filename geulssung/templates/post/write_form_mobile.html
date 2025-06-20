@@ -132,8 +132,25 @@
         <input type="hidden" name="topic" id="selectedPrompt">
         <input type="hidden" name="prompt_id" id="selectedPromptId">
       </div>
+      <div class="flex justify-end mt-4">
+        <button type="button" id="nextBtn" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-2 rounded-full transition" onclick="nextStep()" style="position: relative; z-index: 60;" onclick="nextStep()">
+        다음 →
+        </button>
+      </div>
+    </div>
 
-      <div id="step-2" class="step-form">
+
+    <div id="step-2" class="step-form">
+    <!-- ▶ 한·두·세 방울 토글 가이드 -->
+    <div id="guide-scrollable" class="overflow-auto max-h-64 p-2 mb-6">
+      <!-- 선택된 글감 표시 (토글) -->
+      <div id="selected-prompt-display"
+           class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+        선택한 글감: <span id="selected-prompt-text"></span>
+      </div>
+      <!-- 실제 가이드 콘텐츠 삽입 -->
+      <!-- guide_combined.html 직접 include 삭제 -->
+    </div>
 
       <div class="mb-6">
         <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
@@ -253,23 +270,29 @@
   }
 
   function selectCharacter(type) {
-    const chatbot = document.getElementById('chatbot-character');
-    const img = document.getElementById('chatbot-img');
+    // const chatbot = document.getElementById('chatbot-character');
+    // const img = document.getElementById('chatbot-img');
 
-    // 캐릭터 이미지 변경
-    if (type === 'emotion') {
-      img.src = '/static/images/글썽이.png'; // 글썽이 이미지 경로
-      img.alt = '글썽이';
-    } else if (type === 'logic') {
-      img.src = '/static/images/말썽이.png'; // 말썽이 이미지 경로
-      img.alt = '말썽이';
-    }
+    // // 캐릭터 이미지 변경
+    // if (type === 'emotion') {
+    //   img.src = '/static/images/글썽이.png'; // 글썽이 이미지 경로
+    //   img.alt = '글썽이';
+    // } else if (type === 'logic') {
+    //   img.src = '/static/images/말썽이.png'; // 말썽이 이미지 경로
+    //   img.alt = '말썽이';
+    // }
 
-    // 챗봇 보여주기
-    chatbot.classList.remove('hidden');
+    // // 챗봇 보여주기
+    // chatbot.classList.remove('hidden');
+    // 챗봇 박스 활성화
+
+    // 입력창 활성화 상태만 검사
+    checkChatActivation();
   }
 
   function handleCharacterSelection(characterId) {
+    const radio = document.querySelector(`input[name="category"][value="${characterId}"]`);
+    if (radio) radio.checked = true;
     // 도우미 선택 시 장르 영역 토글 (id 기준)
     document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
     document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
@@ -302,8 +325,11 @@
       });
     // ★ 도우미(감성/논리) 저장
     localStorage.setItem('geulssung_draft_genre', characterId);
-  }
+    // ★ 선택 직후 챗봇 활성화
+    selectCharacter(characterId);
 
+    checkChatActivation();
+  }
 
 
   function renderPrompts() {
@@ -505,8 +531,7 @@ function showStep(step) {
   document.querySelectorAll('.step-form').forEach((el, idx) => {
     el.classList.toggle('hidden', idx + 1 !== step);
   });
-
-  document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
+  
   document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
 
   currentStep = step;
@@ -547,127 +572,55 @@ function setupStepDrafts(genre) {
 </script>
 
 
-<!-- 캐릭터 전체 박스: 작성폼 우측 하단에 고정, width 20rem, right-4, bottom-4 -->
-<div class="fixed right-4 bottom-4 z-50 flex flex-col items-end" style="width: 20rem;">
-  <!-- 챗봇 말풍선 -->
-  <div id="chat-box"
-    class="hidden max-w-[90vw] w-[300px] bg-white rounded-2xl shadow-2xl p-5 border border-[#bae6fd]"
-    style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto; position: fixed; bottom: 320px; right: 40px; z-index: 50;">
-    <div class="relative">
-      <!-- 말풍선 꼬리 ... -->
-      <div style="position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 18px solid #bae6fd;"></div>
-      <div class="font-bold text-[#2563eb] text-lg mb-2 flex items-center gap-2">📚 글쓰기 도우미</div>
-      <div id="chat-log" style="flex: 1; overflow-y: auto; min-height: 60px; max-height: 220px; padding: 10px 0 8px 0; font-size: 1rem;"></div>
-      <div style="padding: 8px 0 0 0; display: flex; gap: 8px; align-items: flex-end; background: #f8fafc; border-radius: 0 0 16px 16px;">
-        <textarea id="chat-input" placeholder="도움을 받아보세요!" rows="2" style="flex: 1; resize: none; overflow-y: auto; max-height: 80px; line-height: 1.4; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;"></textarea>
-        <button id="chat-send-btn" style="padding: 8px 16px; height: fit-content; background: #bae6fd; color: #493E3E; border-radius: 8px; font-weight: bold; border: none; font-size: 1rem;">전송</button>
+  <!-- 캐릭터 전체 박스: 드래그 가능, 작성폼 우측 하단에 고정 -->
+  <div id="chat-box-wrapper"
+       class="fixed right-4 bottom-4 z-50 flex flex-col items-end cursor-grab"
+       style="width: 20rem;">
+    <!-- 챗봇 말풍선: container 안에서 절대 위치로 변경 -->
+    <div id="chat-box"
+         class="hidden max-w-[90vw] w-[300px] bg-white rounded-2xl shadow-2xl p-5 border border-[#bae6fd]"
+         style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto;
+                position: absolute; bottom: calc(100% + 1rem); right: 0; z-index: 50;">
+      <div class="relative">
+        <!-- 말풍선 꼬리 -->
+        <div style="position: absolute; left: 50%; bottom: -18px; transform: translateX(-50%);
+                    width: 0; height: 0; border-left: 18px solid transparent;
+                    border-right: 18px solid transparent;
+                    border-top: 18px solid #bae6fd;"></div>
+        <div class="font-bold text-[#2563eb] text-lg mb-2 flex items-center gap-2">📚 글쓰기 도우미</div>
+        <div id="chat-log" style="flex: 1; overflow-y: auto;
+                    min-height: 60px; max-height: 220px; padding: 10px 0 8px 0; font-size: 1rem;"></div>
+        <div style="padding: 8px 0 0 0; display: flex; gap: 8px;
+                    align-items: flex-end; background: #f8fafc; border-radius: 0 0 16px 16px;">
+          <textarea id="chat-input" placeholder="도움을 받아보세요!" rows="2"
+                    style="flex: 1; resize: none; overflow-y: auto;
+                           max-height: 80px; line-height: 1.4; padding: 8px;
+                           border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;"></textarea>
+          <button id="chat-send-btn"
+                  style="padding: 8px 16px; height: fit-content;
+                         background: #bae6fd; color: #493E3E; border-radius: 8px;
+                         font-weight: bold; border: none; font-size: 1rem;">
+            전송
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 캐릭터 컨테이너: 기존 포함 -->
+    <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
+      <div id="character-container" class="relative inline-block w-[320px] h-[320px] pointer-events-auto">
+        {% if not genre %}
+          <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none z-10">
+            도우미를 선택해 주세요!
+          </div>
+        {% else %}
+          {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
+        {% endif %}
       </div>
     </div>
   </div>
-  <!-- 캐릭터 컨테이너: relative 제거, 기존처럼 -->
-  <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
-    <div id="character-container" class="relative inline-block w-[320px] h-[320px] pointer-events-auto">
-      {% if not genre %}
-        <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none z-10">
-          도우미를 선택해 주세요!
-        </div>
-      {% else %}
-        {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-<button id="chat-toggle-btn" type="button"
-  class="fixed bottom-[90px] right-[11rem] z-[999]
-         bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 
-         rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white 
-         focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
-  도와줘!
-</button>
 
 
-<script>
-// 챗봇 토글 함수: chat-box의 hidden 토글만 담당
-function toggleChat() {
-  const chatBox = document.getElementById("chat-box");
-  if (chatBox) chatBox.classList.toggle("hidden");
-}
-</script>
+<script src="{% static 'js/chatbot_mobile.js' %}"></script>
 
-<div id="chat-box-wrapper" class="fixed bottom-[-20px] right-[-20px] z-50 w-[34rem]">
-</div>
-
-<script src="{% static 'js/chatbot.js' %}"></script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-      const STORAGE_KEYS = {
-        title: "geulssung_draft_title",
-        final: "geulssung_draft_final_text",
-      };
-  
-      // 장르 추출
-      const genre = document.querySelector('input[name="genre"]:checked')?.value || 
-                    document.querySelector('input[name="genre"]')?.value;
-  
-      if (genre) {
-        for (let i = 1; i <= 3; i++) {
-          const key = `${genre}_step${i}`;
-          STORAGE_KEYS[`step${i}`] = `geulssung_draft_${key}`;
-        }
-      }
-  
-      const titleInput = document.querySelector('input[name="title"]');
-      const finalTextarea = document.querySelector('textarea[name="final_text"]');
-      const step1Textarea = document.querySelector(`textarea[name="${genre}_step1"]`);
-      const step2Textarea = document.querySelector(`textarea[name="${genre}_step2"]`);
-      const step3Textarea = document.querySelector(`textarea[name="${genre}_step3"]`);
-      const form = document.querySelector("form");
-  
-      function restoreDraft(input, key) {
-        if (input && localStorage.getItem(key)) {
-          input.value = localStorage.getItem(key);
-        }
-      }
-  
-      function saveDraft(input, key) {
-        if (input) {
-          input.addEventListener("input", () => {
-            localStorage.setItem(key, input.value);
-          });
-        }
-      }
-  
-      function clearDrafts() {
-        Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
-        // ★ 장르별 step drafts도 모두 삭제
-        ["essay", "poem", "column", "analysis"].forEach(genre => {
-          for (let i = 1; i <= 3; i++) {
-            localStorage.removeItem(`geulssung_draft_${genre}_step${i}`);
-          }
-        });
-      }
-  
-      restoreDraft(titleInput, STORAGE_KEYS.title);
-      restoreDraft(finalTextarea, STORAGE_KEYS.final);
-      restoreDraft(step1Textarea, STORAGE_KEYS.step1);
-      restoreDraft(step2Textarea, STORAGE_KEYS.step2);
-      restoreDraft(step3Textarea, STORAGE_KEYS.step3);
-  
-      saveDraft(titleInput, STORAGE_KEYS.title);
-      saveDraft(finalTextarea, STORAGE_KEYS.final);
-      saveDraft(step1Textarea, STORAGE_KEYS.step1);
-      saveDraft(step2Textarea, STORAGE_KEYS.step2);
-      saveDraft(step3Textarea, STORAGE_KEYS.step3);
-  
-      if (form) {
-        form.addEventListener("submit", clearDrafts);
-      }
-    }, 50);
-  });
-  </script>  
-  
 </body>
 </html>
