@@ -23,6 +23,8 @@
     }
   </style>
   {% include "nav_bar_mobile.html" %}
+  
+  <!-- 전체 래퍼 -->
   <div class="bg-white p-4 mt-28 rounded-xl shadow-lg overflow-hidden">
     <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
@@ -90,7 +92,6 @@
       </div>
 
 
-
       <div id="prompt-box" class="mb-6 hidden">
         <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
           📖 오늘의 글감을 골라보세요
@@ -105,10 +106,17 @@
             ✏️ 직접 입력
           </button>
         </p>
+
+        <!-- 선택한 글감 표시 영역 -->
+        <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+          선택한 글감: <span id="selected-prompt-text"></span>
+        </div>
+        
         <p class="text-xs text-gray-500 italic mb-4">
           오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
         </p>
         <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
+
         <!-- ✏️ 자유 글감 직접 입력 (토글) -->
         <div id="customPromptInputBox" class="mt-2 hidden">
           <input type="text"
@@ -120,78 +128,546 @@
           <button type="button" id="customPromptSelectBtn" class="mt-2 bg-[#bae6fd] px-3 py-1 rounded">선택</button>
         </div>
 
-      <!-- 4. 글쓰기 가이드 -->
-      <div id="guide-scrollable" class="bg-white p-4 rounded-lg shadow">
-        <details class="guide-toggle">
-          <summary>💧 한 방울</summary>
-          <div id="guide-template-step1"></div>
-        </details>
-        <details class="guide-toggle">
-          <summary>💧💧 두 방울</summary>
-          <div id="guide-template-step2"></div>
-        </details>
-        <details class="guide-toggle">
-          <summary>💧💧💧 세 방울</summary>
-          <div id="guide-template-step3"></div>
-        </details>
+        <!-- 선택된 글감 값을 저장 -->
+        <input type="hidden" name="topic" id="selectedPrompt">
+        <input type="hidden" name="prompt_id" id="selectedPromptId">
       </div>
 
-      <!-- 5. 글쓰기 입력 -->
-      <div class="mt-6">
-        <label class="block mb-1 font-semibold">제목</label>
+      <div id="step-2" class="step-form">
+
+      <div class="mb-6">
+        <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
+        <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
+        <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-2 rounded-full border">
+          커버 사진 선택
+        </button>
+        <div id="coverImagePreviewContainer" class="mt-4 hidden">
+          <p class="text-sm text-[#bae6fd] font-semibold mb-1">미리보기:</p>
+          <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg border" />
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block font-semibold text-[black] mb-1">제목</label>
         <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
       </div>
-
-      <div class="mt-6">
-        <label class="block mb-1 font-semibold">🧩 글줄기</label>
-        <textarea name="final_text" rows="8" class="w-full border px-3 py-2 rounded-md" required></textarea>
+      
+      <div class="mb-8">
+        <p class="font-bold text-[black] text-lg mb-2">🧩 글줄기</p>
+        <p class="text-sm text-gray-700 mb-3">한/두/세 방울에 쓴 내용을 바탕으로 글을 정리해보세요</p>
+        <textarea 
+        name="final_text" 
+        rows="10" 
+        class="w-full border px-4 py-3 rounded-md shadow-sm" 
+        spellcheck="false"
+        required
+        ></textarea>
       </div>
 
-      <div class="mt-6 text-right">
-        <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] px-6 py-2 rounded-full font-bold text-[#493E3E]">보관하기</button>
+      <div class="flex justify-end mt-6">
+        <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+          보관하기
+        </button>
       </div>
+    </div>
     </form>
-  </div>
+    </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+<!-- ✨ 숨겨진 가이드 템플릿 저장소 -->
+<div id="guide-template-container" class="hidden">
+  {% include "post/guide_combined.html" %}
+</div>
 
-      document.querySelectorAll('input[name="category"]').forEach(radio => {
-        radio.addEventListener('change', function () {
-          document.getElementById('character-input').value = this.value;
-          document.getElementById('genre-emotion').classList.add('hidden');
-          document.getElementById('genre-logic').classList.add('hidden');
-          if (this.value === 'emotion') document.getElementById('genre-emotion').classList.remove('hidden');
-          else if (this.value === 'logic') document.getElementById('genre-logic').classList.remove('hidden');
-          document.getElementById('prompt-box').classList.add('hidden');
-        });
+<script>
+  let promptCache = {};
+  let currentGenre = null;
+
+  function showGenres(category) {
+    document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const scrollable = document.getElementById("guide-scrollable");
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
+    }
+    document.getElementById("character-input").value = category;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
+  }
+
+  function showGuide(value) {
+    const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+    currentGenre = genreMap[value];
+    // ★ 형식(genre_type) 저장
+    localStorage.setItem('geulssung_draft_genre_type', value);
+    fetchPrompts(currentGenre, renderPrompts);
+    showGuideSidebar(value);
+  }
+
+  function showGuideSidebar(genre) {
+    const templateId = `guide-template-${genre}`;
+    const guideContainer = document.getElementById("guide-template-container");
+    const scrollable = document.getElementById("guide-scrollable");
+    const temp = guideContainer?.querySelector(`#${templateId}`);
+    if (temp && scrollable) {
+      // selected-prompt-display는 남기고, 나머지 guide-scrollable 자식 모두 삭제
+      while (scrollable.children.length > 1) {
+        scrollable.removeChild(scrollable.lastChild);
+      }
+      // 가이드 템플릿 삽입
+      const guideDiv = document.createElement("div");
+      guideDiv.innerHTML = temp.innerHTML;
+      scrollable.appendChild(guideDiv);
+      // ★ 장르별 step drafts 자동 저장/복원 세팅
+      setupStepDrafts(genre);
+    } else {
+      console.warn("가이드 로딩 실패:", genre);
+    }
+  }
+
+  function fetchPrompts(genre, callback, forceRefresh = false) {
+    // localStorage 캐시 키
+    const cacheKey = `geulssung_prompt_cache_${genre}`;
+    if (!forceRefresh && localStorage.getItem(cacheKey)) {
+      try {
+        promptCache[genre] = JSON.parse(localStorage.getItem(cacheKey));
+        if (callback) callback();
+        return;
+      } catch (e) {
+        // 파싱 실패 시 캐시 무시
+      }
+    }
+    fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
+      .then(res => res.json())
+      .then(data => {
+        promptCache[genre] = data.prompts;
+        // 캐시에 저장
+        localStorage.setItem(cacheKey, JSON.stringify(data.prompts));
+        if (callback) callback();
       });
+  }
 
-      document.querySelectorAll('input[name="genre"]').forEach(radio => {
-        radio.addEventListener('change', function () {
-          const genre = genreMap[this.value];
-          document.getElementById('prompt-box').classList.remove('hidden');
-          document.getElementById("guide-template-step1").textContent = `한 방울 가이드: ${genre}`;
-          document.getElementById("guide-template-step2").textContent = `두 방울 가이드: ${genre}`;
-          document.getElementById("guide-template-step3").textContent = `세 방울 가이드: ${genre}`;
-        });
+  function selectCharacter(type) {
+    const chatbot = document.getElementById('chatbot-character');
+    const img = document.getElementById('chatbot-img');
+
+    // 캐릭터 이미지 변경
+    if (type === 'emotion') {
+      img.src = '/static/images/글썽이.png'; // 글썽이 이미지 경로
+      img.alt = '글썽이';
+    } else if (type === 'logic') {
+      img.src = '/static/images/말썽이.png'; // 말썽이 이미지 경로
+      img.alt = '말썽이';
+    }
+
+    // 챗봇 보여주기
+    chatbot.classList.remove('hidden');
+  }
+
+  function handleCharacterSelection(characterId) {
+    // 도우미 선택 시 장르 영역 토글 (id 기준)
+    document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const scrollable = document.getElementById("guide-scrollable");
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
+    }
+    document.getElementById("character-input").value = characterId;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
+
+    // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
+    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
+    // 캐릭터 이미지 다시 렌더링해서 넣기
+    fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
+      .then(res => res.text())
+      .then(html => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
       });
+    // ★ 도우미(감성/논리) 저장
+    localStorage.setItem('geulssung_draft_genre', characterId);
+  }
 
-      document.getElementById("customPromptBtn").onclick = () => {
-        document.getElementById("customPromptInputBox").classList.toggle("hidden");
-      };
 
-      document.getElementById("customPromptSelectBtn").onclick = () => {
-        const value = document.getElementById("customPromptInput").value.trim();
-        if (value) {
-          document.getElementById("selectedPrompt").value = value;
-          document.getElementById("selectedPromptId").value = "custom";
-          document.getElementById("customPromptInputBox").classList.add("hidden");
-          document.getElementById("customPromptInput").value = "";
-        }
-      };
+
+  function renderPrompts() {
+    const genreInput = document.querySelector('input[name="genre"]:checked');
+    if (!genreInput) return;
+    const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+    const genre = genreMap[genreInput.value];
+    const prompts = promptCache[genre] || [];
+    const promptOptions = document.getElementById("prompt-options");
+    promptOptions.innerHTML = "";
+    document.getElementById("selectedPrompt").value = "";
+    if (!prompts.length) {
+      promptOptions.innerHTML = "<div class='text-gray-400'>글감이 없습니다.</div>";
+      return;
+    }
+    prompts.forEach(prompt => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6] h-12 flex items-center";
+      btn.textContent = prompt.content;
+      btn.setAttribute("data-id", prompt.id);
+      btn.onclick = () => selectPrompt(btn, prompt.content, prompt.id);
+      promptOptions.appendChild(btn);
     });
-  </script>
+    document.getElementById("prompt-box").style.display = "block";
+    // ★ 글감 복원 (localStorage)
+    if (window._restorePrompt) {
+      window._restorePrompt();
+      window._restorePrompt = null;
+    }
+  }
+
+  function selectPrompt(button, prompt, promptId) {
+    // 버튼 색상 초기화
+    document.querySelectorAll('.prompt-option').forEach(btn => {
+      btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    });
+
+    // 선택된 버튼 하이라이트 (버튼일 때만)
+    if (button && button.classList) {
+      button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    }
+
+    // hidden input에 값 저장
+    document.getElementById('selectedPrompt').value = prompt;
+    document.getElementById('selectedPromptId').value = promptId;
+
+    // --- 글감 사이드바에 표시 ---
+    const displayBox = document.getElementById('selected-prompt-display');
+    const displayText = document.getElementById('selected-prompt-text');
+    if (prompt && displayBox && displayText) {
+      displayText.textContent = prompt;
+      displayBox.classList.remove('hidden');
+    }
+
+    // custom_prompt 처리
+    const customPromptHidden = document.getElementById('customPromptHidden');
+    if (promptId === "custom") {
+      customPromptHidden.value = prompt;
+    } else {
+      customPromptHidden.value = "";
+    }
+    // ★ 글감 저장
+    localStorage.setItem('geulssung_draft_prompt', prompt);
+    localStorage.setItem('geulssung_draft_prompt_id', promptId);
+  }
+
+  function showCoverPreview(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('coverImagePreviewContainer');
+    const previewImage = document.getElementById('coverImagePreview');
+    if (file) {
+      const reader = new FileReader();
+      previewContainer.style.display = 'block';
+      reader.onload = function (e) {
+        previewImage.setAttribute('src', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewContainer.style.display = 'none';
+      previewImage.setAttribute('src', '');
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("refreshPromptsBtn").onclick = function () {
+      if (!currentGenre) return;
+      // 캐시 삭제
+      localStorage.removeItem(`geulssung_prompt_cache_${currentGenre}`);
+      fetchPrompts(currentGenre, renderPrompts, true);
+    };
+    document.getElementById("customPromptBtn").onclick = function () {
+      const box = document.getElementById("customPromptInputBox");
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) {
+        document.getElementById("customPromptInput").focus();
+      }
+    };
+    document.getElementById("customPromptSelectBtn").onclick = function () {
+      const value = document.getElementById("customPromptInput").value.trim();
+      if (value) {
+        selectPrompt(null, value, "custom");
+        document.getElementById("customPromptInputBox").classList.add("hidden");
+        document.getElementById("customPromptInput").value = "";
+        // --- 글감 사이드바에 표시 ---
+        const displayBox = document.getElementById('selected-prompt-display');
+        const displayText = document.getElementById('selected-prompt-text');
+        if (displayBox && displayText) {
+          displayText.textContent = value;
+          displayBox.classList.remove('hidden');
+        }
+      }
+    };
+    document.getElementById("customPromptInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("customPromptSelectBtn").click();
+      }
+    });
+    showStep(1);
+    // 자유 글감 입력 시 prompt_id 비우기
+    const customPromptInput = document.getElementById('customPrompt');
+    if (customPromptInput) {
+      customPromptInput.addEventListener('input', function() {
+        if (this.value.trim() !== "") {
+          document.getElementById('selectedPrompt').value = this.value;
+          document.getElementById('selectedPromptId').value = "";
+          // 버튼 선택 해제
+          document.querySelectorAll('.prompt-option').forEach(btn => {
+            btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+          });
+        }
+      });
+    }
+    // 초기화 시 글감 표시 영역 숨기기
+    const displayBox = document.getElementById('selected-prompt-display');
+    if (displayBox) displayBox.classList.add('hidden');
+    // genre, genre_type, prompt 복원
+    const savedGenre = localStorage.getItem('geulssung_draft_genre');
+    const savedGenreType = localStorage.getItem('geulssung_draft_genre_type');
+    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
+    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
+
+    if (savedGenre) {
+      // 도우미(감성/논리) 라디오 체크 및 트리거
+      const genreRadio = document.getElementById(savedGenre);
+      if (genreRadio) {
+        genreRadio.checked = true;
+        handleCharacterSelection(savedGenre);
+      }
+    }
+    if (savedGenreType) {
+      // 형식(essay, poem 등) 라디오 체크 및 트리거
+      const genreTypeRadio = document.getElementById(savedGenreType);
+      if (genreTypeRadio) {
+        genreTypeRadio.checked = true;
+        showGuide(savedGenreType);
+      }
+    }
+    // 글감 복원은 fetchPrompts 이후에 실행해야 하므로 renderPrompts에서 처리
+    window._restorePrompt = function() {
+      if (savedPrompt && savedPromptId) {
+        // 글감 버튼이 렌더링된 후에만 실행
+        const promptBtns = document.querySelectorAll('.prompt-option');
+        let found = false;
+        promptBtns.forEach(btn => {
+          if (btn.textContent === savedPrompt && btn.getAttribute('data-id') == savedPromptId) {
+            btn.click();
+            found = true;
+          }
+        });
+        // custom prompt일 경우
+        if (!found && savedPromptId === 'custom') {
+          selectPrompt(null, savedPrompt, 'custom');
+        }
+      }
+    }
+  });
+
+  let isGuideVisible = true;
+
+  function toggleGuide() {
+    const guide = document.getElementById('guide-sidebar');
+    const toggleBtn = document.getElementById('toggleGuideBtn');
+
+    if (isGuideVisible) {
+      guide.classList.add('hidden');
+      toggleBtn.innerText = '📖 가이드 펼치기';
+    } else {
+      guide.classList.remove('hidden');
+      toggleBtn.innerText = '📚 가이드 접기';
+    }
+
+    isGuideVisible = !isGuideVisible;
+  }
+  let currentStep = 1;
+
+function showStep(step) {
+  document.querySelectorAll('.step-form').forEach((el, idx) => {
+    el.classList.toggle('hidden', idx + 1 !== step);
+  });
+
+  document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
+  document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
+
+  currentStep = step;
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    showStep(2);
+  } else {
+    // 2단계에서 다음 누르면 submit
+    document.querySelector("form").submit();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+// ★ 장르별 step drafts 자동 저장/복원 함수
+function setupStepDrafts(genre) {
+  for (let i = 1; i <= 3; i++) {
+    const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+    const key = `geulssung_draft_${genre}_step${i}`;
+    if (textarea) {
+      // 복원
+      if (localStorage.getItem(key)) {
+        textarea.value = localStorage.getItem(key);
+      }
+      // 저장
+      textarea.addEventListener("input", () => {
+        localStorage.setItem(key, textarea.value);
+      });
+    }
+  }
+}
+</script>
+
+
+<!-- 캐릭터 전체 박스: 작성폼 우측 하단에 고정, width 20rem, right-4, bottom-4 -->
+<div class="fixed right-4 bottom-4 z-50 flex flex-col items-end" style="width: 20rem;">
+  <!-- 챗봇 말풍선 -->
+  <div id="chat-box"
+    class="hidden max-w-[90vw] w-[300px] bg-white rounded-2xl shadow-2xl p-5 border border-[#bae6fd]"
+    style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto; position: fixed; bottom: 320px; right: 40px; z-index: 50;">
+    <div class="relative">
+      <!-- 말풍선 꼬리 ... -->
+      <div style="position: absolute; left: 50%; bottom: -50px; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 18px solid #bae6fd;"></div>
+      <div class="font-bold text-[#2563eb] text-lg mb-2 flex items-center gap-2">📚 글쓰기 도우미</div>
+      <div id="chat-log" style="flex: 1; overflow-y: auto; min-height: 60px; max-height: 220px; padding: 10px 0 8px 0; font-size: 1rem;"></div>
+      <div style="padding: 8px 0 0 0; display: flex; gap: 8px; align-items: flex-end; background: #f8fafc; border-radius: 0 0 16px 16px;">
+        <textarea id="chat-input" placeholder="도움을 받아보세요!" rows="2" style="flex: 1; resize: none; overflow-y: auto; max-height: 80px; line-height: 1.4; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;"></textarea>
+        <button id="chat-send-btn" style="padding: 8px 16px; height: fit-content; background: #bae6fd; color: #493E3E; border-radius: 8px; font-weight: bold; border: none; font-size: 1rem;">전송</button>
+      </div>
+    </div>
+  </div>
+  <!-- 캐릭터 컨테이너: relative 제거, 기존처럼 -->
+  <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
+    <div id="character-container" class="relative inline-block w-[320px] h-[320px] pointer-events-auto">
+      {% if not genre %}
+        <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none z-10">
+          도우미를 선택해 주세요!
+        </div>
+      {% else %}
+        {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<button id="chat-toggle-btn" type="button"
+  class="fixed bottom-[90px] right-[11rem] z-[999]
+         bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 
+         rounded-full shadow-xl text-lg transition-all duration-200 border-2 border-white 
+         focus:outline-none focus:ring-2 focus:ring-[#bae6fd]">
+  도와줘!
+</button>
+
+
+<script>
+// 챗봇 토글 함수: chat-box의 hidden 토글만 담당
+function toggleChat() {
+  const chatBox = document.getElementById("chat-box");
+  if (chatBox) chatBox.classList.toggle("hidden");
+}
+</script>
+
+<div id="chat-box-wrapper" class="fixed bottom-[-20px] right-[-20px] z-50 w-[34rem]">
+</div>
+
+<script src="{% static 'js/chatbot.js' %}"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      const STORAGE_KEYS = {
+        title: "geulssung_draft_title",
+        final: "geulssung_draft_final_text",
+      };
+  
+      // 장르 추출
+      const genre = document.querySelector('input[name="genre"]:checked')?.value || 
+                    document.querySelector('input[name="genre"]')?.value;
+  
+      if (genre) {
+        for (let i = 1; i <= 3; i++) {
+          const key = `${genre}_step${i}`;
+          STORAGE_KEYS[`step${i}`] = `geulssung_draft_${key}`;
+        }
+      }
+  
+      const titleInput = document.querySelector('input[name="title"]');
+      const finalTextarea = document.querySelector('textarea[name="final_text"]');
+      const step1Textarea = document.querySelector(`textarea[name="${genre}_step1"]`);
+      const step2Textarea = document.querySelector(`textarea[name="${genre}_step2"]`);
+      const step3Textarea = document.querySelector(`textarea[name="${genre}_step3"]`);
+      const form = document.querySelector("form");
+  
+      function restoreDraft(input, key) {
+        if (input && localStorage.getItem(key)) {
+          input.value = localStorage.getItem(key);
+        }
+      }
+  
+      function saveDraft(input, key) {
+        if (input) {
+          input.addEventListener("input", () => {
+            localStorage.setItem(key, input.value);
+          });
+        }
+      }
+  
+      function clearDrafts() {
+        Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+        // ★ 장르별 step drafts도 모두 삭제
+        ["essay", "poem", "column", "analysis"].forEach(genre => {
+          for (let i = 1; i <= 3; i++) {
+            localStorage.removeItem(`geulssung_draft_${genre}_step${i}`);
+          }
+        });
+      }
+  
+      restoreDraft(titleInput, STORAGE_KEYS.title);
+      restoreDraft(finalTextarea, STORAGE_KEYS.final);
+      restoreDraft(step1Textarea, STORAGE_KEYS.step1);
+      restoreDraft(step2Textarea, STORAGE_KEYS.step2);
+      restoreDraft(step3Textarea, STORAGE_KEYS.step3);
+  
+      saveDraft(titleInput, STORAGE_KEYS.title);
+      saveDraft(finalTextarea, STORAGE_KEYS.final);
+      saveDraft(step1Textarea, STORAGE_KEYS.step1);
+      saveDraft(step2Textarea, STORAGE_KEYS.step2);
+      saveDraft(step3Textarea, STORAGE_KEYS.step3);
+  
+      if (form) {
+        form.addEventListener("submit", clearDrafts);
+      }
+    }, 50);
+  });
+  </script>  
+  
 </body>
 </html>

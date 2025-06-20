@@ -150,6 +150,7 @@
           오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
         </p>
         <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
+        
         <!-- ✏️ 자유 글감 직접 입력 (토글) -->
         <div id="customPromptInputBox" class="mt-2 hidden">
           <input type="text"
@@ -164,7 +165,7 @@
         <!-- 선택된 글감 값을 저장 -->
         <input type="hidden" name="topic" id="selectedPrompt">
         <input type="hidden" name="prompt_id" id="selectedPromptId">
-        </div>
+      </div>
 
         <div class="flex justify-end mt-6">
           <button type="button" id="nextBtn" onclick="nextStep()" class="bg-[#bae6fd] px-4 py-2 rounded-full">
