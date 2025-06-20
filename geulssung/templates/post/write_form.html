@@ -34,187 +34,185 @@
     }
   </style>
   {% include "nav_bar.html" %}
-<!-- 전체 래퍼 -->
-<div class="bg-white max-w-[1100px] min-h-[600px] mx-auto mt-20 rounded-xl shadow-lg overflow-hidden flex mr-[26rem]">
-  
-    <!-- 왼쪽: 가이드 사이드바 -->
-    <aside id="guide-sidebar"
-           class="w-[480px] border-r border-gray-200 flex flex-col">
-      <!-- 헤더 -->
-      <div class="sticky top-0 bg-white z-10 px-6 py-4 border-b">
-        <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
-        <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
-      </div>
-      <!-- 스크롤 영역 -->
-      <div id="guide-scrollable"
-           class="flex-1 overflow-y-auto px-6 py-4">
-        <!-- 선택한 글감 표시 영역 -->
-        <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
-          선택한 글감: <span id="selected-prompt-text"></span>
+
+<form method="post" action="" enctype="multipart/form-data">
+  {% csrf_token %}
+  <!-- 전체 래퍼 -->
+  <div class="bg-white max-w-[1100px] min-h-[600px] mx-auto mt-20 rounded-xl shadow-lg overflow-hidden flex mr-[26rem]">
+    
+      <!-- 왼쪽: 가이드 사이드바 -->
+      <aside id="guide-sidebar"
+            class="w-[480px] border-r border-gray-200 flex flex-col">
+        <!-- 헤더 -->
+        <div class="sticky top-0 bg-white z-10 px-6 py-4 border-b">
+          <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
+          <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
         </div>
-        <!-- 가이드 콘텐츠 삽입 -->
-      </div>
-    </aside>
-  
-    <!-- 오른쪽: 글쓰기 메인 -->
-    <main id="writing-area"
-          class="flex-1 p-6 overflow-y-auto">
-      <div class="flex justify-end mb-4">
-        <button id="toggleGuideBtn"
-                onclick="toggleGuide()"
-                class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
-          📚 가이드 접기
-        </button>
-      </div>
-      <form method="post" action="" enctype="multipart/form-data" class="h-full flex flex-col">
-        {% csrf_token %}
-        <input type="hidden" name="character" id="character-input" value="none">
-        <input type="hidden" name="custom_prompt" id="customPromptHidden">
-  
-        <div id="step-1" class="step-form flex-1">
-      <div class="mb-6">
-        <p class="font-semibold text-[#493E3E] mb-2">오늘의 글쓰기 도우미를 선택해보세요!</p>
-        <div class="flex gap-4">
-          <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="handleCharacterSelection(this.value)">
-          <label for="emotion"
-            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-                  peer-checked/emotion:bg-[#00C9A7] peer-checked/emotion:text-white">
-            F 감성의 글썽이
-          </label>
-
-          <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="handleCharacterSelection(this.value)">
-          <label for="logic"
-            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
-                  peer-checked/logic:bg-[#00C9A7] peer-checked/logic:text-white">
-            T 감성의 말썽이
-          </label>
+        <!-- 스크롤 영역 -->
+        <div id="guide-scrollable"
+            class="flex-1 overflow-y-auto px-6 py-4">
+          <!-- 선택한 글감 표시 영역 -->
+          <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+            선택한 글감: <span id="selected-prompt-text"></span>
+          </div>
+          <!-- 가이드 콘텐츠 삽입 -->
         </div>
-      </div>
-
-      <div class="mb-6" id="genre-emotion" style="display:none;">
-        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (글썽이)</p>
-        <div class="flex gap-4">
-          <input type="radio" name="genre" value="essay" id="essay" class="hidden peer/essay" onchange="showGuide(this.value)">
-          <label for="essay"
-            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
-                  peer-checked/essay:bg-[#00C9A7] peer-checked/essay:text-white">
-            에세이
-          </label>
-
-          <input type="radio" name="genre" value="poem" id="poem" class="hidden peer/poem" onchange="showGuide(this.value)">
-          <label for="poem"
-            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
-                  peer-checked/poem:bg-[#00C9A7] peer-checked/poem:text-white">
-            시
-          </label>
-        </div>
-      </div>
-
-
-      <div class="mb-6" id="genre-logic" style="display:none;">
-        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (말썽이)</p>
-        <div class="flex gap-4">
-          <input type="radio" name="genre" value="column" id="column" class="hidden peer/column" onchange="showGuide(this.value)">
-          <label for="column"
-            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
-                  peer-checked/column:bg-[#00C9A7] peer-checked/column:text-white">
-            칼럼
-          </label>
-
-          <input type="radio" name="genre" value="analysis" id="analysis" class="hidden peer/analysis" onchange="showGuide(this.value)">
-          <label for="analysis"
-            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
-                  peer-checked/analysis:bg-[#00C9A7] peer-checked/analysis:text-white">
-            분석글
-          </label>
-        </div>
-      </div>
-
-
-
-      <div id="prompt-box" class="mb-6" style="display: none;">
-        <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
-          📖 오늘의 글감을 골라보세요
-          <button type="button"
-            id="refreshPromptsBtn"
-            class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
-            🔄 새로운 글감
-          </button>
-          <button type="button"
-            id="customPromptBtn"
-            class="ml-2 px-2 py-1 mb-1 rounded bg-[#fef08a] text-black text-xs border border-[#fde68a]">
-            ✏️ 직접 입력
-          </button>
-        </p>
-        <p class="text-xs text-gray-500 italic mb-4">
-          오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
-        </p>
-        <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
-        <!-- ✏️ 자유 글감 직접 입력 (토글) -->
-        <div id="customPromptInputBox" class="mt-2 hidden">
-          <input type="text"
-            id="customPromptInput"
-            class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
-            placeholder="기록하고 싶은 글감을 자유롭게 입력해주세요!"
-            maxlength="100"
-          />
-          <button type="button" id="customPromptSelectBtn" class="mt-2 bg-[#bae6fd] px-3 py-1 rounded">선택</button>
-        </div>
-
-        <!-- 선택된 글감 값을 저장 -->
-        <input type="hidden" name="topic" id="selectedPrompt">
-        <input type="hidden" name="prompt_id" id="selectedPromptId">
-        </div>
-
-        <div class="flex justify-end mt-6">
-          <button type="button" id="nextBtn" onclick="nextStep()" class="bg-[#bae6fd] px-4 py-2 rounded-full">
-            다음 →
+      </aside>
+    
+      <!-- 오른쪽: 글쓰기 메인 -->
+      <main id="writing-area"
+            class="flex-1 p-6 overflow-y-auto">
+        <div class="flex justify-end mb-4">
+          <button id="toggleGuideBtn"
+                  onclick="toggleGuide()"
+                  class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
+            📚 가이드 접기
           </button>
         </div>
-      </div>
-    <div id="step-2" class="step-form">
+        
+        <div class="h-full flex flex-col">
+          <input type="hidden" name="character" id="character-input" value="none">
+          <input type="hidden" name="custom_prompt" id="customPromptHidden">
+    
+          <div id="step-1" class="step-form flex-1">
+            <div class="mb-6">
+              <p class="font-semibold text-[#493E3E] mb-2">오늘의 글쓰기 도우미를 선택해보세요!</p>
+              <div class="flex gap-4">
+                <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="handleCharacterSelection(this.value)">
+                <label for="emotion"
+                  class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
+                        peer-checked/emotion:bg-[#00C9A7] peer-checked/emotion:text-white">
+                  F 감성의 글썽이
+                </label>
 
-      <div class="mb-6">
-        <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
-        <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
-        <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-2 rounded-full border">
-          커버 사진 선택
-        </button>
-        <div id="coverImagePreviewContainer" class="mt-4 hidden">
-          <p class="text-sm text-[#bae6fd] font-semibold mb-1">미리보기:</p>
-          <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg border" />
-        </div>
-      </div>
+                <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="handleCharacterSelection(this.value)">
+                <label for="logic"
+                  class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
+                        peer-checked/logic:bg-[#00C9A7] peer-checked/logic:text-white">
+                  T 감성의 말썽이
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-6" id="genre-emotion" style="display:none;">
+              <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (글썽이)</p>
+              <div class="flex gap-4">
+                <input type="radio" name="genre" value="essay" id="essay" class="hidden peer/essay" onchange="showGuide(this.value)">
+                <label for="essay"
+                  class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                        peer-checked/essay:bg-[#00C9A7] peer-checked/essay:text-white">
+                  에세이
+                </label>
+
+                <input type="radio" name="genre" value="poem" id="poem" class="hidden peer/poem" onchange="showGuide(this.value)">
+                <label for="poem"
+                  class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                        peer-checked/poem:bg-[#00C9A7] peer-checked/poem:text-white">
+                  시
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-6" id="genre-logic" style="display:none;">
+              <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (말썽이)</p>
+              <div class="flex gap-4">
+                <input type="radio" name="genre" value="column" id="column" class="hidden peer/column" onchange="showGuide(this.value)">
+                <label for="column"
+                  class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                        peer-checked/column:bg-[#00C9A7] peer-checked/column:text-white">
+                  칼럼
+                </label>
+
+                <input type="radio" name="genre" value="analysis" id="analysis" class="hidden peer/analysis" onchange="showGuide(this.value)">
+                <label for="analysis"
+                  class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                        peer-checked/analysis:bg-[#00C9A7] peer-checked/analysis:text-white">
+                  분석글
+                </label>
+              </div>
+            </div>
+
+            <div id="prompt-box" class="mb-6" style="display: none;">
+              <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
+                📖 오늘의 글감을 골라보세요
+                <button type="button"
+                  id="refreshPromptsBtn"
+                  class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
+                  🔄 새로운 글감
+                </button>
+                <button type="button"
+                  id="customPromptBtn"
+                  class="ml-2 px-2 py-1 mb-1 rounded bg-[#fef08a] text-black text-xs border border-[#fde68a]">
+                  ✏️ 직접 입력
+                </button>
+              </p>
+              <p class="text-xs text-gray-500 italic mb-4">
+                오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
+              </p>
+              <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
+              <div id="customPromptInputBox" class="mt-2 hidden">
+                <input type="text"
+                  id="customPromptInput"
+                  class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
+                  placeholder="기록하고 싶은 글감을 자유롭게 입력해주세요!"
+                  maxlength="100"
+                />
+                <button type="button" id="customPromptSelectBtn" class="mt-2 bg-[#bae6fd] px-3 py-1 rounded">선택</button>
+              </div>
+              <input type="hidden" name="topic" id="selectedPrompt">
+              <input type="hidden" name="prompt_id" id="selectedPromptId">
+            </div>
+
+            <div class="flex justify-end mt-6">
+              <button type="button" id="nextBtn" onclick="nextStep()" class="bg-[#bae6fd] px-4 py-2 rounded-full">
+                다음 →
+              </button>
+            </div>
+          </div>
       
-      <div class="mb-6">
-        <label class="block font-semibold text-[black] mb-1">제목</label>
-        <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
-      </div>
+          <div id="step-2" class="step-form">
+            <div class="mb-6">
+              <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
+              <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
+              <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-2 rounded-full border">
+                커버 사진 선택
+              </button>
+              <div id="coverImagePreviewContainer" class="mt-4 hidden">
+                <p class="text-sm text-[#bae6fd] font-semibold mb-1">미리보기:</p>
+                <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg border" />
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <label class="block font-semibold text-[black] mb-1">제목</label>
+              <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
+            </div>
+            
+            <div class="mb-8">
+              <p class="font-bold text-[black] text-lg mb-2">🧩 글줄기</p>
+              <p class="text-sm text-gray-700 mb-3">한/두/세 방울에 쓴 내용을 바탕으로 글을 정리해보세요</p>
+              <textarea 
+              name="final_text" 
+              rows="10" 
+              class="w-full border px-4 py-3 rounded-md shadow-sm" 
+              spellcheck="false"
+              required
+              ></textarea>
+            </div>
       
-      <div class="mb-8">
-        <p class="font-bold text-[black] text-lg mb-2">🧩 글줄기</p>
-        <p class="text-sm text-gray-700 mb-3">한/두/세 방울에 쓴 내용을 바탕으로 글을 정리해보세요</p>
-        <textarea 
-        name="final_text" 
-        rows="10" 
-        class="w-full border px-4 py-3 rounded-md shadow-sm" 
-        spellcheck="false"
-        required
-        ></textarea>
-      </div>
-
-      <div class="flex justify-between mt-6">
-        <button type="button" id="prevBtn" onclick="prevStep()" class="bg-gray-200 px-4 py-2 rounded-full">
-          ← 이전
-        </button>
-        <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
-          보관하기
-        </button>
-      </div>
+            <div class="flex justify-between mt-6">
+              <button type="button" id="prevBtn" onclick="prevStep()" class="bg-gray-200 px-4 py-2 rounded-full">
+                ← 이전
+              </button>
+              <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+                보관하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
-    </form>
-  </div>
-</div>
+</form>
 
 
 
