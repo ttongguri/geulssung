@@ -39,6 +39,7 @@ urlpatterns = [
     path('my-items/', include('customizing.urls')),  # 너가 만든 앱의 URL 연결
     path('geulssung/customizing/', include('customizing.urls')),
     path('geulssung/suggestion/', include('suggestion.urls')),
+    path("geulssung/report/", include("report.urls")),
 ]
 
 if settings.DEBUG:

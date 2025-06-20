@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글쓰기 리포트</title>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#FFF9F2] text-[#493E3E] font-[Gowun Batang] p-6">
+
+  <div class="max-w-4xl mx-auto space-y-12">
+    
+    <!-- 헤더 -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold mb-2">📊 나의 글쓰기 리포트</h1>
+        {% if peak_time_group %}
+          <p class="text-lg">🕒 당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong> 시간대에 가장 활발하게 글을 씁니다.</p>
+        {% endif %}
+    </div>      
+    <!-- 시간대 분석 -->
+    <div class="bg-white rounded-2xl shadow-xl p-6">
+      <h2 class="text-xl font-bold mb-2">🕐 시간대별 작성 빈도</h2>
+      <p class="mb-4">하루 중 언제 글을 쓰는지 한눈에 확인해보세요.</p>
+      <div id="hourChart"></div>
+    </div>
+
+    <!-- 월별 작성량 분석 -->
+    <div class="bg-white rounded-2xl shadow-xl p-6">
+      <h2 class="text-xl font-bold mb-2">📅 월별 글쓰기 추세</h2>
+      <p class="mb-4">최근 활동이 얼마나 활발했는지 살펴보세요.</p>
+      <div id="monthChart"></div>
+    </div>
+  </div>
+
+  <!-- Chart JS -->
+  <script>
+    const hourOptions = {
+      chart: {
+        type: 'bar',
+        height: 300
+      },
+      series: [{
+        name: '작성 수',
+        data: {{ hour_values|safe }}
+      }],
+      xaxis: {
+        categories: {{ hour_labels|safe }},
+        title: { text: '시간대 (시)' }
+      },
+      yaxis: {
+        title: { text: '작성 횟수' }
+      },
+      colors: ['#89ACDB'],
+      dataLabels: { enabled: false }
+    };
+    new ApexCharts(document.querySelector("#hourChart"), hourOptions).render();
+
+    const monthOptions = {
+      chart: {
+        type: 'line',
+        height: 300
+      },
+      series: [{
+        name: '작성 수',
+        data: {{ month_values|safe }}
+      }],
+      xaxis: {
+        categories: {{ month_labels|safe }},
+        title: { text: '월' }
+      },
+      yaxis: {
+        title: { text: '작성 횟수' }
+      },
+      colors: ['#F9A8D4'],
+      dataLabels: { enabled: true }
+    };
+    new ApexCharts(document.querySelector("#monthChart"), monthOptions).render();
+  </script>
+</body>
+</html>
