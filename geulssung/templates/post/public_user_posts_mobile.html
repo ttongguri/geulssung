@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ author.nickname }}님의 글자국🐾</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Gowun Batang', serif;
+      background-color: #FFF9F2;
+      color: #493E3E;
+    }
+  </style>
+</head>
+<body class="min-h-screen px-4 lg:px-10 pb-10">
+
+  {% include "nav_bar.html" %}
+
+  <div class="h-12"></div>
+
+  <div class="max-w-6xl mx-auto mt-6">
+    <div class="flex flex-col lg:flex-row justify-between items-center mb-4 gap-4">
+      <h1 class="text-2xl lg:text-3xl font-bold">{{ author.nickname }}님의 글자국🐾</h1>
+      <form method="get" action="" class="flex w-full max-w-sm">
+        <input type="text" name="q" value="{{ q }}" placeholder="제목 또는 내용 검색" class="flex-grow border rounded-l px-3 py-2 text-sm" />
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r text-sm">검색</button>
+      </form>
+    </div>
+
+    {% if total_count > 0 %}
+    <div class="flex flex-col lg:flex-row items-center gap-6 mb-6">
+      <div class="w-48 h-48">{% include "customizing/character_render.html" with character=geulssung_character equipped_items=geulssung_equipped_items %}</div>
+      <div class="flex-1">
+        <div class="flex justify-between text-sm lg:text-lg font-semibold mb-2">
+          <span class="text-blue-600">F글 {{ f_count }}개 ({{ f_ratio }}%)</span>
+          <span class="text-orange-500">T글 {{ t_count }}개 ({{ t_ratio }}%)</span>
+        </div>
+        <div class="w-full h-4 lg:h-8 bg-gray-200 rounded-full overflow-hidden flex">
+          <div class="h-full bg-blue-400" style="width: {{ f_ratio }}%"></div>
+          <div class="h-full bg-orange-400" style="width: {{ t_ratio }}%"></div>
+        </div>
+      </div>
+      <div class="w-48 h-48">{% include "customizing/character_render.html" with character=malssung_character equipped_items=malssung_equipped_items %}</div>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated and user.id != author.id %}
+      <div class="mb-6 text-center">
+        <button id="follow-btn" data-user-id="{{ author.id }}"
+                class="px-4 py-2 font-bold rounded-full shadow transition text-white
+                       {% if is_following %} bg-red-400 hover:bg-red-500
+                       {% else %} bg-blue-400 hover:bg-blue-500 {% endif %}">
+          {% if is_following %} 언팔로우 {% else %} 구독 {% endif %}
+        </button>
+      </div>
+    {% endif %}
+
+    <h2 class="text-base lg:text-lg font-semibold mb-4">총 {{ contributions_count }} 개의 글자국🐾</h2>
+
+    <div class="overflow-x-auto mb-8">
+      <div class="heatmap-month-labels" id="month-labels"></div>
+      <div class="heatmap-wrapper">
+        <div class="heatmap-week-labels">
+          <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div><div>일</div>
+        </div>
+        <div id="heatmap" class="heatmap-grid"></div>
+      </div>
+    </div>
+
+    {% if top_liked_post or top_score_post or my_pick_post %}
+      <!-- PC용 카드 3열 -->
+      <div class="hidden lg:grid grid-cols-3 gap-4 mb-8">
+        {% include "explore/_top_card.html" with post=top_liked_post label="최고 좋아요" color="pink" %}
+        {% include "explore/_top_card.html" with post=top_score_post label="최고 점수" color="blue" %}
+        {% include "explore/_top_card.html" with post=my_pick_post label="애정글" color="green" %}
+      </div>
+      <!-- 모바일용 카드 세로 나열 -->
+      <div class="lg:hidden space-y-4 mb-8">
+        {% include "explore/_top_card.html" with post=top_liked_post label="최고 좋아요" color="pink" %}
+        {% include "explore/_top_card.html" with post=top_score_post label="최고 점수" color="blue" %}
+        {% include "explore/_top_card.html" with post=my_pick_post label="애정글" color="green" %}
+      </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for post in posts %}
+        {% include "explore/_post_card.html" with post=post %}
+      {% empty %}
+        <p class="text-gray-500 col-span-full text-center">아직 작성된 글이 없습니다.</p>
+      {% endfor %}
+    </div>
+
+    <div class="flex justify-center space-x-2 mt-8">
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <span class="px-3 py-1 bg-blue-500 text-white rounded">{{ num }}</span>
+        {% else %}
+          <a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}"
+             class="px-3 py-1 bg-white text-blue-500 rounded border border-blue-500 hover:bg-blue-100">
+            {{ num }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    // follow 버튼 ajax
+    document.getElementById('follow-btn')?.addEventListener('click', async function () {
+      const userId = this.dataset.userId;
+      const res = await fetch("/geulssung/accounts/follow/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `user_id=${userId}`,
+      });
+      const result = await res.json();
+      if (['followed', 'unfollowed'].includes(result.status)) location.reload();
+    });
+  </script>
+</body>
+</html>

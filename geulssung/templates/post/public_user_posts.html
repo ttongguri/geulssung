@@ -203,6 +203,23 @@
       </form>
     </div>
 
+    <div class="relative inline-block mt-2 mb-6 w-full flex justify-center">
+      <!-- 💾 버튼 -->
+      <button id="toggle-drafts-btn"
+              class="bg-[#fef08a] hover:bg-[#fde047] text-[#493E3E] font-semibold px-4 py-2 rounded-full shadow border text-sm">
+        💾 임시저장 글 보기
+      </button>
+
+      <!-- 💬 말풍선 -->
+      <div id="draft-tooltip"
+          class="hidden absolute left-1/2 translate-x-[80%] mt-2 w-[22rem] bg-white border border-gray-300 rounded-xl shadow-lg px-4 py-3 text-sm text-gray-700 z-50">
+        <p class="font-semibold mb-2">📝 임시저장된 글감</p>
+        <div id="draft-prompt-list" class="flex flex-col gap-2 whitespace-nowrap"></div>
+      </div>
+    </div>
+
+
+
     <!-- F글/T글 비율 막대 그래프 -->
     {% if total_count > 0 %}
     <div class="w-full max-w-6xl mx-auto mb-10 flex items-center">
@@ -604,6 +621,44 @@
         }
       }
     });
+
+  
+    const btn = document.getElementById("toggle-drafts-btn");
+    const tooltip = document.getElementById("draft-tooltip");
+    const promptList = document.getElementById("draft-prompt-list");
+
+    btn.addEventListener("click", () => {
+      tooltip.classList.toggle("hidden");
+      promptList.innerHTML = "";
+
+      const savedPrompt = localStorage.getItem("geulssung_draft_prompt");
+
+      if (savedPrompt) {
+        const promptBtn = document.createElement("button");
+        promptBtn.textContent = savedPrompt;
+        promptBtn.className = "bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#1e3a8a] font-medium px-3 py-2 rounded-lg shadow text-left";
+        promptBtn.onclick = () => {
+          localStorage.setItem("geulssung_draft_prompt", savedPrompt);
+          localStorage.setItem("geulssung_draft_prompt_id", "custom");
+          window.location.href = "/geulssung/write/";
+        };
+        promptList.appendChild(promptBtn);
+      } else {
+        const msg = document.createElement("p");
+        msg.textContent = "저장된 글감이 없습니다.";
+        msg.className = "text-gray-400 text-sm";
+        promptList.appendChild(msg);
+      }
+    });
+
+    // 바깥 클릭 시 말풍선 닫기
+    document.addEventListener("click", (e) => {
+      if (!btn.contains(e.target) && !tooltip.contains(e.target)) {
+        tooltip.classList.add("hidden");
+      }
+    });
+
+
   </script>
 </body>
 </html>

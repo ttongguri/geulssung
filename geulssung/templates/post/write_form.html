@@ -63,6 +63,11 @@
       <main id="writing-area"
             class="flex-1 p-6 overflow-y-auto">
         <div class="flex justify-end mb-4">
+          <!-- ✨ 임시저장 버튼 -->
+          <button type="button" onclick="handleTemporarySave()"
+                  class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] px-4 py-2 rounded-full text-sm shadow border border-[#7dd3fc]">
+            💾 임시저장
+          </button>
           <button id="toggleGuideBtn"
                   onclick="toggleGuide()"
                   class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
@@ -379,6 +384,25 @@
     }
   }
 
+  // ✅ 👇 여기에 복원 함수 붙이기
+  window._restorePrompt = function() {
+    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
+    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
+
+    if (savedPrompt && savedPromptId === 'custom') {
+      selectPrompt(null, savedPrompt, "custom");
+    } else if (savedPrompt && savedPromptId) {
+      const promptBtns = document.querySelectorAll('.prompt-option');
+      let found = false;
+      promptBtns.forEach(btn => {
+        if (btn.textContent === savedPrompt && btn.getAttribute('data-id') == savedPromptId) {
+          btn.click();
+          found = true;
+        }
+      });
+    }
+  };
+
   function selectPrompt(button, prompt, promptId) {
     // 버튼 색상 초기화
     document.querySelectorAll('.prompt-option').forEach(btn => {
@@ -544,49 +568,93 @@
   }
   let currentStep = 1;
 
-function showStep(step) {
-  document.querySelectorAll('.step-form').forEach((el, idx) => {
-    el.classList.toggle('hidden', idx + 1 !== step);
-  });
+  function showStep(step) {
+    document.querySelectorAll('.step-form').forEach((el, idx) => {
+      el.classList.toggle('hidden', idx + 1 !== step);
+    });
 
-  document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
-  document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
+    document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
+    document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
 
-  currentStep = step;
-}
-
-function nextStep() {
-  if (currentStep === 1) {
-    showStep(2);
-  } else {
-    // 2단계에서 다음 누르면 submit
-    document.querySelector("form").submit();
+    currentStep = step;
   }
-}
 
-function prevStep() {
-  if (currentStep > 1) {
-    showStep(currentStep - 1);
-  }
-}
-
-// ★ 장르별 step drafts 자동 저장/복원 함수
-function setupStepDrafts(genre) {
-  for (let i = 1; i <= 3; i++) {
-    const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
-    const key = `geulssung_draft_${genre}_step${i}`;
-    if (textarea) {
-      // 복원
-      if (localStorage.getItem(key)) {
-        textarea.value = localStorage.getItem(key);
-      }
-      // 저장
-      textarea.addEventListener("input", () => {
-        localStorage.setItem(key, textarea.value);
-      });
+  function nextStep() {
+    if (currentStep === 1) {
+      showStep(2);
+    } else {
+      // 2단계에서 다음 누르면 submit
+      document.querySelector("form").submit();
     }
   }
-}
+
+  function prevStep() {
+    if (currentStep > 1) {
+      showStep(currentStep - 1);
+    }
+  }
+
+  // ★ 장르별 step drafts 자동 저장/복원 함수
+  function setupStepDrafts(genre) {
+    for (let i = 1; i <= 3; i++) {
+      const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+      const key = `geulssung_draft_${genre}_step${i}`;
+      if (textarea) {
+        // 복원
+        if (localStorage.getItem(key)) {
+          textarea.value = localStorage.getItem(key);
+        }
+        // 저장
+        textarea.addEventListener("input", () => {
+          localStorage.setItem(key, textarea.value);
+        });
+      }
+    }
+  }
+
+  function handleTemporarySave() {
+    if (confirm("이 글을 임시저장하겠습니까?")) {
+      // 현재 상태는 localStorage에 이미 저장되고 있으므로 추가 저장은 생략
+      alert("임시저장 되었습니다.");
+
+      // 페이지 UI 리셋: form을 강제로 reset하고 초기 화면으로 이동
+      const form = document.querySelector("form");
+      if (form) form.reset();
+
+      // 강제로 처음 단계로 전환
+      showStep(1);
+
+      // 가이드, 글감, 캐릭터 등 완전 초기화
+      const guide = document.getElementById("guide-scrollable");
+      while (guide.children.length > 1) guide.removeChild(guide.lastChild);
+
+      document.getElementById("selectedPrompt").value = "";
+      document.getElementById("selectedPromptId").value = "";
+      document.getElementById("selected-prompt-display").classList.add("hidden");
+      document.getElementById("prompt-options").innerHTML = "";
+      document.getElementById("prompt-box").style.display = "none";
+
+      document.querySelectorAll('input[name="category"]').forEach(r => r.checked = false);
+      document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+      document.getElementById("genre-emotion").style.display = "none";
+      document.getElementById("genre-logic").style.display = "none";
+
+      document.getElementById("character-input").value = "none";
+
+      // 사용자 입력 커스텀 글감 초기화
+      document.getElementById("customPromptInput").value = "";
+      document.getElementById("customPromptInputBox").classList.add("hidden");
+
+      // 커버 이미지 미리보기 제거
+      const preview = document.getElementById("coverImagePreviewContainer");
+      const previewImg = document.getElementById("coverImagePreview");
+      if (preview && previewImg) {
+        preview.style.display = 'none';
+        previewImg.setAttribute('src', '');
+      }
+    }
+  }
+
 </script>
 
 
