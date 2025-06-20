@@ -8,8 +8,7 @@
         </a>
       </div>
       <div class="w-1/3 flex justify-end items-center gap-x-1">
-        <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온이:{{ post.author.nickname }}</span>
-        <span class="text-xs font-bold text-sky-400 whitespace-nowrap">따온 날:{{ post.created_at|date:'m/d' }}</span>
+        <span class="text-xs font-bold text-sky-400 whitespace-nowrap">by{{ post.author.nickname }}</span>
       </div>
       <span class="w-10 text-lg font-bold text-right text-green-600">{{ post.evaluation.score }}점</span>
     </li>

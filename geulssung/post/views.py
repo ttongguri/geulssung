@@ -32,6 +32,7 @@ from calendar import timegm
 import calendar
 from django.core.paginator import Paginator
 from .models import MyPick
+from django.db.models import Q
 
 
 # hj - gemini_api_key 삽입
@@ -201,8 +202,8 @@ def public_posts_by_user(request, nickname):
         )
 
     # F글/T글 비율 계산 (emotion/logic 기준)
-    f_count = posts.filter(category='F').count()
-    t_count = posts.filter(category='T').count()
+    f_count = posts.filter(category='emotion').count()
+    t_count = posts.filter(category='logic').count()
     total_count = f_count + t_count
     f_ratio = int(f_count / total_count * 100) if total_count else 0
     t_ratio = 100 - f_ratio if total_count else 0
@@ -326,13 +327,35 @@ def get_week_range():
 
 # 탐색(글바다) 페이지: 구독글, 좋아요 랭킹, 최신글 등 메인 탐색 기능을 제공합니다.
 def explore_view(request):
+    query = request.GET.get('q', '')
+    genre_filter = request.GET.get('category')
+    ranking_type = request.GET.get('ranking', 'like')
+
+    if query:
+        # 🔍 검색 기능만 활성화
+        search_filter = Q(is_public=True) & (Q(title__icontains=query) | Q(final_content__icontains=query))
+        if genre_filter:
+            search_filter &= Q(genre=genre_filter)
+
+        latest_posts = (
+            Post.objects
+            .filter(search_filter)
+            .order_by('-created_at')[:10]
+        )
+
+        context = {
+            'latest_posts': latest_posts,
+            'latest_posts_empty_count': max(0, 5 - latest_posts.count()),  # ✅ 이 줄 추가  
+            'q': query,
+            'selected_genre': genre_filter,
+            'search_mode': True,  # 템플릿에서 구분용
+        }
+        return render(request, 'explore/explore.html', context)
+
+    # ✅ 검색어가 없을 때: 원래 explore 동작
     subscribed_posts = []
-
     if request.user.is_authenticated:
-        # 내가 팔로우한 유저 ID 리스트
         following_ids = request.user.following_set.values_list('following_id', flat=True)
-
-        # 유저별 가장 최신 글 ID 뽑기
         latest_ids = (
             Post.objects
             .filter(author_id__in=following_ids, is_public=True)
@@ -340,12 +363,8 @@ def explore_view(request):
             .annotate(latest_id=Max('id'))
             .values_list('latest_id', flat=True)
         )
-
         subscribed_posts = Post.objects.filter(id__in=latest_ids).select_related('author').order_by('-created_at')
 
-    # 좋아요/점수 TOP5 영역: 이번 주 월~일 집계
-    genre_filter = request.GET.get('category')  # URL 파라미터 ?category=column 등
-    ranking_type = request.GET.get('ranking', 'like')
     week_start, week_end = get_week_range()
     filter_kwargs = {
         'is_public': True,
@@ -356,7 +375,6 @@ def explore_view(request):
         filter_kwargs['genre'] = genre_filter
 
     if ranking_type == 'score':
-        # 점수순: Post와 PostEvaluation join, score 기준 내림차순
         from .models import PostEvaluation
         top_scored_posts = (
             Post.objects
@@ -364,9 +382,8 @@ def explore_view(request):
             .select_related('evaluation', 'author')
             .order_by('-evaluation__score', '-created_at')[:10]
         )
-        top_liked_posts = []  # 템플릿 분기용
+        top_liked_posts = []
     else:
-        # 좋아요순
         top_liked_posts = (
             Post.objects
             .filter(**filter_kwargs)
@@ -375,38 +392,32 @@ def explore_view(request):
         )
         top_scored_posts = []
 
-    # 최신글 (카테고리 필터 적용, 최신순 10개)
     latest_posts = (
         Post.objects
         .filter(is_public=True, **({'genre': genre_filter} if genre_filter else {}))
         .order_by('-created_at')[:10]
     )
-    latest_posts_count = latest_posts.count() if hasattr(latest_posts, 'count') else len(latest_posts)
-    latest_posts_empty_count = max(0, 5 - latest_posts_count)
-
-    top_liked_posts_count = len(top_liked_posts)
-    top_liked_posts_empty_count = max(0, 5 - top_liked_posts_count)
-    top_scored_posts_count = len(top_scored_posts)
-    top_scored_posts_empty_count = max(0, 5 - top_scored_posts_count)
 
     context = {
         'subscribed_posts': subscribed_posts,
         'top_liked_posts': top_liked_posts,
         'top_scored_posts': top_scored_posts,
         'latest_posts': latest_posts,
-        'latest_posts_empty_count': latest_posts_empty_count,
-        'top_liked_posts_empty_count': top_liked_posts_empty_count,
-        'top_scored_posts_empty_count': top_scored_posts_empty_count,
+        'top_liked_posts_empty_count': max(0, 5 - len(top_liked_posts)),
+        'top_scored_posts_empty_count': max(0, 5 - len(top_scored_posts)),
+        'latest_posts_empty_count': max(0, 5 - latest_posts.count()),
         'selected_genre': genre_filter,
         'ranking_period': f"{week_start.strftime('%Y-%m-%d')} ~ {week_end.strftime('%Y-%m-%d')}",
+        'search_mode': False,
     }
     return render(request, 'explore/explore.html', context)
+
 
 # 글 삭제 기능: 본인 글만 삭제할 수 있습니다.
 @login_required
 def delete_post_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    if request.user != post.author:
+    if request.user != post.author and not request.user.is_staff:
         return HttpResponseForbidden()
     if request.method == 'POST':
         post.delete()
@@ -418,7 +429,7 @@ def delete_post_view(request, post_id):
 def toggle_post_visibility(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
-    if request.user != post.author:
+    if request.user != post.author and not request.user.is_staff:
         return redirect('post_detail', post_id=post.id)  # 권한 없음
 
     if request.method == 'POST':

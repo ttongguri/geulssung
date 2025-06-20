@@ -194,7 +194,13 @@
       <div class="mb-8">
         <p class="font-bold text-[black] text-lg mb-2">🧩 글줄기</p>
         <p class="text-sm text-gray-700 mb-3">한/두/세 방울에 쓴 내용을 바탕으로 글을 정리해보세요</p>
-        <textarea name="final_text" rows="10" class="w-full border px-4 py-3 rounded-md shadow-sm" required></textarea>
+        <textarea 
+        name="final_text" 
+        rows="10" 
+        class="w-full border px-4 py-3 rounded-md shadow-sm" 
+        spellcheck="false"
+        required
+        ></textarea>
       </div>
 
       <div class="flex justify-between mt-6">
@@ -202,7 +208,7 @@
           ← 이전
         </button>
         <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
-          제출하기
+          보관하기
         </button>
       </div>
     </div>
@@ -242,6 +248,8 @@
   function showGuide(value) {
     const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
     currentGenre = genreMap[value];
+    // ★ 형식(genre_type) 저장
+    localStorage.setItem('geulssung_draft_genre_type', value);
     fetchPrompts(currentGenre, renderPrompts);
     showGuideSidebar(value);
   }
@@ -260,20 +268,31 @@
       const guideDiv = document.createElement("div");
       guideDiv.innerHTML = temp.innerHTML;
       scrollable.appendChild(guideDiv);
+      // ★ 장르별 step drafts 자동 저장/복원 세팅
+      setupStepDrafts(genre);
     } else {
       console.warn("가이드 로딩 실패:", genre);
     }
   }
 
   function fetchPrompts(genre, callback, forceRefresh = false) {
-    if (!forceRefresh && promptCache[genre]) {
-      if (callback) callback();
-      return;
+    // localStorage 캐시 키
+    const cacheKey = `geulssung_prompt_cache_${genre}`;
+    if (!forceRefresh && localStorage.getItem(cacheKey)) {
+      try {
+        promptCache[genre] = JSON.parse(localStorage.getItem(cacheKey));
+        if (callback) callback();
+        return;
+      } catch (e) {
+        // 파싱 실패 시 캐시 무시
+      }
     }
     fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
       .then(res => res.json())
       .then(data => {
         promptCache[genre] = data.prompts;
+        // 캐시에 저장
+        localStorage.setItem(cacheKey, JSON.stringify(data.prompts));
         if (callback) callback();
       });
   }
@@ -326,6 +345,8 @@
         const container = document.getElementById("character-container");
         container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
       });
+    // ★ 도우미(감성/논리) 저장
+    localStorage.setItem('geulssung_draft_genre', characterId);
   }
 
 
@@ -353,6 +374,11 @@
       promptOptions.appendChild(btn);
     });
     document.getElementById("prompt-box").style.display = "block";
+    // ★ 글감 복원 (localStorage)
+    if (window._restorePrompt) {
+      window._restorePrompt();
+      window._restorePrompt = null;
+    }
   }
 
   function selectPrompt(button, prompt, promptId) {
@@ -385,6 +411,9 @@
     } else {
       customPromptHidden.value = "";
     }
+    // ★ 글감 저장
+    localStorage.setItem('geulssung_draft_prompt', prompt);
+    localStorage.setItem('geulssung_draft_prompt_id', promptId);
   }
 
   function showCoverPreview(event) {
@@ -407,6 +436,8 @@
   document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("refreshPromptsBtn").onclick = function () {
       if (!currentGenre) return;
+      // 캐시 삭제
+      localStorage.removeItem(`geulssung_prompt_cache_${currentGenre}`);
       fetchPrompts(currentGenre, renderPrompts, true);
     };
     document.getElementById("customPromptBtn").onclick = function () {
@@ -455,6 +486,46 @@
     // 초기화 시 글감 표시 영역 숨기기
     const displayBox = document.getElementById('selected-prompt-display');
     if (displayBox) displayBox.classList.add('hidden');
+    // genre, genre_type, prompt 복원
+    const savedGenre = localStorage.getItem('geulssung_draft_genre');
+    const savedGenreType = localStorage.getItem('geulssung_draft_genre_type');
+    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
+    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
+
+    if (savedGenre) {
+      // 도우미(감성/논리) 라디오 체크 및 트리거
+      const genreRadio = document.getElementById(savedGenre);
+      if (genreRadio) {
+        genreRadio.checked = true;
+        handleCharacterSelection(savedGenre);
+      }
+    }
+    if (savedGenreType) {
+      // 형식(essay, poem 등) 라디오 체크 및 트리거
+      const genreTypeRadio = document.getElementById(savedGenreType);
+      if (genreTypeRadio) {
+        genreTypeRadio.checked = true;
+        showGuide(savedGenreType);
+      }
+    }
+    // 글감 복원은 fetchPrompts 이후에 실행해야 하므로 renderPrompts에서 처리
+    window._restorePrompt = function() {
+      if (savedPrompt && savedPromptId) {
+        // 글감 버튼이 렌더링된 후에만 실행
+        const promptBtns = document.querySelectorAll('.prompt-option');
+        let found = false;
+        promptBtns.forEach(btn => {
+          if (btn.textContent === savedPrompt && btn.getAttribute('data-id') == savedPromptId) {
+            btn.click();
+            found = true;
+          }
+        });
+        // custom prompt일 경우
+        if (!found && savedPromptId === 'custom') {
+          selectPrompt(null, savedPrompt, 'custom');
+        }
+      }
+    }
   });
 
   let isGuideVisible = true;
@@ -498,6 +569,24 @@ function nextStep() {
 function prevStep() {
   if (currentStep > 1) {
     showStep(currentStep - 1);
+  }
+}
+
+// ★ 장르별 step drafts 자동 저장/복원 함수
+function setupStepDrafts(genre) {
+  for (let i = 1; i <= 3; i++) {
+    const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+    const key = `geulssung_draft_${genre}_step${i}`;
+    if (textarea) {
+      // 복원
+      if (localStorage.getItem(key)) {
+        textarea.value = localStorage.getItem(key);
+      }
+      // 저장
+      textarea.addEventListener("input", () => {
+        localStorage.setItem(key, textarea.value);
+      });
+    }
   }
 }
 </script>
@@ -555,5 +644,75 @@ function toggleChat() {
 </div>
 
 <script src="{% static 'js/chatbot.js' %}"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      const STORAGE_KEYS = {
+        title: "geulssung_draft_title",
+        final: "geulssung_draft_final_text",
+      };
+  
+      // 장르 추출
+      const genre = document.querySelector('input[name="genre"]:checked')?.value || 
+                    document.querySelector('input[name="genre"]')?.value;
+  
+      if (genre) {
+        for (let i = 1; i <= 3; i++) {
+          const key = `${genre}_step${i}`;
+          STORAGE_KEYS[`step${i}`] = `geulssung_draft_${key}`;
+        }
+      }
+  
+      const titleInput = document.querySelector('input[name="title"]');
+      const finalTextarea = document.querySelector('textarea[name="final_text"]');
+      const step1Textarea = document.querySelector(`textarea[name="${genre}_step1"]`);
+      const step2Textarea = document.querySelector(`textarea[name="${genre}_step2"]`);
+      const step3Textarea = document.querySelector(`textarea[name="${genre}_step3"]`);
+      const form = document.querySelector("form");
+  
+      function restoreDraft(input, key) {
+        if (input && localStorage.getItem(key)) {
+          input.value = localStorage.getItem(key);
+        }
+      }
+  
+      function saveDraft(input, key) {
+        if (input) {
+          input.addEventListener("input", () => {
+            localStorage.setItem(key, input.value);
+          });
+        }
+      }
+  
+      function clearDrafts() {
+        Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+        // ★ 장르별 step drafts도 모두 삭제
+        ["essay", "poem", "column", "analysis"].forEach(genre => {
+          for (let i = 1; i <= 3; i++) {
+            localStorage.removeItem(`geulssung_draft_${genre}_step${i}`);
+          }
+        });
+      }
+  
+      restoreDraft(titleInput, STORAGE_KEYS.title);
+      restoreDraft(finalTextarea, STORAGE_KEYS.final);
+      restoreDraft(step1Textarea, STORAGE_KEYS.step1);
+      restoreDraft(step2Textarea, STORAGE_KEYS.step2);
+      restoreDraft(step3Textarea, STORAGE_KEYS.step3);
+  
+      saveDraft(titleInput, STORAGE_KEYS.title);
+      saveDraft(finalTextarea, STORAGE_KEYS.final);
+      saveDraft(step1Textarea, STORAGE_KEYS.step1);
+      saveDraft(step2Textarea, STORAGE_KEYS.step2);
+      saveDraft(step3Textarea, STORAGE_KEYS.step3);
+  
+      if (form) {
+        form.addEventListener("submit", clearDrafts);
+      }
+    }, 50);
+  });
+  </script>  
+  
 </body>
 </html>

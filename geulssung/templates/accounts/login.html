@@ -14,11 +14,18 @@
       background-repeat: no-repeat;
       font-family: 'Gowun Batang', serif;
     }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.4);
+      z-index: 0;
+    }
   </style>
 </head>
 <body class="bg-[#bae6fd] min-h-screen flex items-center justify-center p-6">
+  <div class="overlay"></div>
 
-  <div class="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+  <div class="w-full max-w-md bg-white shadow-xl rounded-xl p-8 z-10 relative">
     
     <h1 class="text-3xl font-bold text-center text-[#493E3E] mb-6">🔐 로그인</h1>
 
