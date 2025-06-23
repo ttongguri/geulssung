@@ -38,7 +38,7 @@
 <form method="post" action="" enctype="multipart/form-data">
   {% csrf_token %}
   <!-- 전체 래퍼 -->
-  <div class="bg-white max-w-[1100px] min-h-[600px] mx-auto mt-20 rounded-xl shadow-lg overflow-hidden flex mr-[26rem]">
+  <div class="bg-white w-[1100px] min-h-[600px] ml-[auto] mr-[26rem] mt-20 rounded-xl shadow-lg overflow-hidden flex">
     
       <!-- 왼쪽: 가이드 사이드바 -->
       <aside id="guide-sidebar"
@@ -47,7 +47,14 @@
         <div class="sticky top-0 bg-white z-10 px-6 py-4 border-b">
           <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
           <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
+          <div class="text-right mt-2">
+            <button type="button" onclick="resetGuideSteps()"
+                    class="text-sm text-red-500 hover:text-red-700 border border-red-300 px-3 py-1 rounded-full transition">
+              🔄 가이드 초기화 하기
+            </button>
+          </div>
         </div>
+
         <!-- 스크롤 영역 -->
         <div id="guide-scrollable"
             class="flex-1 overflow-y-auto px-6 py-4">
@@ -325,11 +332,13 @@
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
-    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
-    const scrollable = document.getElementById("guide-scrollable");
-    while (scrollable.children.length > 1) {
-      scrollable.removeChild(scrollable.lastChild);
-    }
+    // 가이드 초기화 (selected-prompt-display만 남기고 전부 제거)
+    const guide = document.getElementById("guide-scrollable");
+    [...guide.children].forEach(child => {
+      if (!child.id || child.id !== "selected-prompt-display") {
+        guide.removeChild(child);
+      }
+    });
     document.getElementById("character-input").value = characterId;
     // 글감 표시 영역 숨기기
     const displayBox = document.getElementById("selected-prompt-display");
@@ -778,6 +787,23 @@ function toggleChat() {
       }
     }, 50);
   });
+
+      function resetGuideSteps() {
+      const genre = localStorage.getItem('geulssung_draft_genre_type'); // 예: essay, column 등
+      if (!genre) {
+        alert("형식이 선택되어 있지 않아 리셋할 수 없습니다.");
+        return;
+      }
+
+      for (let i = 1; i <= 3; i++) {
+        const key = `geulssung_draft_${genre}_step${i}`;
+        const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+        if (textarea) textarea.value = "";
+        localStorage.removeItem(key);
+      }
+
+      alert("가이드 작성 내용이 모두 초기화되었습니다.");
+    }
   </script>  
   
 </body>
