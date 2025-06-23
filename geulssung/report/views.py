@@ -3,6 +3,12 @@
 from collections import Counter
 from django.shortcuts import render
 from post.models import Post
+import re
+
+# 감성 키워드 예시
+SENTIMENT_KEYWORDS = [
+    '행복', '사랑', '기쁨', '슬픔', '외로움', '그리움', '설렘', '분노', '불안', '감사', '희망', '우울', '두려움'
+]
 
 def report_view(request):
     user = request.user
@@ -34,6 +40,18 @@ def report_view(request):
     month_labels = sorted(month_counts.keys())
     month_values = [month_counts[m] for m in month_labels]
 
+    # 감정 키워드 & 단어 빈도 분석
+    all_text = " ".join([post.final_content for post in user_posts if post.final_content])
+
+    sentiment_counts = Counter()
+    for keyword in SENTIMENT_KEYWORDS:
+        sentiment_counts[keyword] = all_text.count(keyword)
+    top_sentiments = [word for word, count in sentiment_counts.most_common(5) if count > 0]
+
+    words = re.findall(r'\b[가-힣]{2,}\b', all_text)
+    word_counts = Counter(words)
+    top_words = [word for word, count in word_counts.most_common(10)]
+
     context = {
         "hour_labels": hour_labels,
         "hour_values": hour_values,
@@ -41,6 +59,8 @@ def report_view(request):
         "month_values": month_values,
         "peak_time_group": peak_time_group,
         "time_groups": time_groups,
+        "top_sentiments": top_sentiments,
+        "top_words": top_words,
     }
 
     return render(request, "report/report.html", context)
