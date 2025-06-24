@@ -604,6 +604,89 @@
         }
       }
     });
+
+  
+    const btn = document.getElementById("toggle-drafts-btn");
+    const tooltip = document.getElementById("draft-tooltip");
+    const promptList = document.getElementById("draft-prompt-list");
+
+    btn.addEventListener("click", () => {
+      tooltip.classList.toggle("hidden");
+      promptList.innerHTML = "";
+
+      const savedPrompt = localStorage.getItem("geulssung_draft_prompt");
+
+      if (savedPrompt) {
+        const promptBtn = document.createElement("button");
+        promptBtn.textContent = savedPrompt;
+        promptBtn.className = "bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#1e3a8a] font-medium px-3 py-2 rounded-lg shadow text-left";
+        promptBtn.onclick = () => {
+        // 글감 저장
+        localStorage.setItem("geulssung_draft_prompt", savedPrompt);
+        localStorage.setItem("geulssung_draft_prompt_id", "custom");
+
+        // genre와 genre_type이 모두 저장되어 있어야 step drafts도 불러올 수 있음
+        const genre = localStorage.getItem("geulssung_draft_genre");       // 감성/논리
+        const genreType = localStorage.getItem("geulssung_draft_genre_type"); // 에세이/칼럼 등
+
+        // step drafts가 이미 localStorage에 있다면 유지됨
+        // 없다면 저장된 textarea 내용이 없을 수 있으니 이 부분은 write 페이지에서 처리됨
+
+        // 페이지 이동
+        window.location.href = "/geulssung/write/";
+      };
+
+        promptList.appendChild(promptBtn);
+      } else {
+        const msg = document.createElement("p");
+        msg.textContent = "저장된 글감이 없습니다.";
+        msg.className = "text-gray-400 text-sm";
+        promptList.appendChild(msg);
+      }
+    });
+
+    // 바깥 클릭 시 말풍선 닫기
+    document.addEventListener("click", (e) => {
+      if (!btn.contains(e.target) && !tooltip.contains(e.target)) {
+        tooltip.classList.add("hidden");
+      }
+    });
+
+    // 📄 write.html 내에서 실행되어야 할 코드 (해당 페이지 진입 시 localStorage 복원 실행)
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedPrompt = localStorage.getItem("geulssung_draft_prompt");
+      const savedPromptId = localStorage.getItem("geulssung_draft_prompt_id");
+      const savedGenre = localStorage.getItem("geulssung_draft_genre");
+      const savedGenreType = localStorage.getItem("geulssung_draft_genre_type");
+      const savedStep1 = localStorage.getItem("geulssung_draft_step1") || "";
+      const savedStep2 = localStorage.getItem("geulssung_draft_step2") || "";
+      const savedStep3 = localStorage.getItem("geulssung_draft_step3") || "";
+      const savedStep4 = localStorage.getItem("geulssung_draft_step4") || "";
+      const savedFinal = localStorage.getItem("geulssung_draft_final") || "";
+
+      // prompt, genre, genreType 복원
+      if (savedPrompt && savedPromptId) {
+        selectPrompt(null, savedPrompt, savedPromptId);  // 사용자 정의 함수 (prompt 선택)
+      }
+      if (savedGenre && savedGenreType) {
+        const genreSelect = document.querySelector("#genre");
+        if (genreSelect) genreSelect.value = savedGenre;
+        const genreTypeSelect = document.querySelector("#genre_type");
+        if (genreTypeSelect) genreTypeSelect.value = savedGenreType;
+      }
+
+      // 각 step textarea에 저장된 값 삽입
+      const step1 = document.querySelector("textarea[name='step1']");
+      if (step1) step1.value = savedStep1;
+      const step2 = document.querySelector("textarea[name='step2']");
+      if (step2) step2.value = savedStep2;
+      const step3 = document.querySelector("textarea[name='step3']");
+      if (step3) step3.value = savedStep3;
+      const step4 = document.querySelector("textarea[name='step4']");
+      if (step4) step4.value = savedStep4;
+      const finalContent = document.querySelector("textarea[name='final_content']");
+      if (finalContent) finalContent.value = savedFinal;
+    });
   </script>
 </body>
 </html>
