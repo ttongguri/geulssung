@@ -1,4 +1,6 @@
-<!-- 수정된 write_form_mobile.html -->
+<!-- 챗봇 도우미, 장르 선택해도 input박스 활성화가 불가하여 -->
+<!-- 챗봇 관련 코드는 모두 주석처리 -->
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
@@ -36,14 +38,16 @@
       <div class="mb-6">
         <p class="font-semibold text-[#493E3E] mb-2">오늘의 글쓰기 도우미를 선택해보세요!</p>
         <div class="flex gap-4">
-          <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="handleCharacterSelection(this.value)">
+          <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="showGenres(this.value)">
+          <!-- <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="handleCharacterSelection(this.value)"> -->
           <label for="emotion"
             class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
                   peer-checked/emotion:bg-[#00C9A7] peer-checked/emotion:text-white">
             F 감성의 글썽이
           </label>
 
-          <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="handleCharacterSelection(this.value)">
+          <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="showGenres(this.value)">
+          <!-- <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="handleCharacterSelection(this.value)"> -->
           <label for="logic"
             class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
                   peer-checked/logic:bg-[#00C9A7] peer-checked/logic:text-white">
@@ -270,66 +274,50 @@
   }
 
   function selectCharacter(type) {
-    // const chatbot = document.getElementById('chatbot-character');
-    // const img = document.getElementById('chatbot-img');
-
-    // // 캐릭터 이미지 변경
-    // if (type === 'emotion') {
-    //   img.src = '/static/images/글썽이.png'; // 글썽이 이미지 경로
-    //   img.alt = '글썽이';
-    // } else if (type === 'logic') {
-    //   img.src = '/static/images/말썽이.png'; // 말썽이 이미지 경로
-    //   img.alt = '말썽이';
-    // }
-
-    // // 챗봇 보여주기
-    // chatbot.classList.remove('hidden');
-    // 챗봇 박스 활성화
-
     // 입력창 활성화 상태만 검사
     checkChatActivation();
   }
 
-  function handleCharacterSelection(characterId) {
-    const radio = document.querySelector(`input[name="category"][value="${characterId}"]`);
-    if (radio) radio.checked = true;
-    // 도우미 선택 시 장르 영역 토글 (id 기준)
-    document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
-    document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
-    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
-    document.getElementById("selectedPrompt").value = "";
-    document.getElementById("prompt-options").innerHTML = "";
-    document.getElementById("prompt-box").style.display = "none";
-    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
-    const scrollable = document.getElementById("guide-scrollable");
-    while (scrollable.children.length > 1) {
-      scrollable.removeChild(scrollable.lastChild);
-    }
-    document.getElementById("character-input").value = characterId;
-    // 글감 표시 영역 숨기기
-    const displayBox = document.getElementById("selected-prompt-display");
-    if (displayBox) displayBox.classList.add("hidden");
+  // function handleCharacterSelection(characterId) {
+  //   const radio = document.querySelector(`input[name="category"][value="${characterId}"]`);
+  //   if (radio) radio.checked = true;
+  //   // 도우미 선택 시 장르 영역 토글 (id 기준)
+  //   document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
+  //   document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
+  //   document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+  //   document.getElementById("selectedPrompt").value = "";
+  //   document.getElementById("prompt-options").innerHTML = "";
+  //   document.getElementById("prompt-box").style.display = "none";
+  //   // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+  //   const scrollable = document.getElementById("guide-scrollable");
+  //   while (scrollable.children.length > 1) {
+  //     scrollable.removeChild(scrollable.lastChild);
+  //   }
+  //   document.getElementById("character-input").value = characterId;
+  //   // 글감 표시 영역 숨기기
+  //   const displayBox = document.getElementById("selected-prompt-display");
+  //   if (displayBox) displayBox.classList.add("hidden");
 
-    // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
-    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
-    // 캐릭터 이미지 다시 렌더링해서 넣기
-    fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
-      .then(res => res.text())
-      .then(html => {
-        const container = document.getElementById("character-container");
-        container.innerHTML = html;
-      })
-      .catch(err => {
-        const container = document.getElementById("character-container");
-        container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
-      });
-    // ★ 도우미(감성/논리) 저장
-    localStorage.setItem('geulssung_draft_genre', characterId);
-    // ★ 선택 직후 챗봇 활성화
-    selectCharacter(characterId);
+  //   // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
+  //   const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
+  //   // 캐릭터 이미지 다시 렌더링해서 넣기
+  //   fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
+  //     .then(res => res.text())
+  //     .then(html => {
+  //       const container = document.getElementById("character-container");
+  //       container.innerHTML = html;
+  //     })
+  //     .catch(err => {
+  //       const container = document.getElementById("character-container");
+  //       container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
+  //     });
+  //   // ★ 도우미(감성/논리) 저장
+  //   localStorage.setItem('geulssung_draft_genre', characterId);
+  //   // ★ 선택 직후 챗봇 활성화
+  //   selectCharacter(characterId);
 
-    checkChatActivation();
-  }
+  //   checkChatActivation();
+  // }
 
 
   function renderPrompts() {
@@ -573,17 +561,17 @@ function setupStepDrafts(genre) {
 
 
   <!-- 캐릭터 전체 박스: 드래그 가능, 작성폼 우측 하단에 고정 -->
-  <div id="chat-box-wrapper"
+  <!-- <div id="chat-box-wrapper"
        class="fixed right-4 bottom-4 z-50 flex flex-col items-end cursor-grab"
-       style="width: 20rem;">
+       style="width: 20rem;"> -->
     <!-- 챗봇 말풍선: container 안에서 절대 위치로 변경 -->
-    <div id="chat-box"
+    <!-- <div id="chat-box"
          class="hidden max-w-[90vw] w-[300px] bg-white rounded-2xl shadow-2xl p-5 border border-[#bae6fd]"
          style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto;
                 position: absolute; bottom: calc(100% + 1rem); right: 0; z-index: 50;">
-      <div class="relative">
+      <div class="relative"> -->
         <!-- 말풍선 꼬리 -->
-        <div style="position: absolute; left: 50%; bottom: -18px; transform: translateX(-50%);
+        <!-- <div style="position: absolute; left: 50%; bottom: -18px; transform: translateX(-50%);
                     width: 0; height: 0; border-left: 18px solid transparent;
                     border-right: 18px solid transparent;
                     border-top: 18px solid #bae6fd;"></div>
@@ -604,9 +592,9 @@ function setupStepDrafts(genre) {
           </button>
         </div>
       </div>
-    </div>
+    </div> -->
     <!-- 캐릭터 컨테이너: 기존 포함 -->
-    <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
+    <!-- <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
       <div id="character-container" class="relative inline-block w-[320px] h-[320px] pointer-events-auto">
         {% if not genre %}
           <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none z-10">
@@ -617,10 +605,10 @@ function setupStepDrafts(genre) {
         {% endif %}
       </div>
     </div>
-  </div>
+  </div> -->
 
 
-<script src="{% static 'js/chatbot_mobile.js' %}"></script>
+<!-- <script src="{% static 'js/chatbot_mobile.js' %}"></script> -->
 
 </body>
 </html>
