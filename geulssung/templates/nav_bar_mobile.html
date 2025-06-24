@@ -1,0 +1,46 @@
+<!-- 상단 네비게이션 -->
+<div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex items-center justify-between z-50">
+  <!-- <div class="fixed top-0 left-0 right-0 bg-white border-b shadow px-6 py-3 flex justify-end gap-3 z-50"> -->
+  
+    <!-- 왼쪽: 로그인 / 회원가입 / 회원정보 -->
+    <div class="text-[15px] md:text-base font-semibold space-x-4">
+      {% if user.is_authenticated %}
+        <span>{{ user.nickname }}님</span>
+        <a href="{% url 'logout' %}" class="underline hover:text-gray-600">로그아웃</a>
+        <a href="{% url 'suggestion_board' %}" class="underline hover:text-blue-600 ml-2">건의사항</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="underline hover:text-gray-600">로그인/회원가입</a>
+        <a href="{% url 'suggestion_board' %}" class="underline hover:text-blue-600 ml-2">건의사항</a>
+        <!-- <a href="{% url 'signup' %}" class="underline hover:text-gray-600">회원가입</a> -->
+      {% endif %}
+    </div>
+  
+    <!-- 오른쪽: 글쓰기·글바다·홈 버튼 -->
+    <div class="flex gap-3">
+      {% if user.is_authenticated %}
+        <a href="{% url 'write' %}"
+          class="{% if request.path == '/geulssung/write/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+          글쓰기
+        </a>
+        <a href="{% url 'public_user_posts' user.nickname %}"
+        class="{% if request.path == '/geulssung/post/geulssunglog/'|add:user.nickname|add:'/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        글자국
+        </a>
+      {% else %}
+        <a href="{% url 'login' %}?next={% url 'write' %}"
+        class="{% if request.path == '/geulssung/write/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        글쓰기
+        </a>
+      {% endif %}
+  
+      <a href="{% url 'explore' %}"
+        class="{% if request.path == '/geulssung/explore/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        글바다
+      </a>
+  
+      <a href="{% url 'home' %}"
+        class="{% if request.path == '/geulssung/' %}bg-blue-300{% else %}bg-[#F9DCC4] hover:bg-[#f7cbaa]{% endif %} text-[#493E3E] font-bold px-4 py-2 rounded-full transition">
+        홈
+      </a>
+    </div>
+  </div>

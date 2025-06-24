@@ -1,0 +1,676 @@
+<!-- 챗봇 도우미, 장르 선택해도 input박스 활성화가 불가하여 -->
+<!-- 챗봇 관련 코드는 모두 주석처리 -->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>글쓰기 ✍️ (모바일)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body { font-family: 'Gowun Batang', serif; }
+    summary { font-weight: bold; cursor: pointer; }
+    
+    /* 토글 표시(화살표) 숨기기 */
+    details > summary {
+      list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-[#bae6fd] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
+  <style>
+    .background{
+      background-image: url('{% static "images/수정.png" %}'); 
+      background-size: cover; 
+      background-position: center; 
+      background-repeat: no-repeat;
+    }
+  </style>
+  {% include "nav_bar_mobile.html" %}
+  
+  <!-- 전체 래퍼 -->
+  <div class="bg-white p-4 mt-28 rounded-xl shadow-lg overflow-hidden">
+    <form method="post" action="" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="character" id="character-input" value="none">
+      <input type="hidden" name="custom_prompt" id="customPromptHidden">
+
+      <!-- 1. 도우미 선택 -->
+      <div id="step-1" class="step-form flex-1">
+      <div class="mb-6">
+        <p class="font-semibold text-[#493E3E] mb-2">오늘의 글쓰기 도우미를 선택해보세요!</p>
+        <div class="flex gap-4">
+          <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="showGenres(this.value)">
+          <!-- <input type="radio" name="category" value="emotion" id="emotion" class="hidden peer/emotion" onchange="handleCharacterSelection(this.value)"> -->
+          <label for="emotion"
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
+                  peer-checked/emotion:bg-[#00C9A7] peer-checked/emotion:text-white">
+            F 감성의 글썽이
+          </label>
+
+          <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="showGenres(this.value)">
+          <!-- <input type="radio" name="category" value="logic" id="logic" class="hidden peer/logic" onchange="handleCharacterSelection(this.value)"> -->
+          <label for="logic"
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition 
+                  peer-checked/logic:bg-[#00C9A7] peer-checked/logic:text-white">
+            T 감성의 말썽이
+          </label>
+        </div>
+      </div>
+
+      <div class="mb-6 hidden" id="genre-emotion">
+        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (글썽이)</p>
+        <div class="flex gap-4">
+          <input type="radio" name="genre" value="essay" id="essay" class="hidden peer/essay" onchange="showGuide(this.value)">
+          <label for="essay"
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/essay:bg-[#00C9A7] peer-checked/essay:text-white">
+            에세이
+          </label>
+
+          <input type="radio" name="genre" value="poem" id="poem" class="hidden peer/poem" onchange="showGuide(this.value)">
+          <label for="poem"
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/poem:bg-[#00C9A7] peer-checked/poem:text-white">
+            시
+          </label>
+        </div>
+      </div>
+
+
+      <div class="mb-6 hidden" id="genre-logic">
+        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (말썽이)</p>
+        <div class="flex gap-4">
+          <input type="radio" name="genre" value="column" id="column" class="hidden peer/column" onchange="showGuide(this.value)">
+          <label for="column"
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/column:bg-[#00C9A7] peer-checked/column:text-white">
+            칼럼
+          </label>
+
+          <input type="radio" name="genre" value="analysis" id="analysis" class="hidden peer/analysis" onchange="showGuide(this.value)">
+          <label for="analysis"
+            class="bg-white text-[#493E3E] px-4 py-2 rounded-full border border-gray-300 font-semibold cursor-pointer transition
+                  peer-checked/analysis:bg-[#00C9A7] peer-checked/analysis:text-white">
+            분석글
+          </label>
+        </div>
+      </div>
+
+
+      <div id="prompt-box" class="mb-6 hidden">
+        <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
+          📖 오늘의 글감을 골라보세요
+          <button type="button"
+            id="refreshPromptsBtn"
+            class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
+            🔄 새로운 글감
+          </button>
+          <button type="button"
+            id="customPromptBtn"
+            class="ml-2 px-2 py-1 mb-1 rounded bg-[#fef08a] text-black text-xs border border-[#fde68a]">
+            ✏️ 직접 입력
+          </button>
+        </p>
+
+        <!-- 선택한 글감 표시 영역 -->
+        <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+          선택한 글감: <span id="selected-prompt-text"></span>
+        </div>
+        
+        <p class="text-xs text-gray-500 italic mb-4">
+          오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
+        </p>
+        <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
+
+        <!-- ✏️ 자유 글감 직접 입력 (토글) -->
+        <div id="customPromptInputBox" class="mt-2 hidden">
+          <input type="text"
+            id="customPromptInput"
+            class="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
+            placeholder="기록하고 싶은 글감을 자유롭게 입력해주세요!"
+            maxlength="100"
+          />
+          <button type="button" id="customPromptSelectBtn" class="mt-2 bg-[#bae6fd] px-3 py-1 rounded">선택</button>
+        </div>
+
+        <!-- 선택된 글감 값을 저장 -->
+        <input type="hidden" name="topic" id="selectedPrompt">
+        <input type="hidden" name="prompt_id" id="selectedPromptId">
+      </div>
+      <div class="flex justify-end mt-4">
+        <button type="button" id="nextBtn" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-2 rounded-full transition" onclick="nextStep()" style="position: relative; z-index: 60;" onclick="nextStep()">
+        다음 →
+        </button>
+      </div>
+    </div>
+
+
+    <div id="step-2" class="step-form">
+      <!-- [수정코드] step2에서 선택한 글감을 최상단에 표시 -->
+      <div id="step2-prompt-display" class="mb-6 p-4 bg-[#f0f9ff] rounded-lg border border-[#7dd3fc] hidden">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">📖</span>
+          <span class="font-bold text-[#0c4a6e]">선택한 글감</span>
+        </div>
+        <p id="step2-prompt-text" class="text-[#0c4a6e] font-semibold"></p>
+      </div>
+
+      <!-- ▶ 한·두·세 방울 토글 가이드 -->
+      <div id="guide-content" class="mb-6">
+        <!-- 선택된 글감 표시 (토글) -->
+        <div id="selected-prompt-display"
+             class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+          선택한 글감: <span id="selected-prompt-text"></span>
+        </div>
+        <!-- 실제 가이드 콘텐츠 삽입 -->
+        <!-- guide_combined.html 직접 include 삭제 -->
+      </div>
+
+      <div class="mb-6">
+        <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
+        <input type="file" name="cover_image" id="coverImageInput" accept="image/*" class="hidden" onchange="showCoverPreview(event)" />
+        <button type="button" onclick="document.getElementById('coverImageInput').click();" class="bg-[#bae6fd] text-black text-xs px-3 py-2 rounded-full border">
+          커버 사진 선택
+        </button>
+        <div id="coverImagePreviewContainer" class="mt-4 hidden">
+          <p class="text-sm text-[#bae6fd] font-semibold mb-1">미리보기:</p>
+          <img id="coverImagePreview" src="#" class="w-full h-48 object-cover rounded-lg border" />
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block font-semibold text-[black] mb-1">제목</label>
+        <input type="text" name="title" class="w-full border px-3 py-2 rounded-md" required />
+      </div>
+      
+      <div class="mb-8">
+        <p class="font-bold text-[black] text-lg mb-2">🧩 글줄기</p>
+        <p class="text-sm text-gray-700 mb-3">한/두/세 방울에 쓴 내용을 바탕으로 글을 정리해보세요</p>
+        <textarea 
+        name="final_text" 
+        rows="10" 
+        class="w-full border px-4 py-3 rounded-md shadow-sm" 
+        spellcheck="false"
+        required
+        ></textarea>
+      </div>
+
+      <div class="flex justify-between mt-6">
+        <button type="button" onclick="prevStep()" class="bg-gray-300 hover:bg-gray-400 text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+          ← 뒤로
+        </button>
+        <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+          보관하기
+        </button>
+      </div>
+    </div>
+    </form>
+    </div>
+
+<!-- ✨ 숨겨진 가이드 템플릿 저장소 -->
+<div id="guide-template-container" class="hidden">
+  {% include "post/guide_combined.html" %}
+</div>
+
+<script>
+  let promptCache = {};
+  let currentGenre = null;
+
+  function showGenres(category) {
+    document.getElementById('genre-logic').style.display = category === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = category === 'emotion' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-content 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const guideContent = document.getElementById("guide-content");
+    while (guideContent.children.length > 1) {
+      guideContent.removeChild(guideContent.lastChild);
+    }
+    document.getElementById("character-input").value = category;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
+  }
+
+  function showGuide(value) {
+    const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+    currentGenre = genreMap[value];
+    // ★ 형식(genre_type) 저장
+    localStorage.setItem('geulssung_draft_genre_type', value);
+    fetchPrompts(currentGenre, renderPrompts);
+    showGuideSidebar(value);
+  }
+
+  function showGuideSidebar(genre) {
+    const templateId = `guide-template-${genre}`;
+    const guideContainer = document.getElementById("guide-template-container");
+    const guideContent = document.getElementById("guide-content");
+    const temp = guideContainer?.querySelector(`#${templateId}`);
+    if (temp && guideContent) {
+      // selected-prompt-display는 남기고, 나머지 guide-content 자식 모두 삭제
+      while (guideContent.children.length > 1) {
+        guideContent.removeChild(guideContent.lastChild);
+      }
+      // 가이드 템플릿 삽입
+      const guideDiv = document.createElement("div");
+      guideDiv.innerHTML = temp.innerHTML;
+      guideContent.appendChild(guideDiv);
+      // ★ 장르별 step drafts 자동 저장/복원 세팅
+      setupStepDrafts(genre);
+    } else {
+      console.warn("가이드 로딩 실패:", genre);
+    }
+  }
+
+  function fetchPrompts(genre, callback, forceRefresh = false) {
+    // localStorage 캐시 키
+    const cacheKey = `geulssung_prompt_cache_${genre}`;
+    if (!forceRefresh && localStorage.getItem(cacheKey)) {
+      try {
+        promptCache[genre] = JSON.parse(localStorage.getItem(cacheKey));
+        if (callback) callback();
+        return;
+      } catch (e) {
+        // 파싱 실패 시 캐시 무시
+      }
+    }
+    fetch(`/prompts/api/random-prompts/?style=${encodeURIComponent(genre)}`)
+      .then(res => res.json())
+      .then(data => {
+        promptCache[genre] = data.prompts;
+        // 캐시에 저장
+        localStorage.setItem(cacheKey, JSON.stringify(data.prompts));
+        if (callback) callback();
+      });
+  }
+
+  function selectCharacter(type) {
+    // 입력창 활성화 상태만 검사
+    checkChatActivation();
+  }
+
+  function handleCharacterSelection(characterId) {
+    const radio = document.querySelector(`input[name="category"][value="${characterId}"]`);
+    if (radio) radio.checked = true;
+    // 도우미 선택 시 장르 영역 토글 (id 기준)
+    document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-content 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const guideContent = document.getElementById("guide-content");
+    while (guideContent.children.length > 1) {
+      guideContent.removeChild(guideContent.lastChild);
+    }
+    document.getElementById("character-input").value = characterId;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
+
+    // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
+    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
+    // 캐릭터 이미지 다시 렌더링해서 넣기
+    fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
+      .then(res => res.text())
+      .then(html => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
+      });
+    // ★ 도우미(감성/논리) 저장
+    localStorage.setItem('geulssung_draft_genre', characterId);
+    // ★ 선택 직후 챗봇 활성화
+    selectCharacter(characterId);
+
+    checkChatActivation();
+  }
+
+
+  function renderPrompts() {
+    const genreInput = document.querySelector('input[name="genre"]:checked');
+    if (!genreInput) return;
+    const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+    const genre = genreMap[genreInput.value];
+    const prompts = promptCache[genre] || [];
+    const promptOptions = document.getElementById("prompt-options");
+    promptOptions.innerHTML = "";
+    document.getElementById("selectedPrompt").value = "";
+    if (!prompts.length) {
+      promptOptions.innerHTML = "<div class='text-gray-400'>글감이 없습니다.</div>";
+      return;
+    }
+    prompts.forEach(prompt => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "prompt-option border rounded-xl p-4 hover:bg-[#FFF4E6] h-12 flex items-center";
+      btn.textContent = prompt.content;
+      btn.setAttribute("data-id", prompt.id);
+      btn.onclick = () => selectPrompt(btn, prompt.content, prompt.id);
+      promptOptions.appendChild(btn);
+    });
+    document.getElementById("prompt-box").style.display = "block";
+    // ★ 글감 복원 (localStorage)
+    if (window._restorePrompt) {
+      window._restorePrompt();
+      window._restorePrompt = null;
+    }
+  }
+
+  function selectPrompt(button, prompt, promptId) {
+    // 버튼 색상 초기화
+    document.querySelectorAll('.prompt-option').forEach(btn => {
+      btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    });
+
+    // 선택된 버튼 하이라이트 (버튼일 때만)
+    if (button && button.classList) {
+      button.classList.add('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+    }
+
+    // hidden input에 값 저장
+    document.getElementById('selectedPrompt').value = prompt;
+    document.getElementById('selectedPromptId').value = promptId;
+
+    // --- 글감 사이드바에 표시 ---
+    const displayBox = document.getElementById('selected-prompt-display');
+    const displayText = document.getElementById('selected-prompt-text');
+    if (prompt && displayBox && displayText) {
+      displayText.textContent = prompt;
+      displayBox.classList.remove('hidden');
+    }
+
+    // custom_prompt 처리
+    const customPromptHidden = document.getElementById('customPromptHidden');
+    if (promptId === "custom") {
+      customPromptHidden.value = prompt;
+    } else {
+      customPromptHidden.value = "";
+    }
+    // ★ 글감 저장
+    localStorage.setItem('geulssung_draft_prompt', prompt);
+    localStorage.setItem('geulssung_draft_prompt_id', promptId);
+  }
+
+  function showCoverPreview(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('coverImagePreviewContainer');
+    const previewImage = document.getElementById('coverImagePreview');
+    if (file) {
+      const reader = new FileReader();
+      previewContainer.style.display = 'block';
+      reader.onload = function (e) {
+        previewImage.setAttribute('src', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewContainer.style.display = 'none';
+      previewImage.setAttribute('src', '');
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("refreshPromptsBtn").onclick = function () {
+      if (!currentGenre) return;
+      // 캐시 삭제
+      localStorage.removeItem(`geulssung_prompt_cache_${currentGenre}`);
+      fetchPrompts(currentGenre, renderPrompts, true);
+    };
+    document.getElementById("customPromptBtn").onclick = function () {
+      const box = document.getElementById("customPromptInputBox");
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) {
+        document.getElementById("customPromptInput").focus();
+      }
+    };
+    document.getElementById("customPromptSelectBtn").onclick = function () {
+      const value = document.getElementById("customPromptInput").value.trim();
+      if (value) {
+        selectPrompt(null, value, "custom");
+        document.getElementById("customPromptInputBox").classList.add("hidden");
+        document.getElementById("customPromptInput").value = "";
+        // --- 글감 사이드바에 표시 ---
+        const displayBox = document.getElementById('selected-prompt-display');
+        const displayText = document.getElementById('selected-prompt-text');
+        if (displayBox && displayText) {
+          displayText.textContent = value;
+          displayBox.classList.remove('hidden');
+        }
+      }
+    };
+    document.getElementById("customPromptInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("customPromptSelectBtn").click();
+      }
+    });
+    showStep(1);
+    // 자유 글감 입력 시 prompt_id 비우기
+    const customPromptInput = document.getElementById('customPrompt');
+    if (customPromptInput) {
+      customPromptInput.addEventListener('input', function() {
+        if (this.value.trim() !== "") {
+          document.getElementById('selectedPrompt').value = this.value;
+          document.getElementById('selectedPromptId').value = "";
+          // 버튼 선택 해제
+          document.querySelectorAll('.prompt-option').forEach(btn => {
+            btn.classList.remove('bg-[#FFEFD6]', 'ring', 'ring-[#F9DCC4]');
+          });
+        }
+      });
+    }
+    // 초기화 시 글감 표시 영역 숨기기
+    const displayBox = document.getElementById('selected-prompt-display');
+    if (displayBox) displayBox.classList.add('hidden');
+    
+    // ★ localStorage 복원 기능 비활성화 (첫 화면에서 자동 선택 방지)
+    // genre, genre_type, prompt 복원
+    /*
+    const savedGenre = localStorage.getItem('geulssung_draft_genre');
+    const savedGenreType = localStorage.getItem('geulssung_draft_genre_type');
+    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
+    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
+
+    if (savedGenre) {
+      // 도우미(감성/논리) 라디오 체크 및 트리거
+      const genreRadio = document.getElementById(savedGenre);
+      if (genreRadio) {
+        genreRadio.checked = true;
+        handleCharacterSelection(savedGenre);
+      }
+    }
+    if (savedGenreType) {
+      // 형식(essay, poem 등) 라디오 체크 및 트리거
+      const genreTypeRadio = document.getElementById(savedGenreType);
+      if (genreTypeRadio) {
+        genreTypeRadio.checked = true;
+        showGuide(savedGenreType);
+      }
+    }
+    // 글감 복원은 fetchPrompts 이후에 실행해야 하므로 renderPrompts에서 처리
+    window._restorePrompt = function() {
+      if (savedPrompt && savedPromptId) {
+        // 글감 버튼이 렌더링된 후에만 실행
+        const promptBtns = document.querySelectorAll('.prompt-option');
+        let found = false;
+        promptBtns.forEach(btn => {
+          if (btn.textContent === savedPrompt && btn.getAttribute('data-id') == savedPromptId) {
+            btn.click();
+            found = true;
+          }
+        });
+        // custom prompt일 경우
+        if (!found && savedPromptId === 'custom') {
+          selectPrompt(null, savedPrompt, 'custom');
+        }
+      }
+    }
+    */
+  });
+
+  let isGuideVisible = true;
+
+  function toggleGuide() {
+    const guide = document.getElementById('guide-sidebar');
+    const toggleBtn = document.getElementById('toggleGuideBtn');
+
+    if (isGuideVisible) {
+      guide.classList.add('hidden');
+      toggleBtn.innerText = '📖 가이드 펼치기';
+    } else {
+      guide.classList.remove('hidden');
+      toggleBtn.innerText = '📚 가이드 접기';
+    }
+
+    isGuideVisible = !isGuideVisible;
+  }
+  let currentStep = 1;
+
+function showStep(step) {
+  document.querySelectorAll('.step-form').forEach((el, idx) => {
+    el.classList.toggle('hidden', idx + 1 !== step);
+  });
+  
+  document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
+
+  currentStep = step;
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    // [수정코드] step1에서 도우미와 장르 선택 검증
+    const selectedCategory = document.querySelector('input[name="category"]:checked');
+    const selectedGenre = document.querySelector('input[name="genre"]:checked');
+    const selectedPrompt = document.getElementById('selectedPrompt').value;
+    
+    // 도우미 선택 확인
+    if (!selectedCategory) {
+      alert('도우미를 선택해주세요!');
+      return;
+    }
+    
+    // 장르 선택 확인
+    if (!selectedGenre) {
+      alert('장르를 선택해주세요!');
+      return;
+    }
+    
+    // 글감 선택 확인
+    if (!selectedPrompt) {
+      alert('글감을 선택해주세요!');
+      return;
+    }
+    
+    // [수정코드] step2로 넘어갈 때 선택한 글감을 상단에 표시
+    const step2PromptDisplay = document.getElementById('step2-prompt-display');
+    const step2PromptText = document.getElementById('step2-prompt-text');
+    
+    if (selectedPrompt && step2PromptDisplay && step2PromptText) {
+      step2PromptText.textContent = selectedPrompt;
+      step2PromptDisplay.classList.remove('hidden');
+    }
+    
+    showStep(2);
+  } else {
+    // 2단계에서 다음 누르면 submit
+    document.querySelector("form").submit();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    // [수정코드] step1으로 돌아갈 때 step2의 글감 표시를 숨김
+    const step2PromptDisplay = document.getElementById('step2-prompt-display');
+    if (step2PromptDisplay) {
+      step2PromptDisplay.classList.add('hidden');
+    }
+    
+    showStep(currentStep - 1);
+  }
+}
+
+// ★ 장르별 step drafts 자동 저장/복원 함수
+function setupStepDrafts(genre) {
+  for (let i = 1; i <= 3; i++) {
+    const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+    const key = `geulssung_draft_${genre}_step${i}`;
+    if (textarea) {
+      // 복원
+      if (localStorage.getItem(key)) {
+        textarea.value = localStorage.getItem(key);
+      }
+      // 저장
+      textarea.addEventListener("input", () => {
+        localStorage.setItem(key, textarea.value);
+      });
+    }
+  }
+}
+</script>
+
+
+  <!-- 캐릭터 전체 박스: 드래그 가능, 작성폼 우측 하단에 고정 -->
+  <!-- <div id="chat-box-wrapper"
+       class="fixed right-4 bottom-4 z-50 flex flex-col items-end cursor-grab"
+       style="width: 20rem;"> -->
+    <!-- 챗봇 말풍선: container 안에서 절대 위치로 변경 -->
+    <!-- <div id="chat-box"
+         class="hidden max-w-[90vw] w-[300px] bg-white rounded-2xl shadow-2xl p-5 border border-[#bae6fd]"
+         style="box-shadow: 0 8px 32px rgba(0,0,0,0.18); pointer-events: auto;
+                position: absolute; bottom: calc(100% + 1rem); right: 0; z-index: 50;">
+      <div class="relative"> -->
+        <!-- 말풍선 꼬리 -->
+        <!-- <div style="position: absolute; left: 50%; bottom: -18px; transform: translateX(-50%);
+                    width: 0; height: 0; border-left: 18px solid transparent;
+                    border-right: 18px solid transparent;
+                    border-top: 18px solid #bae6fd;"></div>
+        <div class="font-bold text-[#2563eb] text-lg mb-2 flex items-center gap-2">📚 글쓰기 도우미</div>
+        <div id="chat-log" style="flex: 1; overflow-y: auto;
+                    min-height: 60px; max-height: 220px; padding: 10px 0 8px 0; font-size: 1rem;"></div>
+        <div style="padding: 8px 0 0 0; display: flex; gap: 8px;
+                    align-items: flex-end; background: #f8fafc; border-radius: 0 0 16px 16px;">
+          <textarea id="chat-input" placeholder="도움을 받아보세요!" rows="2"
+                    style="flex: 1; resize: none; overflow-y: auto;
+                           max-height: 80px; line-height: 1.4; padding: 8px;
+                           border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;"></textarea>
+          <button id="chat-send-btn"
+                  style="padding: 8px 16px; height: fit-content;
+                         background: #bae6fd; color: #493E3E; border-radius: 8px;
+                         font-weight: bold; border: none; font-size: 1rem;">
+            전송
+          </button>
+        </div>
+      </div>
+    </div> -->
+    <!-- 캐릭터 컨테이너: 기존 포함 -->
+    <!-- <div class="-translate-y-3 -translate-x-3 flex flex-col items-center gap-4">
+      <div id="character-container" class="relative inline-block w-[320px] h-[320px] pointer-events-auto">
+        {% if not genre %}
+          <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none z-10">
+            도우미를 선택해 주세요!
+          </div>
+        {% else %}
+          {% include "customizing/character_render.html" with character=character equipped_items=equipped_items %}
+        {% endif %}
+      </div>
+    </div>
+  </div> -->
+
+
+<!-- <script src="{% static 'js/chatbot_mobile.js' %}"></script> -->
+
+</body>
+</html>
