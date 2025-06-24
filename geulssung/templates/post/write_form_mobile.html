@@ -145,16 +145,25 @@
 
 
     <div id="step-2" class="step-form">
-    <!-- ▶ 한·두·세 방울 토글 가이드 -->
-    <div id="guide-scrollable" class="overflow-auto max-h-64 p-2 mb-6">
-      <!-- 선택된 글감 표시 (토글) -->
-      <div id="selected-prompt-display"
-           class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
-        선택한 글감: <span id="selected-prompt-text"></span>
+      <!-- [수정코드] step2에서 선택한 글감을 최상단에 표시 -->
+      <div id="step2-prompt-display" class="mb-6 p-4 bg-[#f0f9ff] rounded-lg border border-[#7dd3fc] hidden">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">📖</span>
+          <span class="font-bold text-[#0c4a6e]">선택한 글감</span>
+        </div>
+        <p id="step2-prompt-text" class="text-[#0c4a6e] font-semibold"></p>
       </div>
-      <!-- 실제 가이드 콘텐츠 삽입 -->
-      <!-- guide_combined.html 직접 include 삭제 -->
-    </div>
+
+      <!-- ▶ 한·두·세 방울 토글 가이드 -->
+      <div id="guide-scrollable" class="overflow-auto max-h-64 p-2 mb-6">
+        <!-- 선택된 글감 표시 (토글) -->
+        <div id="selected-prompt-display"
+             class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
+          선택한 글감: <span id="selected-prompt-text"></span>
+        </div>
+        <!-- 실제 가이드 콘텐츠 삽입 -->
+        <!-- guide_combined.html 직접 include 삭제 -->
+      </div>
 
       <div class="mb-6">
         <label class="block font-semibold text-[black] mb-1">커버 이미지 업로드 (선택)</label>
@@ -278,46 +287,46 @@
     checkChatActivation();
   }
 
-  // function handleCharacterSelection(characterId) {
-  //   const radio = document.querySelector(`input[name="category"][value="${characterId}"]`);
-  //   if (radio) radio.checked = true;
-  //   // 도우미 선택 시 장르 영역 토글 (id 기준)
-  //   document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
-  //   document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
-  //   document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
-  //   document.getElementById("selectedPrompt").value = "";
-  //   document.getElementById("prompt-options").innerHTML = "";
-  //   document.getElementById("prompt-box").style.display = "none";
-  //   // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
-  //   const scrollable = document.getElementById("guide-scrollable");
-  //   while (scrollable.children.length > 1) {
-  //     scrollable.removeChild(scrollable.lastChild);
-  //   }
-  //   document.getElementById("character-input").value = characterId;
-  //   // 글감 표시 영역 숨기기
-  //   const displayBox = document.getElementById("selected-prompt-display");
-  //   if (displayBox) displayBox.classList.add("hidden");
+  function handleCharacterSelection(characterId) {
+    const radio = document.querySelector(`input[name="category"][value="${characterId}"]`);
+    if (radio) radio.checked = true;
+    // 도우미 선택 시 장르 영역 토글 (id 기준)
+    document.getElementById('genre-logic').style.display = characterId === 'logic' ? 'block' : 'none';
+    document.getElementById('genre-emotion').style.display = characterId === 'emotion' ? 'block' : 'none';
+    document.querySelectorAll('input[name="genre"]').forEach(r => r.checked = false);
+    document.getElementById("selectedPrompt").value = "";
+    document.getElementById("prompt-options").innerHTML = "";
+    document.getElementById("prompt-box").style.display = "none";
+    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const scrollable = document.getElementById("guide-scrollable");
+    while (scrollable.children.length > 1) {
+      scrollable.removeChild(scrollable.lastChild);
+    }
+    document.getElementById("character-input").value = characterId;
+    // 글감 표시 영역 숨기기
+    const displayBox = document.getElementById("selected-prompt-display");
+    if (displayBox) displayBox.classList.add("hidden");
 
-  //   // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
-  //   const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
-  //   // 캐릭터 이미지 다시 렌더링해서 넣기
-  //   fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
-  //     .then(res => res.text())
-  //     .then(html => {
-  //       const container = document.getElementById("character-container");
-  //       container.innerHTML = html;
-  //     })
-  //     .catch(err => {
-  //       const container = document.getElementById("character-container");
-  //       container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
-  //     });
-  //   // ★ 도우미(감성/논리) 저장
-  //   localStorage.setItem('geulssung_draft_genre', characterId);
-  //   // ★ 선택 직후 챗봇 활성화
-  //   selectCharacter(characterId);
+    // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
+    const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
+    // 캐릭터 이미지 다시 렌더링해서 넣기
+    fetch(`/geulssung/customizing/render-character/${charUrlId}/`)
+      .then(res => res.text())
+      .then(html => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = html;
+      })
+      .catch(err => {
+        const container = document.getElementById("character-container");
+        container.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400">캐릭터를 불러올 수 없습니다.</div>';
+      });
+    // ★ 도우미(감성/논리) 저장
+    localStorage.setItem('geulssung_draft_genre', characterId);
+    // ★ 선택 직후 챗봇 활성화
+    selectCharacter(characterId);
 
-  //   checkChatActivation();
-  // }
+    checkChatActivation();
+  }
 
 
   function renderPrompts() {
@@ -455,7 +464,10 @@
     // 초기화 시 글감 표시 영역 숨기기
     const displayBox = document.getElementById('selected-prompt-display');
     if (displayBox) displayBox.classList.add('hidden');
+    
+    // ★ localStorage 복원 기능 비활성화 (첫 화면에서 자동 선택 방지)
     // genre, genre_type, prompt 복원
+    /*
     const savedGenre = localStorage.getItem('geulssung_draft_genre');
     const savedGenreType = localStorage.getItem('geulssung_draft_genre_type');
     const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
@@ -495,6 +507,7 @@
         }
       }
     }
+    */
   });
 
   let isGuideVisible = true;
@@ -527,6 +540,38 @@ function showStep(step) {
 
 function nextStep() {
   if (currentStep === 1) {
+    // [수정코드] step1에서 도우미와 장르 선택 검증
+    const selectedCategory = document.querySelector('input[name="category"]:checked');
+    const selectedGenre = document.querySelector('input[name="genre"]:checked');
+    const selectedPrompt = document.getElementById('selectedPrompt').value;
+    
+    // 도우미 선택 확인
+    if (!selectedCategory) {
+      alert('도우미를 선택해주세요!');
+      return;
+    }
+    
+    // 장르 선택 확인
+    if (!selectedGenre) {
+      alert('장르를 선택해주세요!');
+      return;
+    }
+    
+    // 글감 선택 확인
+    if (!selectedPrompt) {
+      alert('글감을 선택해주세요!');
+      return;
+    }
+    
+    // [수정코드] step2로 넘어갈 때 선택한 글감을 상단에 표시
+    const step2PromptDisplay = document.getElementById('step2-prompt-display');
+    const step2PromptText = document.getElementById('step2-prompt-text');
+    
+    if (selectedPrompt && step2PromptDisplay && step2PromptText) {
+      step2PromptText.textContent = selectedPrompt;
+      step2PromptDisplay.classList.remove('hidden');
+    }
+    
     showStep(2);
   } else {
     // 2단계에서 다음 누르면 submit
@@ -536,6 +581,12 @@ function nextStep() {
 
 function prevStep() {
   if (currentStep > 1) {
+    // [수정코드] step1으로 돌아갈 때 step2의 글감 표시를 숨김
+    const step2PromptDisplay = document.getElementById('step2-prompt-display');
+    if (step2PromptDisplay) {
+      step2PromptDisplay.classList.add('hidden');
+    }
+    
     showStep(currentStep - 1);
   }
 }
