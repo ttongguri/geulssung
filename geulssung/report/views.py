@@ -1,66 +1,91 @@
-# report/views.py
-
-from collections import Counter
+import os
+import re
 from django.shortcuts import render
 from post.models import Post
-import re
+from report.models import SentimentAnalysis, PostSentiment
+import google.generativeai as genai
 
-# 감성 키워드 예시
-SENTIMENT_KEYWORDS = [
-    '행복', '사랑', '기쁨', '슬픔', '외로움', '그리움', '설렘', '분노', '불안', '감사', '희망', '우울', '두려움'
-]
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+def analyze_post_sentiment(post):
+    if hasattr(post, 'postsentiment'):
+        return post.postsentiment.score
+
+    prompt = f"""
+    아래 글의 감성 점수를 -10에서 +10 사이의 정수로 평가해줘.
+    점수가 높을수록 긍정적, 낮을수록 부정적이야.
+    반드시 score라는 단어와 숫자를 포함해서 알려줘.
+
+    글:
+    \"\"\"{post.final_content}\"\"\"
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+
+        # "score: -5" 형태로부터 숫자만 추출
+        match = re.search(r"[Ss]core['\"]?\s*[:=]\s*(-?\d+)", text)
+        score = int(match.group(1)) if match else 0
+
+        PostSentiment.objects.create(
+            post=post,
+            score=score,
+            result_text=text
+        )
+        return score
+
+    except Exception as e:
+        print(f"[ERROR] 감성 분석 실패: {e}")
+        return 0
 
 def report_view(request):
     user = request.user
     if not user.is_authenticated:
         return render(request, "report/unauthorized.html")
 
-    user_posts = Post.objects.filter(author=user)
-
+    user_posts = Post.objects.filter(author=user).order_by("created_at")
     if not user_posts.exists():
         return render(request, "report/no_data.html")
 
-    # 시간대별 카운트
-    hour_counts = Counter([post.created_at.hour for post in user_posts])
-    hour_labels = list(range(24))
-    hour_values = [hour_counts.get(h, 0) for h in hour_labels]
+    # 감성 요약 분석
+    latest_summary = SentimentAnalysis.objects.filter(user=user).order_by("-analyzed_at").first()
+    if latest_summary:
+        gemini_result = latest_summary.result_text
+    else:
+        full_text = "\n\n".join([p.final_content for p in user_posts if p.final_content])
+        prompt = f"""
+        아래는 사용자가 작성한 글 모음이야.
 
-    # 4구간 분류
-    time_groups = {
-        "새벽": sum(hour_counts.get(h, 0) for h in range(0, 6)),
-        "아침": sum(hour_counts.get(h, 0) for h in range(6, 12)),
-        "낮":   sum(hour_counts.get(h, 0) for h in range(12, 18)),
-        "밤":   sum(hour_counts.get(h, 0) for h in range(18, 24)),
-    }
+        전체 감성을 아래 항목에 따라 요약해줘:
+        1. 감성 분류: 긍정 / 중립 / 부정
+        2. 감성 키워드 3~5개
+        3. 인용할 만한 문장
+        4. 전체 감성 흐름을 문단으로 요약
 
-    peak_time_group = max(time_groups, key=lambda k: time_groups[k]) if sum(time_groups.values()) > 0 else None
+        \"\"\"{full_text}\"\"\"
+        """
+        try:
+            response = model.generate_content(prompt)
+            gemini_result = response.text.strip()
+            SentimentAnalysis.objects.create(user=user, result_text=gemini_result)
+        except Exception as e:
+            gemini_result = f"[분석 실패] {str(e)}"
 
-    # 월별 분석
-    month_counts = Counter([post.created_at.strftime('%Y-%m') for post in user_posts])
-    month_labels = sorted(month_counts.keys())
-    month_values = [month_counts[m] for m in month_labels]
+    sentiment_labels = []
+    sentiment_scores = []
 
-    # 감정 키워드 & 단어 빈도 분석
-    all_text = " ".join([post.final_content for post in user_posts if post.final_content])
-
-    sentiment_counts = Counter()
-    for keyword in SENTIMENT_KEYWORDS:
-        sentiment_counts[keyword] = all_text.count(keyword)
-    top_sentiments = [word for word, count in sentiment_counts.most_common(5) if count > 0]
-
-    words = re.findall(r'\b[가-힣]{2,}\b', all_text)
-    word_counts = Counter(words)
-    top_words = [word for word, count in word_counts.most_common(10)]
+    for post in user_posts:
+        if not post.final_content:
+            continue
+        sentiment_labels.append(post.created_at.strftime("%Y-%m-%d"))
+        sentiment_scores.append(analyze_post_sentiment(post))
 
     context = {
-        "hour_labels": hour_labels,
-        "hour_values": hour_values,
-        "month_labels": month_labels,
-        "month_values": month_values,
-        "peak_time_group": peak_time_group,
-        "time_groups": time_groups,
-        "top_sentiments": top_sentiments,
-        "top_words": top_words,
+        "gemini_result": gemini_result,
+        "sentiment_labels": sentiment_labels,
+        "sentiment_scores": sentiment_scores,
     }
 
     return render(request, "report/report.html", context)

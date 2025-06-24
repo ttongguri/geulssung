@@ -3,7 +3,7 @@
 <html lang="ko" style="font-size: 80%;">
 <head>
   <meta charset="UTF-8" />
-  <title>글쓰기 리포트</title>
+  <title>글쓰기 감성 리포트</title>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -14,155 +14,58 @@
 </head>
 <body class="bg-[#f0f9ff] text-[#493E3E] font-[Gowun Batang] p-6">
 
-  <div class="max-w-[1300px] mx-auto space-y-10">
-
+  <div class="max-w-[900px] mx-auto space-y-10">
     <!-- 헤더 -->
     <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold mb-2">📊 나의 글쓰기 리포트</h1>
-        {% if peak_time_group %}
-          <p class="text-lg">🕒 당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong> 시간대에 가장 활발하게 글을 쓰는군요!</p>
-        {% endif %}
+      <h1 class="text-3xl font-bold mb-4">📊 나의 글쓰기 감성 리포트</h1>
+      <p class="text-lg text-gray-600">Gemini AI 기반 감성 분석 결과입니다.</p>
     </div>
 
-    <div class="max-w-[1300px] mx-auto space-y-10">
-    <!-- 첫 번째 행: 시간대 & 월별 차트 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <!-- 시간대 차트 (1칸) -->
-      <div class="bg-white rounded-2xl shadow-xl p-6">
-        <h2 class="text-xl font-bold mb-2">🕐 시간대별 작성 빈도</h2>
-        <p class="mb-4">하루 중 언제 글을 쓰는지 한눈에 확인해보세요.</p>
-        <div id="hourChart"></div>
-      </div>
-
-      <!-- 월별 추세 차트 (1칸) -->
-      <div class="bg-white rounded-2xl shadow-xl p-6">
-        <h2 class="text-xl font-bold mb-2">📅 월별 글쓰기 추세</h2>
-        <p class="mb-4">최근 활동이 얼마나 활발했는지 살펴보세요.</p>
-        <div id="monthChart"></div>
-      </div>
+    <!-- 감성 분석 요약 -->
+    {% if gemini_result %}
+    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+      <h2 class="text-xl font-bold mb-3">🧠 감성 분석 요약</h2>
+      <p class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{{ gemini_result }}</p>
     </div>
+    {% endif %}
 
-    <!-- 두 번째 행: 피드백 기반 분석 (전체 너비) -->
-    <div class="bg-white rounded-2xl shadow-xl p-6">
-      <h2 class="text-xl font-bold mb-2">🧠 피드백 기반 분석</h2>
-      <p class="mb-4">당신의 글에 대한 반응을 분석해 인사이트를 제공합니다.</p>
-      <ul class="list-disc list-inside space-y-2">
-        <li>
-          <strong>좋아요/스크랩이 많은 글의 공통점:</strong><br>
-          대부분 <span class="text-blue-600">600자 이상</span>의 감성적 글이며, <span class="text-blue-600">저녁 시간대</span>에 작성되었습니다.
-        </li>
-        <li>
-          <strong>댓글이 많이 달린 글의 특징:</strong><br>
-          <span class="text-blue-600">논쟁적인 주제</span>나 <span class="text-blue-600">공감되는 경험 공유</span>가 많았습니다.
-        </li>
-        <li>
-          <strong>반응이 적은 글의 개선 힌트:</strong><br>
-          너무 짧거나 <span class="text-red-500">주제가 불분명한 경우</span> 반응이 낮았습니다. 내용을 좀 더 구체화해 보세요!
-        </li>
-      </ul>
-    </div>
-
-    <!-- 세 번째 행: 감성 분석 및 단어 빈도수 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- 감성 분석 -->
-      <div class="bg-white rounded-2xl shadow-xl p-6">
-        <h2 class="text-xl font-bold mb-2">💬 감성 분석</h2>
-        <p class="mb-4">당신의 글에는 다음과 같은 감성이 많이 담겨 있습니다.</p>
-        <div id="emotionChart" class="text-4xl flex flex-wrap gap-3">
-          {% for kw in top_sentiments %}
-            {% if "기쁨" in kw or "행복" in kw or "사랑" in kw or "감사" in kw or "희망" in kw or "설렘" in kw %}
-              <span title="{{ kw }}">😊</span>
-            {% elif "슬픔" in kw or "우울" in kw or "외로움" in kw or "그리움" in kw %}
-              <span title="{{ kw }}">😢</span>
-            {% elif "불안" in kw or "두려움" in kw %}
-              <span title="{{ kw }}">😟</span>
-            {% elif "분노" in kw %}
-              <span title="{{ kw }}">😠</span>
-            {% else %}
-              <span title="{{ kw }}">😌</span>
-            {% endif %}
-          {% empty %}
-            <span class="text-base text-gray-400">감성 키워드가 충분하지 않습니다.</span>
-          {% endfor %}
-        </div>
-      </div>
-
-
-      <!-- 단어 빈도수 -->
-      <div class="bg-white rounded-2xl shadow-xl p-6">
-        <h2 class="text-xl font-bold mb-2">🔠 단어 빈도수 분석</h2>
-        <p class="mb-4">자주 사용한 단어 상위 10개를 차트로 확인해보세요.</p>
-        <div id="wordFreqChart"></div>
-      </div>
+    <!-- 감성 흐름 그래프 -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+      <h2 class="text-xl font-bold mb-3">📈 감성 흐름 분석</h2>
+      <p class="mb-4 text-sm text-gray-600">글 작성 순서에 따른 감성 점수의 변화를 나타냅니다.</p>
+      <div id="sentimentFlowChart"></div>
     </div>
   </div>
 
-  <!-- Chart JS -->
+  <!-- 그래프 스크립트 -->
   <script>
-    const hourOptions = {
-      chart: {
-        type: 'bar',
-        height: 300
-      },
+    const sentimentFlowOptions = {
+      chart: { type: 'line', height: 300 },
       series: [{
-        name: '작성 수',
-        data: {{ hour_values|safe }}
+        name: '감성 점수',
+        data: {{ sentiment_scores|safe }}
       }],
       xaxis: {
-        categories: {{ hour_labels|safe }},
-        title: { text: '시간대 (시)' }
+        categories: {{ sentiment_labels|safe }},
+        title: { text: '작성일' }
       },
       yaxis: {
-        title: { text: '작성 횟수' }
+        min: -10, max: 10,
+        tickAmount: 5,
+        labels: {
+          formatter: function (val) {
+            if (val >= 7) return "매우 긍정";
+            if (val >= 3) return "긍정";
+            if (val <= -7) return "매우 부정";
+            if (val <= -3) return "부정";
+            return "중립";
+          }
+        }
       },
-      colors: ['#89ACDB'],
-      dataLabels: { enabled: false }
-    };
-    new ApexCharts(document.querySelector("#hourChart"), hourOptions).render();
-
-    const monthOptions = {
-      chart: {
-        type: 'line',
-        height: 300
-      },
-      series: [{
-        name: '작성 수',
-        data: {{ month_values|safe }}
-      }],
-      xaxis: {
-        categories: {{ month_labels|safe }},
-        title: { text: '월' }
-      },
-      yaxis: {
-        title: { text: '작성 횟수' }
-      },
-      colors: ['#F9A8D4'],
+      colors: ['#FBBF24'],
       dataLabels: { enabled: true }
     };
-    new ApexCharts(document.querySelector("#monthChart"), monthOptions).render();
-
-    const wordFreqData = {{ word_freq|safe }};
-    const wordFreqOptions = {
-      chart: {
-        type: 'bar',
-        height: 300
-      },
-      series: [{
-        name: '등장 횟수',
-        data: wordFreqData.map(item => item[1])
-      }],
-      xaxis: {
-        categories: wordFreqData.map(item => item[0]),
-        title: { text: '단어' }
-      },
-      yaxis: {
-        title: { text: '빈도' }
-      },
-      colors: ['#6EE7B7'],
-      dataLabels: { enabled: true }
-    };
-    new ApexCharts(document.querySelector("#wordFreqChart"), wordFreqOptions).render();
+    new ApexCharts(document.querySelector("#sentimentFlowChart"), sentimentFlowOptions).render();
   </script>
 </body>
 </html>
