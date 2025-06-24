@@ -3,7 +3,7 @@
 <html lang="ko" style="font-size: 80%;">
 <head>
   <meta charset="UTF-8" />
-  <title>글쓰기 감성 리포트</title>
+  <title>글쓰기 리포트</title>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -14,11 +14,29 @@
 </head>
 <body class="bg-[#f0f9ff] text-[#493E3E] font-[Gowun Batang] p-6">
 
-  <div class="max-w-[900px] mx-auto space-y-10">
+  <div class="max-w-[1300px] mx-auto space-y-10">
     <!-- 헤더 -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold mb-4">📊 나의 글쓰기 감성 리포트</h1>
-      <p class="text-lg text-gray-600">Gemini AI 기반 분석 결과입니다.</p>
+        <h1 class="text-3xl font-bold mb-2">📊 나의 글쓰기 리포트</h1>
+        {% if peak_time_group %}
+        <p class="text-lg">🕒 당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong> 시간대에 가장 활발하게 글을 쓰는군요!</p>
+        {% endif %}
+        {% if f_time_group or t_time_group %}
+        <div class="mt-4 flex flex-col md:flex-row justify-center items-stretch gap-10">
+          {% if f_time_group %}
+            <div class="flex flex-col items-center flex-1">
+              <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" alt="글썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
+              <span class="text-lg mt-4 text-center"><strong>글썽이</strong>와는 <strong class="text-blue-600">{{ f_time_group }}</strong> 시간대에 많이 썼어요.</span>
+            </div>
+          {% endif %}
+          {% if t_time_group %}
+            <div class="flex flex-col items-center flex-1">
+              <img src="{% static 'images/character/malssung/malssung_default.png' %}" alt="말썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
+              <span class="text-lg mt-4 text-center"><strong>말썽이</strong>와는 <strong class="text-blue-600">{{ t_time_group }}</strong> 시간대에 많이 썼어요.</span>
+            </div>
+          {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- 감성 분석 요약 -->
@@ -29,43 +47,5 @@
     </div>
     {% endif %}
 
-    <!-- 감성 흐름 그래프 -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-      <h2 class="text-xl font-bold mb-3">📈 감성 흐름 분석</h2>
-      <p class="mb-4 text-sm text-gray-600">글 작성 순서에 따른 감성 점수의 변화를 나타냅니다.</p>
-      <div id="sentimentFlowChart"></div>
-    </div>
-  </div>
-
-  <!-- 그래프 스크립트 -->
-  <script>
-    const sentimentFlowOptions = {
-      chart: { type: 'line', height: 300 },
-      series: [{
-        name: '감성 점수',
-        data: {{ sentiment_scores|safe }}
-      }],
-      xaxis: {
-        categories: {{ sentiment_labels|safe }},
-        title: { text: '작성일' }
-      },
-      yaxis: {
-        min: -10, max: 10,
-        tickAmount: 5,
-        labels: {
-          formatter: function (val) {
-            if (val >= 7) return "매우 긍정";
-            if (val >= 3) return "긍정";
-            if (val <= -7) return "매우 부정";
-            if (val <= -3) return "부정";
-            return "보통";
-          }
-        }
-      },
-      colors: ['#FBBF24'],
-      dataLabels: { enabled: true }
-    };
-    new ApexCharts(document.querySelector("#sentimentFlowChart"), sentimentFlowOptions).render();
-  </script>
 </body>
 </html>

@@ -4,6 +4,7 @@ from django.shortcuts import render
 from post.models import Post
 from report.models import SentimentAnalysis, PostSentiment
 import google.generativeai as genai
+from collections import Counter
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -40,6 +41,25 @@ def analyze_post_sentiment(post):
         print(f"[ERROR] 감성 분석 실패: {e}")
         return 0
 
+def get_peak_time_group(posts):
+    # 시간대 그룹: 새벽(0~5), 아침(6~11), 오후(12~17), 저녁(18~23)
+    time_groups = {
+        "새벽": range(0, 6),
+        "아침": range(6, 12),
+        "오후": range(12, 18),
+        "저녁": range(18, 24),
+    }
+    group_counts = Counter()
+    for post in posts:
+        hour = post.created_at.hour
+        for group, hours in time_groups.items():
+            if hour in hours:
+                group_counts[group] += 1
+                break
+    if group_counts:
+        return group_counts.most_common(1)[0][0]
+    return None
+
 def report_view(request):
     user = request.user
     if not user.is_authenticated:
@@ -48,6 +68,11 @@ def report_view(request):
     user_posts = Post.objects.filter(author=user).order_by("created_at")
     if not user_posts.exists():
         return render(request, "report/no_data.html")
+
+    # 시간대 분석 추가
+    peak_time_group = get_peak_time_group(user_posts)
+    f_time_group = get_peak_time_group([p for p in user_posts if p.category == 'emotion'])
+    t_time_group = get_peak_time_group([p for p in user_posts if p.category == 'logic'])
 
     # 감성 요약 분석
     latest_summary = SentimentAnalysis.objects.filter(user=user).order_by("-analyzed_at").first()
@@ -86,6 +111,9 @@ def report_view(request):
         "gemini_result": gemini_result,
         "sentiment_labels": sentiment_labels,
         "sentiment_scores": sentiment_scores,
+        "peak_time_group": peak_time_group,
+        "f_time_group": f_time_group,  # F글 시간대
+        "t_time_group": t_time_group,  # T글 시간대
     }
 
     return render(request, "report/report.html", context)
