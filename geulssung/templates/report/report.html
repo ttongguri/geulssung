@@ -22,15 +22,15 @@
         <p class="text-lg">🕒 당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong> 시간대에 가장 활발하게 글을 쓰는군요!</p>
         {% endif %}
         {% if f_time_group or t_time_group %}
-        <div class="mt-4 flex flex-col md:flex-row justify-center items-stretch gap-10">
+        <div class="mt-4 flex flex-col md:flex-row justify-center items-center gap-10 max-w-4xl mx-auto">
           {% if f_time_group %}
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-col items-center flex-1 max-w-xl">
               <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" alt="글썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
               <span class="text-lg mt-4 text-center"><strong>글썽이</strong>와는 <strong class="text-blue-600">{{ f_time_group }}</strong> 시간대에 많이 썼어요.</span>
             </div>
           {% endif %}
           {% if t_time_group %}
-            <div class="flex flex-col items-center flex-1">
+            <div class="flex flex-col items-center flex-1 max-w-xl">
               <img src="{% static 'images/character/malssung/malssung_default.png' %}" alt="말썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
               <span class="text-lg mt-4 text-center"><strong>말썽이</strong>와는 <strong class="text-blue-600">{{ t_time_group }}</strong> 시간대에 많이 썼어요.</span>
             </div>
