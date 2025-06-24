@@ -13,6 +13,14 @@
     @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
     body { font-family: 'Gowun Batang', serif; }
     summary { font-weight: bold; cursor: pointer; }
+    
+    /* 토글 표시(화살표) 숨기기 */
+    details > summary {
+      list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
   </style>
 </head>
 <body class="bg-[#bae6fd] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
@@ -155,7 +163,7 @@
       </div>
 
       <!-- ▶ 한·두·세 방울 토글 가이드 -->
-      <div id="guide-scrollable" class="overflow-auto max-h-64 p-2 mb-6">
+      <div id="guide-content" class="mb-6">
         <!-- 선택된 글감 표시 (토글) -->
         <div id="selected-prompt-display"
              class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
@@ -194,7 +202,10 @@
         ></textarea>
       </div>
 
-      <div class="flex justify-end mt-6">
+      <div class="flex justify-between mt-6">
+        <button type="button" onclick="prevStep()" class="bg-gray-300 hover:bg-gray-400 text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
+          ← 뒤로
+        </button>
         <button type="submit" class="bg-[#bae6fd] hover:bg-[#7dd3fc] text-[#493E3E] font-bold px-6 py-3 rounded-full transition">
           보관하기
         </button>
@@ -219,10 +230,10 @@
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
-    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
-    const scrollable = document.getElementById("guide-scrollable");
-    while (scrollable.children.length > 1) {
-      scrollable.removeChild(scrollable.lastChild);
+    // guide-content 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const guideContent = document.getElementById("guide-content");
+    while (guideContent.children.length > 1) {
+      guideContent.removeChild(guideContent.lastChild);
     }
     document.getElementById("character-input").value = category;
     // 글감 표시 영역 숨기기
@@ -242,17 +253,17 @@
   function showGuideSidebar(genre) {
     const templateId = `guide-template-${genre}`;
     const guideContainer = document.getElementById("guide-template-container");
-    const scrollable = document.getElementById("guide-scrollable");
+    const guideContent = document.getElementById("guide-content");
     const temp = guideContainer?.querySelector(`#${templateId}`);
-    if (temp && scrollable) {
-      // selected-prompt-display는 남기고, 나머지 guide-scrollable 자식 모두 삭제
-      while (scrollable.children.length > 1) {
-        scrollable.removeChild(scrollable.lastChild);
+    if (temp && guideContent) {
+      // selected-prompt-display는 남기고, 나머지 guide-content 자식 모두 삭제
+      while (guideContent.children.length > 1) {
+        guideContent.removeChild(guideContent.lastChild);
       }
       // 가이드 템플릿 삽입
       const guideDiv = document.createElement("div");
       guideDiv.innerHTML = temp.innerHTML;
-      scrollable.appendChild(guideDiv);
+      guideContent.appendChild(guideDiv);
       // ★ 장르별 step drafts 자동 저장/복원 세팅
       setupStepDrafts(genre);
     } else {
@@ -297,10 +308,10 @@
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
-    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
-    const scrollable = document.getElementById("guide-scrollable");
-    while (scrollable.children.length > 1) {
-      scrollable.removeChild(scrollable.lastChild);
+    // guide-content 비울 때 selected-prompt-display는 남기고 나머지만 삭제
+    const guideContent = document.getElementById("guide-content");
+    while (guideContent.children.length > 1) {
+      guideContent.removeChild(guideContent.lastChild);
     }
     document.getElementById("character-input").value = characterId;
     // 글감 표시 영역 숨기기
