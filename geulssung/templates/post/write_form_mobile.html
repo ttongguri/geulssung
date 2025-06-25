@@ -91,10 +91,9 @@
       background-repeat: no-repeat;
     }
   </style>
-  {% include "nav_bar_mobile.html" %}
   
   <!-- 전체 래퍼 -->
-  <div class="bg-white p-4 mt-28 rounded-xl shadow-lg overflow-hidden">
+  <div class="bg-white p-4 mt-5 rounded-xl shadow-lg overflow-hidden">
     <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="character" id="character-input" value="none">
@@ -730,6 +729,24 @@ function setupStepDrafts(genre) {
 
 
 <!-- <script src="{% static 'js/chatbot_mobile.js' %}"></script> -->
+
+<!-- ===== 하단 고정 내비게이션 바 ===== -->
+<div class="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 flex justify-center items-center gap-5 bg-white/90 rounded-full shadow-lg px-4 py-1 border border-[#bae6fd]"
+     style="backdrop-filter: blur(6px);">
+  <a href="/" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
+    <span class="text-xl">🏠</span>
+    <span class="text-[10px] mt-0.5">홈</span>
+  </a>
+  <a href="/accounts/profile/" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
+    <span class="text-xl">📝</span>
+    <span class="text-[10px] mt-0.5">글자국</span>
+  </a>
+  <a href="/post/explore/" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
+    <span class="text-xl">🌊</span>
+    <span class="text-[10px] mt-0.5">글바다</span>
+  </a>
+</div>
+<!-- ===== // 하단 고정 내비게이션 바 ===== -->
 
 </body>
 </html>
