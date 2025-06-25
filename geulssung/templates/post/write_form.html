@@ -722,26 +722,24 @@
       const now = new Date();
       const timestamp = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-       // ✅ 수정된 부분: 편집 중인 글인지 확인
-      const editingIndex = localStorage.getItem("geulssung_editing_draft_index");
       let drafts = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]");
 
-      if (editingIndex !== null && editingIndex !== undefined) {
-        // 기존 글 업데이트
-        const index = parseInt(editingIndex);
-        if (drafts[index]) {
-          drafts[index] = {
-            ...drafts[index], // 기존 데이터 유지
-            content,
-            timestamp, // 수정 시간으로 업데이트
-            genre,
-            step1,
-            step2,
-            step3,
-            promptId: localStorage.getItem("geulssung_draft_prompt_id") || "custom"
-          };
-          alert("기존 임시저장 글이 업데이트되었습니다.");
-        }
+      // 글감(제목) 기준으로 이미 저장된 글이 있는지 찾기
+      const existingIndex = drafts.findIndex(d => d.title === promptTitle);
+
+      if (existingIndex !== -1) {
+        // 이미 있는 글이면 업데이트
+        drafts[existingIndex] = {
+          ...drafts[existingIndex],
+          content,
+          timestamp,
+          genre,
+          step1,
+          step2,
+          step3,
+          promptId: localStorage.getItem("geulssung_draft_prompt_id") || "custom"
+        };
+        alert("기존 임시저장 글이 업데이트되었습니다.");
       } else {
         // 새 글 추가
         const newDraft = {
@@ -763,9 +761,8 @@
       const countEl = document.getElementById("draftCount");
       if (countEl) countEl.textContent = drafts.length;
 
-      if (genre) {
-        resetWritingGuideSteps(genre);
-      }
+      // 인덱스 초기화
+      localStorage.removeItem("geulssung_editing_draft_index");
 
     } catch (error) {
       console.error("❌ 임시저장 중 오류:", error);
