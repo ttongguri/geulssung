@@ -1,58 +1,95 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="ko" style="font-size: 80%;">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>글쓰기 리포트</title>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <meta charset="UTF-8">
+  <title>글 리포트</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
-    body { font-family: 'Gowun Batang', serif; }
-  </style>
 </head>
-<body class="bg-[#f0f9ff] text-[#493E3E] font-[Gowun Batang] p-6">
+<body class="bg-gray-100 text-gray-800">
 
-  <div class="max-w-[1300px] mx-auto space-y-10">
-    <!-- 헤더 -->
-    <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold mt-10 mb-10">📊 나의 글쓰기 리포트</h1>
-        <div class="mt-4 text-center">
-        {% if f_time_group or t_time_group %}
-          {% if f_time_group == t_time_group and f_time_group %}
-            <p class="text-lg mb-4">감성적인 글, 이성적인 글 모두 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼어요.</p>
-          {% else %}
-            {% if f_time_group %}
-              <p class="text-lg mb-4">감성적인 글은 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼고,</p>
-            {% else %}
-              <p class="text-lg mb-4">감성적인 글은 아직 작성하지 않았어요.</p>
-            {% endif %}
-            {% if t_time_group %}
-              <p class="text-lg mb-4">이성적인 글은 <strong class="text-blue-600">{{ t_time_group }}</strong>에 많이 썼어요.</p>
-            {% else %}
-              <p class="text-lg mb-4">이성적인 글은 아직 작성하지 않았어요.</p>
-            {% endif %}
-          {% endif %}
-        {% else %}
-          <p class="text-lg mb-4">아직 글을 작성하지 않으셨네요. 첫 글을 써보세요!</p>
-        {% endif %}
-        
-        {% if avg_char_count or max_char_count %}
-        <div class="mt-4">
-          <p class="text-lg">평균 글자수는 <strong class="text-blue-600">{{ avg_char_count }}</strong>자이고, 가장 긴 글은 <strong class="text-blue-600">{{ max_char_count }}</strong>자예요.</p>
+  <!-- 상단 제목 영역 -->
+  <header class="bg-cyan-500 text-white text-center py-6 text-3xl font-bold">
+    글 리포트
+  </header>
+
+  <main class="max-w-4xl mx-auto p-6 bg-white shadow-md mt-6 rounded-lg">
+
+    <!-- 기본 정보 섹션 -->
+    <div class="grid grid-cols-3 gap-6 mb-6">
+      <!-- 프로필 사진 -->
+      <div class="col-span-1">
+        <div class="w-full aspect-square bg-gray-200 rounded-md"></div>
+      </div>
+
+      <!-- 닉네임, 가입일 -->
+      <div class="col-span-1 flex flex-col justify-between">
+        <div>
+          <p class="font-semibold">닉네임</p>
+          <p class="text-sm">보리밥</p>
         </div>
-        {% endif %}
+        <div>
+          <p class="font-semibold mt-4">가입일</p>
+          <p class="text-sm">2025.05.01</p>
         </div>
+      </div>
+
+      <!-- 등급, 글 수 -->
+      <div class="col-span-1 flex flex-col justify-between">
+        <div>
+          <p class="font-semibold">글 발행등급</p>
+          <p class="text-sm">고래</p>
+        </div>
+        <div>
+          <p class="font-semibold mt-4">발행글 수</p>
+          <p class="text-sm">50</p>
+        </div>
+      </div>
     </div>
 
-    <!-- 감성 분석 요약 -->
-    {% if gemini_result %}
-    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
-      <h2 class="text-xl font-bold mb-3">💡 감성 분석 요약</h2>
-      <p class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{{ gemini_result }}</p>
+    <!-- 요약 + 점수추이 -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <!-- 요약 테이블 -->
+      <div>
+        <p class="font-bold mb-2">요약</p>
+        <table class="w-full border text-sm">
+          <tbody>
+            <tr class="border-t">
+              <td class="p-2 font-medium w-1/2 bg-gray-50">주요활동시간대</td>
+              <td class="p-2"></td>
+            </tr>
+            <tr class="border-t">
+              <td class="p-2 font-medium bg-gray-50">F글/T글 시간대</td>
+              <td class="p-2"></td>
+            </tr>
+            <tr class="border-t">
+              <td class="p-2 font-medium bg-gray-50">평균/최대글자수</td>
+              <td class="p-2"></td>
+            </tr>
+            <tr class="border-t">
+              <td class="p-2 font-medium bg-gray-50">평균/최고점수</td>
+              <td class="p-2"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 점수추이 그래프 영역 -->
+      <div>
+        <p class="font-bold mb-2">점수추이</p>
+        <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+          점수추이 그래프
+        </div>
+      </div>
     </div>
-    {% endif %}
+
+    <!-- 종합 평가 의견 -->
+    <div>
+      <p class="font-bold mb-2">종합 평가 의견</p>
+      <div class="w-full h-32 bg-gray-100 p-4 rounded-md text-sm text-gray-600">
+        <!-- 의견 내용이 들어갈 영역 -->
+      </div>
+    </div>
+  </main>
 
 </body>
 </html>
