@@ -4,6 +4,7 @@ from django.shortcuts import render
 from post.models import Post
 from report.models import SentimentAnalysis, PostSentiment
 import google.generativeai as genai
+from collections import Counter, defaultdict
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -69,7 +70,6 @@ def report_view(request):
         return render(request, "report/no_data.html")
 
     # 시간대 분석 추가
-    peak_time_group = get_peak_time_group(user_posts)
     f_time_group = get_peak_time_group([p for p in user_posts if p.category == 'emotion'])
     t_time_group = get_peak_time_group([p for p in user_posts if p.category == 'logic'])
 
@@ -168,6 +168,10 @@ def report_view(request):
         "gemini_result": gemini_result,
         "sentiment_labels": sentiment_labels,
         "sentiment_scores": sentiment_scores,
+        "f_time_group": f_time_group,
+        "t_time_group": t_time_group,
+        "avg_char_count": avg_char_count,
+        "max_char_count": max_char_count,
     }
 
     return render(request, "report/report.html", context)

@@ -21,20 +21,26 @@
         <div class="mt-4 text-center">
         {% if f_time_group or t_time_group %}
           {% if f_time_group == t_time_group and f_time_group %}
-            <p class="text-lg">감성적인 글, 이성적인 글 모두 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼어요.</p>
+            <p class="text-lg mb-4">감성적인 글, 이성적인 글 모두 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼어요.</p>
           {% else %}
             {% if f_time_group %}
-              <p class="text-lg mb-2">감성적인 글은 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼고,</p>
+              <p class="text-lg mb-4">감성적인 글은 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼고,</p>
+            {% else %}
+              <p class="text-lg mb-4">감성적인 글은 아직 작성하지 않았어요.</p>
             {% endif %}
             {% if t_time_group %}
-              <p class="text-lg">이성적인 글은 <strong class="text-blue-600">{{ t_time_group }}</strong>에 많이 썼어요.</p>
+              <p class="text-lg mb-4">이성적인 글은 <strong class="text-blue-600">{{ t_time_group }}</strong>에 많이 썼어요.</p>
+            {% else %}
+              <p class="text-lg mb-4">이성적인 글은 아직 작성하지 않았어요.</p>
             {% endif %}
           {% endif %}
+        {% else %}
+          <p class="text-lg mb-4">아직 글을 작성하지 않으셨네요. 첫 글을 써보세요!</p>
         {% endif %}
         
         {% if avg_char_count or max_char_count %}
         <div class="mt-4">
-          <p class="text-lg mb-2">평균 글자수는 <strong class="text-blue-600">{{ avg_char_count }}</strong>자이고, 가장 긴 글은 <strong class="text-blue-600">{{ max_char_count }}</strong>자예요.</p>
+          <p class="text-lg">평균 글자수는 <strong class="text-blue-600">{{ avg_char_count }}</strong>자이고, 가장 긴 글은 <strong class="text-blue-600">{{ max_char_count }}</strong>자예요.</p>
         </div>
         {% endif %}
         </div>
