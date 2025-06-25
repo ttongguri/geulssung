@@ -41,6 +41,14 @@ gemini.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 User = get_user_model()
 
+# 모바일 감지 함수
+def is_mobile(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    mobile_keywords = ['mobile', 'iphone', 'android', 'ipad']
+    return any(keyword in user_agent for keyword in mobile_keywords)
+
+
+
 # 메인(홈) 페이지를 렌더링합니다.
 def home_view(request):
     if request.user.is_authenticated and not request.user.nickname:
@@ -122,7 +130,10 @@ def write_post_view(request):
 
         return redirect('post_detail', post_id=post.id)
     else:
-            # GET 요청일 때: 글쓰기 폼 렌더링 + 오늘 또는 어제 글감 로딩
+            # GET 요청 시 모바일 여부 확인 + 분기된 템플릿 선택
+            template_name = 'post/write_form_mobile.html' if is_mobile(request) else 'post/write_form.html'
+            
+            # 글쓰기 폼 렌더링 + 오늘 또는 어제 글감 로딩
             today = date.today()
             yesterday = today - timedelta(days=1)
 
@@ -132,7 +143,7 @@ def write_post_view(request):
 
             equipped_items = UserItem.objects.filter(user=request.user, equipped=True)
 
-            return render(request, 'post/write_form.html', {
+            return render(request, template_name, {
                 'prompts': prompts,
                 'equipped_items': equipped_items,
             })
