@@ -17,23 +17,17 @@
   <div class="max-w-[1300px] mx-auto space-y-10">
     <!-- 헤더 -->
     <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold mb-2">📊 나의 글쓰기 리포트</h1>
+        <h1 class="text-3xl font-bold mt-10 mb-10">📊 나의 글쓰기 리포트</h1>
+        <div class="mt-4 text-center">
         {% if peak_time_group %}
-        <p class="text-lg">🕒 당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong> 시간대에 가장 활발하게 글을 쓰는군요!</p>
+        <p class="text-lg mb-2">당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong>에 가장 활발하게 글을 쓰는군요!</p>
         {% endif %}
         {% if f_time_group or t_time_group %}
-        <div class="mt-4 flex flex-col md:flex-row justify-center items-center gap-10 max-w-4xl mx-auto">
           {% if f_time_group %}
-            <div class="flex flex-col items-center flex-1 max-w-xl">
-              <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" alt="글썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
-              <span class="text-lg mt-4 text-center"><strong>글썽이</strong>와는 <strong class="text-blue-600">{{ f_time_group }}</strong> 시간대에 많이 썼어요.</span>
-            </div>
+            <p class="text-lg mb-2">감성적인 글은 <strong class="text-blue-600">{{ f_time_group }}</strong>에 많이 썼고,</p>
           {% endif %}
           {% if t_time_group %}
-            <div class="flex flex-col items-center flex-1 max-w-xl">
-              <img src="{% static 'images/character/malssung/malssung_default.png' %}" alt="말썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
-              <span class="text-lg mt-4 text-center"><strong>말썽이</strong>와는 <strong class="text-blue-600">{{ t_time_group }}</strong> 시간대에 많이 썼어요.</span>
-            </div>
+            <p class="text-lg">이성적인 글은 <strong class="text-blue-600">{{ t_time_group }}</strong>에 많이 많이 썼어요.</p>
           {% endif %}
         </div>
         {% endif %}
