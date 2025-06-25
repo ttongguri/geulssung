@@ -80,6 +80,12 @@
     body.p-10 {
       padding: 1rem !important;
     }
+    
+    /* 글감 새로고침, 직접 입력 버튼 크기 축소 */
+    #refreshPromptsBtn, #customPromptBtn {
+      font-size: 10px !important;
+      padding: 2px 4px !important;
+    }
   </style>
 </head>
 <body class="bg-[#bae6fd] min-h-screen text-[#493E3E] p-10" style="font-family: 'Gowun Batang', serif;">
@@ -91,10 +97,9 @@
       background-repeat: no-repeat;
     }
   </style>
-  {% include "nav_bar_mobile.html" %}
   
   <!-- 전체 래퍼 -->
-  <div class="bg-white p-4 mt-28 rounded-xl shadow-lg overflow-hidden">
+  <div class="bg-white p-4 mt-5 mb-20 rounded-xl shadow-lg overflow-hidden">
     <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="character" id="character-input" value="none">
@@ -124,7 +129,7 @@
       </div>
 
       <div class="mb-6 hidden" id="genre-emotion">
-        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (글썽이)</p>
+        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요! (글썽이)</p>
         <div class="flex gap-4">
           <input type="radio" name="genre" value="essay" id="essay" class="hidden peer/essay" onchange="showGuide(this.value)">
           <label for="essay"
@@ -144,7 +149,7 @@
 
 
       <div class="mb-6 hidden" id="genre-logic">
-        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요 (말썽이)</p>
+        <p class="font-semibold text-[#493E3E] mb-2">형식을 골라보세요! (말썽이)</p>
         <div class="flex gap-4">
           <input type="radio" name="genre" value="column" id="column" class="hidden peer/column" onchange="showGuide(this.value)">
           <label for="column"
@@ -164,20 +169,8 @@
 
 
       <div id="prompt-box" class="mb-6 hidden">
-        <p class="font-semibold text-[#493E3E] mb-2 flex items-center">
-          📖 오늘의 글감을 골라보세요
-          <button type="button"
-            id="refreshPromptsBtn"
-            class="ml-2 px-2 py-1 mb-1 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
-            🔄 새로운 글감
-          </button>
-          <button type="button"
-            id="customPromptBtn"
-            class="ml-2 px-2 py-1 mb-1 rounded bg-[#fef08a] text-black text-xs border border-[#fde68a]">
-            ✏️ 직접 입력
-          </button>
-        </p>
-
+        <p class="font-semibold text-[#493E3E] mb-2">📖 오늘의 글감을 골라보세요!</p>
+        
         <!-- 선택한 글감 표시 영역 -->
         <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
           선택한 글감: <span id="selected-prompt-text"></span>
@@ -186,6 +179,20 @@
         <p class="text-xs text-gray-500 italic mb-4">
           오늘의 글감은 <a href="https://www.bigkinds.or.kr/" target="_blank" class="underline hover:text-blue-600">빅카인즈</a>에서 제공하는 오늘의 이슈 기반으로 매일 오전 9시에 초기화돼요 🕘
         </p>
+        
+        <div class="flex gap-2 mb-4 justify-end">
+          <button type="button"
+            id="refreshPromptsBtn"
+            class="px-0.5 py-0 rounded bg-[#bae6fd] text-black text-xs border border-[#7dd3fc]">
+            🔄 새로운 글감
+          </button>
+          <button type="button"
+            id="customPromptBtn"
+            class="px-0.5 py-0 rounded bg-[#fef08a] text-black text-xs border border-[#fde68a]">
+            ✏️ 직접 입력
+          </button>
+        </div>
+        
         <div id="prompt-options" class="grid grid-cols-1 gap-4"></div>
 
         <!-- ✏️ 자유 글감 직접 입력 (토글) -->
@@ -213,12 +220,12 @@
 
     <div id="step-2" class="step-form">
       <!-- [수정코드] step2에서 선택한 글감을 최상단에 표시 -->
-      <div id="step2-prompt-display" class="mb-6 p-4 bg-[#f0f9ff] rounded-lg border border-[#7dd3fc] hidden">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-lg">📖</span>
-          <span class="font-bold text-[#0c4a6e]">선택한 글감</span>
+      <div id="step2-prompt-display" class="mb-4 p-3 bg-[#f0f9ff] rounded-lg border border-[#7dd3fc] hidden">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-sm">📖</span>
+          <span class="font-semibold text-[#0c4a6e] text-sm">선택한 글감</span>
         </div>
-        <p id="step2-prompt-text" class="text-[#0c4a6e] font-semibold"></p>
+        <p id="step2-prompt-text" class="text-[#0c4a6e] text-sm"></p>
       </div>
 
       <!-- ▶ 한·두·세 방울 토글 가이드 -->
@@ -319,10 +326,24 @@
       while (guideContent.children.length > 1) {
         guideContent.removeChild(guideContent.lastChild);
       }
+      
+      // 터치 안내 문구 추가 (가이드 템플릿 전에)
+      const touchGuide = document.createElement('div');
+      touchGuide.className = 'mb-2';
+      touchGuide.innerHTML = '<label class="block font-semibold text-[black] mb-1">💧방울들을 열어보세요.</label>';
+      guideContent.appendChild(touchGuide);
+      
       // 가이드 템플릿 삽입
       const guideDiv = document.createElement("div");
       guideDiv.innerHTML = temp.innerHTML;
       guideContent.appendChild(guideDiv);
+      
+      // 모바일에서만 한방울 닫기
+      const firstDetails = guideContent.querySelector('details');
+      if (firstDetails) {
+        firstDetails.removeAttribute('open');
+      }
+      
       // ★ 장르별 step drafts 자동 저장/복원 세팅
       setupStepDrafts(genre);
     } else {
@@ -730,6 +751,26 @@ function setupStepDrafts(genre) {
 
 
 <!-- <script src="{% static 'js/chatbot_mobile.js' %}"></script> -->
+
+<!-- ===== 하단 고정 내비게이션 바 ===== -->
+<div class="fixed bottom-2 left-1/2 z-50 -translate-x-1/2 flex justify-center items-center gap-4 bg-white/95 rounded-full shadow-xl px-4 py-1 border border-gray-200"
+     style="backdrop-filter: blur(10px);">
+  <a href="{% url 'home' %}" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
+    <span class="text-xl">🏠</span>
+    <span class="text-[10px] mt-0.5">홈</span>
+  </a>
+  {% if user.is_authenticated %}
+  <a href="{% url 'public_user_posts' user.nickname %}" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
+    <span class="text-xl">🐾</span>
+    <span class="text-[10px] mt-0.5">내 글자국</span>
+  </a>
+  {% endif %}
+  <a href="{% url 'explore' %}" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
+    <span class="text-xl">🌊</span>
+    <span class="text-[10px] mt-0.5">글바다</span>
+  </a>
+</div>
+<!-- ===== // 하단 고정 내비게이션 바 ===== -->
 
 </body>
 </html>

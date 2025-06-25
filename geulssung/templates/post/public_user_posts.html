@@ -245,6 +245,15 @@
     
     <!-- 글자국 총 개수 표시 -->
     <h2 class="text-lg font-semibold mb-4">총 {{ contributions_count }} 개의 글자국🐾을 남겼습니다. </h2>
+
+    <!-- 감성분석 리포트 보기 버튼 -->
+    <div class="flex justify-end items-center mb-2">
+      <a href="{% url 'report' %}"
+         class="text-sm bg-green-200 hover:bg-green-300 text-green-900 px-4 py-1.5 rounded-full shadow font-semibold transition">
+        ✏️ 내 글 분석 리포트
+      </a>
+    </div>
+    
     <!-- 히트맵 월 레이블 -->
     <div class="heatmap-month-labels" id="month-labels"></div>
 
