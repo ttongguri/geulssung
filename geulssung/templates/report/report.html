@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" style="font-size: 80%;">
+<head>
+  <meta charset="UTF-8" />
+  <title>글쓰기 리포트</title>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
+    body { font-family: 'Gowun Batang', serif; }
+  </style>
+</head>
+<body class="bg-[#f0f9ff] text-[#493E3E] font-[Gowun Batang] p-6">
+
+  <div class="max-w-[1300px] mx-auto space-y-10">
+    <!-- 헤더 -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold mb-2">📊 나의 글쓰기 리포트</h1>
+        {% if peak_time_group %}
+        <p class="text-lg">🕒 당신은 <strong class="text-blue-600">{{ peak_time_group }}</strong> 시간대에 가장 활발하게 글을 쓰는군요!</p>
+        {% endif %}
+        {% if f_time_group or t_time_group %}
+        <div class="mt-4 flex flex-col md:flex-row justify-center items-center gap-10 max-w-4xl mx-auto">
+          {% if f_time_group %}
+            <div class="flex flex-col items-center flex-1 max-w-xl">
+              <img src="{% static 'images/character/geulssung/geulssung_default.png' %}" alt="글썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
+              <span class="text-lg mt-4 text-center"><strong>글썽이</strong>와는 <strong class="text-blue-600">{{ f_time_group }}</strong> 시간대에 많이 썼어요.</span>
+            </div>
+          {% endif %}
+          {% if t_time_group %}
+            <div class="flex flex-col items-center flex-1 max-w-xl">
+              <img src="{% static 'images/character/malssung/malssung_default.png' %}" alt="말썽이" class="w-48 h-48 rounded-full border-2 border-blue-300" />
+              <span class="text-lg mt-4 text-center"><strong>말썽이</strong>와는 <strong class="text-blue-600">{{ t_time_group }}</strong> 시간대에 많이 썼어요.</span>
+            </div>
+          {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 감성 분석 요약 -->
+    {% if gemini_result %}
+    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
+      <h2 class="text-xl font-bold mb-3">💡 감성 분석 요약</h2>
+      <p class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{{ gemini_result }}</p>
+    </div>
+    {% endif %}
+
+</body>
+</html>
