@@ -5,6 +5,7 @@ from post.models import Post
 from report.models import SentimentAnalysis, PostSentiment
 import google.generativeai as genai
 from collections import Counter
+from customizing.models import Character, UserItem
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -71,6 +72,19 @@ def report_view(request):
     user_posts = Post.objects.filter(author=user).order_by("created_at")
     if not user_posts.exists():
         return render(request, "report/no_data.html")
+
+    # 캐릭터 객체 조회
+    try:
+        geulssung = Character.objects.get(name="글썽이")
+    except Character.DoesNotExist:
+        geulssung = None
+    try:
+        malssung = Character.objects.get(name="말썽이")
+    except Character.DoesNotExist:
+        malssung = None
+
+    # 착용중인 아이템 쿼리
+    equipped_items = UserItem.objects.filter(user=user, equipped=True)
 
     # 시간대 분석 추가
     peak_time_group = get_peak_time_group(user_posts)
@@ -164,6 +178,9 @@ def report_view(request):
         "peak_time_group": peak_time_group,
         "f_time_group": f_time_group,  # F글 시간대
         "t_time_group": t_time_group,  # T글 시간대
+        "geulssung": geulssung,
+        "malssung": malssung,
+        "equipped_items": equipped_items,
     }
 
     return render(request, "report/report.html", context)
