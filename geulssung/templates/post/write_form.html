@@ -440,10 +440,8 @@
   window._restorePrompt = function() {
     const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
     const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
-
-    if (savedPrompt && savedPromptId === 'custom') {
-      selectPrompt(null, savedPrompt, "custom");
-    } else if (savedPrompt && savedPromptId) {
+    if (savedPrompt && savedPromptId) {
+      // 글감 버튼이 렌더링된 후에만 실행
       const promptBtns = document.querySelectorAll('.prompt-option');
       let found = false;
       promptBtns.forEach(btn => {
@@ -452,6 +450,10 @@
           found = true;
         }
       });
+      // custom prompt일 경우
+      if (!found && savedPromptId === 'custom') {
+        selectPrompt(null, savedPrompt, 'custom');
+      }
     }
   };
 
@@ -538,9 +540,6 @@
         });
     }
     
-    // 페이지 로드 시 글쓰기 관련 데이터 초기화 실행
-    clearWritingDrafts();
-
     document.getElementById("refreshPromptsBtn").onclick = function () {
       if (!currentGenre) return;
       // 캐시 삭제
@@ -597,6 +596,9 @@
 
     // 글감 복원은 fetchPrompts 이후에 실행해야 하므로 renderPrompts에서 처리
     window._restorePrompt = function() {
+      const savedPrompt = localStorage.getItem("geulssung_draft_prompt");
+      const savedPromptId = localStorage.getItem("geulssung_draft_prompt_id");
+
       if (savedPrompt && savedPromptId) {
         // 글감 버튼이 렌더링된 후에만 실행
         const promptBtns = document.querySelectorAll('.prompt-option');
@@ -959,6 +961,59 @@
     }, 300); // 렌더링 딜레이 보정
   });
 
+  // 🟢 자동저장/불러오기 통합
+  function restoreAllDrafts() {
+    // 제목
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput && localStorage.getItem('geulssung_draft_title')) {
+      titleInput.value = localStorage.getItem('geulssung_draft_title');
+    }
+    // 본문
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+    if (finalTextarea && localStorage.getItem('geulssung_draft_final_text')) {
+      finalTextarea.value = localStorage.getItem('geulssung_draft_final_text');
+    }
+    // step drafts (모든 장르)
+    ["essay","poem","column","analysis"].forEach(genre => {
+      for (let i = 1; i <= 3; i++) {
+        const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+        const key = `geulssung_draft_${genre}_step${i}`;
+        if (textarea && localStorage.getItem(key)) {
+          textarea.value = localStorage.getItem(key);
+        }
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    restoreAllDrafts();
+    // 입력시마다 저장
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput) {
+      titleInput.addEventListener("input", () => {
+        localStorage.setItem('geulssung_draft_title', titleInput.value);
+      });
+    }
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+    if (finalTextarea) {
+      finalTextarea.addEventListener("input", () => {
+        localStorage.setItem('geulssung_draft_final_text', finalTextarea.value);
+      });
+    }
+    // step drafts
+    ["essay","poem","column","analysis"].forEach(genre => {
+      for (let i = 1; i <= 3; i++) {
+        const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+        const key = `geulssung_draft_${genre}_step${i}`;
+        if (textarea) {
+          textarea.addEventListener("input", () => {
+            localStorage.setItem(key, textarea.value);
+          });
+        }
+      }
+    });
+  });
+
 </script>
 
 
@@ -1032,7 +1087,47 @@ function toggleChat() {
 
       alert("가이드 작성 내용이 모두 초기화되었습니다.");
     }
-  </script>  
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const STORAGE_KEYS = {
+      title: "geulssung_draft_prompt",
+      final: "geulssung_draft_content",
+    };
+
+    const titleInput = document.querySelector('input[name="prompt"]');
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+
+  // 복원
+  if (titleInput && localStorage.getItem(STORAGE_KEYS.title)) {
+    titleInput.value = localStorage.getItem(STORAGE_KEYS.title);
+  }
+  if (finalTextarea && localStorage.getItem(STORAGE_KEYS.final)) {
+    finalTextarea.value = localStorage.getItem(STORAGE_KEYS.final);
+  }
+
+  // 저장
+  if (titleInput) {
+    titleInput.addEventListener("input", () => {
+      localStorage.setItem(STORAGE_KEYS.title, titleInput.value);
+    });
+  }
+
+  if (finalTextarea) {
+    finalTextarea.addEventListener("input", () => {
+      localStorage.setItem(STORAGE_KEYS.final, finalTextarea.value);
+    });
+  }
+
+  // 폼 제출 시 localStorage 초기화
+  const form = document.querySelector("form");
+    if (form) {
+      form.addEventListener("submit", () => {
+        localStorage.removeItem(STORAGE_KEYS.title);
+        localStorage.removeItem(STORAGE_KEYS.final);
+      });
+    }
+  });
+</script>  
   
 </body>
 </html>
