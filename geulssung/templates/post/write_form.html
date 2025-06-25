@@ -38,7 +38,7 @@
 <form method="post" action="" enctype="multipart/form-data">
   {% csrf_token %}
   <!-- 전체 래퍼 -->
-  <div class="bg-white max-w-[1100px] min-h-[600px] mx-auto mt-20 rounded-xl shadow-lg overflow-hidden flex mr-[26rem]">
+  <div class="bg-white w-[1100px] min-h-[600px] ml-[auto] mr-[26rem] mt-20 rounded-xl shadow-lg overflow-hidden flex">
     
       <!-- 왼쪽: 가이드 사이드바 -->
       <aside id="guide-sidebar"
@@ -47,13 +47,21 @@
         <div class="sticky top-0 bg-white z-10 px-6 py-4 border-b">
           <p class="text-xl font-bold text-[#493E3E]">✍️ 글쓰기 가이드</p>
           <p class="text-sm text-gray-600">장르 선택 시 여기에 가이드가 나타납니다.</p>
+          <div class="text-right mt-2">
+            <button type="button" onclick="resetGuideSteps()"
+                    class="text-sm text-red-500 hover:text-red-700 border border-red-300 px-3 py-1 rounded-full transition">
+              🔄 가이드 초기화 하기
+            </button>
+          </div>
         </div>
+
         <!-- 스크롤 영역 -->
         <div id="guide-scrollable"
             class="flex-1 overflow-y-auto px-6 py-4">
           <!-- 선택한 글감 표시 영역 -->
           <div id="selected-prompt-display" class="mb-4 p-4 bg-[#f0f9ff] rounded text-sm text-[#0c4a6e] font-semibold hidden">
-            선택한 글감: <span id="selected-prompt-text"></span>
+            <div>선택한 형식: <span id="selected-genre-text"></span></div>
+            <div>선택한 글감: <span id="selected-prompt-text"></span></div>
           </div>
           <!-- 가이드 콘텐츠 삽입 -->
         </div>
@@ -62,13 +70,26 @@
       <!-- 오른쪽: 글쓰기 메인 -->
       <main id="writing-area"
             class="flex-1 p-6 overflow-y-auto">
-        <div class="flex justify-end mb-4">
+        <div class="flex justify-end gap-2 mb-4">
+          <!-- ✅ 저장 | 3 버튼: 직사각형 박스 -->
+          <div class="flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm">
+            <button type="button" onclick="handleTemporarySave()" class="text-[#493E3E] hover:underline">
+              저장
+            </button>
+            <span class="text-gray-300">|</span>
+            <button type="button" onclick="openDraftModal()" class="text-green-600 font-semibold hover:underline">
+              <span id="draftCount">0</span>
+            </button>
+          </div>
+
+          <!-- ✅ 가이드 접기 버튼 (그대로 유지) -->
           <button id="toggleGuideBtn"
                   onclick="toggleGuide()"
                   class="bg-[#fde68a] text-black px-4 py-2 rounded-full text-sm shadow">
             📚 가이드 접기
           </button>
         </div>
+
         
         <div class="h-full flex flex-col">
           <input type="hidden" name="character" id="character-input" value="none">
@@ -215,11 +236,26 @@
 </form>
 
 
-
 <!-- ✨ 숨겨진 가이드 템플릿 저장소 -->
 <div id="guide-template-container" class="hidden">
   {% include "post/guide_combined.html" %}
 </div>
+
+<!-- 🔸 모달 전체 배경 -->
+<div id="draftModal" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden flex justify-center items-center">
+  <div class="bg-white rounded-xl w-[700px] h-[600px] shadow-xl relative p-8 flex flex-col">
+    <button onclick="closeDraftModal()" class="absolute top-4 right-6 text-gray-400 hover:text-black text-2xl font-bold">×</button>
+    <!-- 기존 모달 안 제목 아래에 총 개수 표시 추가 -->
+    <h2 class="text-2xl font-bold mb-3">임시저장 글</h2>
+    <p id="draftTotal" class="text-base text-gray-500 mb-6">총 0개</p>
+    <hr>
+    <br>
+    <div id="draftListContainer" class="flex-1 overflow-y-auto space-y-4 text-base text-gray-700">
+      <!-- 목록이 여기 자동 삽입됨 -->
+    </div>
+  </div>
+</div>
+
 
 <script>
   let promptCache = {};
@@ -238,9 +274,14 @@
       scrollable.removeChild(scrollable.lastChild);
     }
     document.getElementById("character-input").value = category;
-    // 글감 표시 영역 숨기기
-    const displayBox = document.getElementById("selected-prompt-display");
-    if (displayBox) displayBox.classList.add("hidden");
+
+      // ✅ 수정: 임시저장글 불러온 상태라면 글감 표시 영역 유지
+    const editingIndex = localStorage.getItem("geulssung_editing_draft_index");
+    if (!editingIndex) {
+      // 새로 작성하는 글일 때만 글감 표시 영역 숨기기
+      const displayBox = document.getElementById("selected-prompt-display");
+      if (displayBox) displayBox.classList.add("hidden");
+    }
   }
 
   function showGuide(value) {
@@ -248,6 +289,15 @@
     currentGenre = genreMap[value];
     // ★ 형식(genre_type) 저장
     localStorage.setItem('geulssung_draft_genre_type', value);
+    
+    // 형식 정보 표시
+    const displayBox = document.getElementById('selected-prompt-display');
+    const genreText = document.getElementById('selected-genre-text');
+    if (genreText) {
+      genreText.textContent = currentGenre;
+      if (displayBox) displayBox.classList.remove('hidden');
+    }
+    
     fetchPrompts(currentGenre, renderPrompts);
     showGuideSidebar(value);
   }
@@ -320,15 +370,22 @@
     document.getElementById("selectedPrompt").value = "";
     document.getElementById("prompt-options").innerHTML = "";
     document.getElementById("prompt-box").style.display = "none";
-    // guide-scrollable 비울 때 selected-prompt-display는 남기고 나머지만 삭제
-    const scrollable = document.getElementById("guide-scrollable");
-    while (scrollable.children.length > 1) {
-      scrollable.removeChild(scrollable.lastChild);
-    }
+    // 가이드 초기화 (selected-prompt-display만 남기고 전부 제거)
+    const guide = document.getElementById("guide-scrollable");
+    [...guide.children].forEach(child => {
+      if (!child.id || child.id !== "selected-prompt-display") {
+        guide.removeChild(child);
+      }
+    });
     document.getElementById("character-input").value = characterId;
-    // 글감 표시 영역 숨기기
-    const displayBox = document.getElementById("selected-prompt-display");
-    if (displayBox) displayBox.classList.add("hidden");
+
+    // ✅ 수정: 임시저장글 불러온 상태라면 글감 표시 영역 유지
+    const editingIndex = localStorage.getItem("geulssung_editing_draft_index");
+    if (!editingIndex) {
+      // 새로 작성하는 글일 때만 글감 표시 영역 숨기기
+      const displayBox = document.getElementById("selected-prompt-display");
+      if (displayBox) displayBox.classList.add("hidden");
+    }
 
     // 캐릭터 id를 url용으로 변환 (emotion→1, logic→2)
     const charUrlId = characterId === 'emotion' ? 1 : (characterId === 'logic' ? 2 : characterId);
@@ -378,6 +435,27 @@
       window._restorePrompt = null;
     }
   }
+
+  // ✅ 👇 여기에 복원 함수 붙이기
+  window._restorePrompt = function() {
+    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
+    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
+    if (savedPrompt && savedPromptId) {
+      // 글감 버튼이 렌더링된 후에만 실행
+      const promptBtns = document.querySelectorAll('.prompt-option');
+      let found = false;
+      promptBtns.forEach(btn => {
+        if (btn.textContent === savedPrompt && btn.getAttribute('data-id') == savedPromptId) {
+          btn.click();
+          found = true;
+        }
+      });
+      // custom prompt일 경우
+      if (!found && savedPromptId === 'custom') {
+        selectPrompt(null, savedPrompt, 'custom');
+      }
+    }
+  };
 
   function selectPrompt(button, prompt, promptId) {
     // 버튼 색상 초기화
@@ -432,6 +510,36 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    // ✅ 페이지 로드 시 글쓰기 관련 데이터만 초기화
+    function clearWritingDrafts() {
+        // 장르/형식 선택 초기화
+        localStorage.removeItem('geulssung_draft_genre');
+        localStorage.removeItem('geulssung_draft_genre_type');
+        localStorage.removeItem('geulssung_draft_prompt');
+        localStorage.removeItem('geulssung_draft_prompt_id');
+        
+        // 제목, 본문 임시저장 초기화
+        localStorage.removeItem('geulssung_draft_title');
+        localStorage.removeItem('geulssung_draft_final_text');
+
+        // ✅ 추가된 부분: 편집 중인 글 인덱스 초기화
+        localStorage.removeItem('geulssung_editing_draft_index');
+        localStorage.removeItem('geulssung_selected_draft_index');
+        
+        ["essay", "poem", "column", "analysis"].forEach(genre => {
+            for (let i = 1; i <= 3; i++) {
+                localStorage.removeItem(`geulssung_draft_${genre}_step${i}`);
+            }
+        });
+            
+        // 장르별 step drafts 초기화
+        ["essay", "poem", "column", "analysis"].forEach(genre => {
+            for (let i = 1; i <= 3; i++) {
+                localStorage.removeItem(`geulssung_draft_${genre}_step${i}`);
+            }
+        });
+    }
+    
     document.getElementById("refreshPromptsBtn").onclick = function () {
       if (!currentGenre) return;
       // 캐시 삭제
@@ -485,29 +593,12 @@
     const displayBox = document.getElementById('selected-prompt-display');
     if (displayBox) displayBox.classList.add('hidden');
     // genre, genre_type, prompt 복원
-    const savedGenre = localStorage.getItem('geulssung_draft_genre');
-    const savedGenreType = localStorage.getItem('geulssung_draft_genre_type');
-    const savedPrompt = localStorage.getItem('geulssung_draft_prompt');
-    const savedPromptId = localStorage.getItem('geulssung_draft_prompt_id');
 
-    if (savedGenre) {
-      // 도우미(감성/논리) 라디오 체크 및 트리거
-      const genreRadio = document.getElementById(savedGenre);
-      if (genreRadio) {
-        genreRadio.checked = true;
-        handleCharacterSelection(savedGenre);
-      }
-    }
-    if (savedGenreType) {
-      // 형식(essay, poem 등) 라디오 체크 및 트리거
-      const genreTypeRadio = document.getElementById(savedGenreType);
-      if (genreTypeRadio) {
-        genreTypeRadio.checked = true;
-        showGuide(savedGenreType);
-      }
-    }
     // 글감 복원은 fetchPrompts 이후에 실행해야 하므로 renderPrompts에서 처리
     window._restorePrompt = function() {
+      const savedPrompt = localStorage.getItem("geulssung_draft_prompt");
+      const savedPromptId = localStorage.getItem("geulssung_draft_prompt_id");
+
       if (savedPrompt && savedPromptId) {
         // 글감 버튼이 렌더링된 후에만 실행
         const promptBtns = document.querySelectorAll('.prompt-option');
@@ -544,49 +635,382 @@
   }
   let currentStep = 1;
 
-function showStep(step) {
-  document.querySelectorAll('.step-form').forEach((el, idx) => {
-    el.classList.toggle('hidden', idx + 1 !== step);
-  });
+  function showStep(step) {
+    document.querySelectorAll('.step-form').forEach((el, idx) => {
+      el.classList.toggle('hidden', idx + 1 !== step);
+    });
 
-  document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
-  document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
+    document.getElementById("prevBtn").classList.toggle('hidden', step === 1);
+    document.getElementById("nextBtn").innerText = step === 2 ? "제출" : "다음 →";
 
-  currentStep = step;
-}
-
-function nextStep() {
-  if (currentStep === 1) {
-    showStep(2);
-  } else {
-    // 2단계에서 다음 누르면 submit
-    document.querySelector("form").submit();
+    currentStep = step;
   }
-}
 
-function prevStep() {
-  if (currentStep > 1) {
-    showStep(currentStep - 1);
-  }
-}
-
-// ★ 장르별 step drafts 자동 저장/복원 함수
-function setupStepDrafts(genre) {
-  for (let i = 1; i <= 3; i++) {
-    const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
-    const key = `geulssung_draft_${genre}_step${i}`;
-    if (textarea) {
-      // 복원
-      if (localStorage.getItem(key)) {
-        textarea.value = localStorage.getItem(key);
-      }
-      // 저장
-      textarea.addEventListener("input", () => {
-        localStorage.setItem(key, textarea.value);
-      });
+  function nextStep() {
+    if (currentStep === 1) {
+      showStep(2);
+    } else {
+      // 2단계에서 다음 누르면 submit
+      document.querySelector("form").submit();
     }
   }
-}
+
+  function prevStep() {
+    if (currentStep > 1) {
+      showStep(currentStep - 1);
+    }
+  }
+
+  // ★ 장르별 step drafts 자동 저장/복원 함수
+  function setupStepDrafts(genre) {
+    for (let i = 1; i <= 3; i++) {
+      const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+      const key = `geulssung_draft_${genre}_step${i}`;
+      if (textarea) {
+        // 복원
+        if (localStorage.getItem(key)) {
+          textarea.value = localStorage.getItem(key);
+        }
+        // 저장
+        textarea.addEventListener("input", () => {
+          localStorage.setItem(key, textarea.value);
+        });
+      }
+    }
+  }
+
+    // 🟢 새로 추가: 글쓰기 가이드 초기화 함수
+  function resetWritingGuideSteps(genre) {
+    if (!genre) return;
+    
+    // DOM 요소 초기화
+    const step1El = document.querySelector(`textarea[name="${genre}_step1"]`);
+    const step2El = document.querySelector(`textarea[name="${genre}_step2"]`);
+    const step3El = document.querySelector(`textarea[name="${genre}_step3"]`);
+
+    if (step1El) step1El.value = "";
+    if (step2El) step2El.value = "";
+    if (step3El) step3El.value = "";
+
+    // localStorage에서도 해당 장르의 step 데이터 제거
+    localStorage.removeItem(`geulssung_draft_${genre}_step1`);
+    localStorage.removeItem(`geulssung_draft_${genre}_step2`);
+    localStorage.removeItem(`geulssung_draft_${genre}_step3`);
+  }
+
+  // 4. handleTemporarySave 함수에서 현재 장르 정보도 함께 저장하도록 수정
+  function handleTemporarySave() {
+    try {
+      console.log("🟢 임시저장 함수 실행됨");
+
+      const promptTitle = localStorage.getItem("geulssung_draft_prompt") || "제목 없음";
+      const finalText = document.querySelector('textarea[name="final_text"]');
+      const content = finalText?.value?.trim() || "";
+
+      // ✅ 현재 선택된 genre 가져오기 (체크된 라디오버튼에서)
+      const genreRadio = document.querySelector('input[name="genre"]:checked');
+      const genre = genreRadio?.value || "";
+
+      const step1El = document.querySelector(`textarea[name="${genre}_step1"]`);
+      const step2El = document.querySelector(`textarea[name="${genre}_step2"]`);
+      const step3El = document.querySelector(`textarea[name="${genre}_step3"]`);
+
+      const step1 = step1El?.value || "";
+      const step2 = step2El?.value || "";
+      const step3 = step3El?.value || "";
+
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      let drafts = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]");
+
+      // 글감(제목) 기준으로 이미 저장된 글이 있는지 찾기
+      const existingIndex = drafts.findIndex(d => d.title === promptTitle);
+
+      if (existingIndex !== -1) {
+        // 이미 있는 글이면 업데이트
+        drafts[existingIndex] = {
+          ...drafts[existingIndex],
+          content,
+          timestamp,
+          genre,
+          step1,
+          step2,
+          step3,
+          promptId: localStorage.getItem("geulssung_draft_prompt_id") || "custom"
+        };
+        alert("기존 임시저장 글이 업데이트되었습니다.");
+      } else {
+        // 새 글 추가
+        const newDraft = {
+          title: promptTitle,
+          content,
+          timestamp,
+          genre,
+          step1,
+          step2,
+          step3,
+          promptId: localStorage.getItem("geulssung_draft_prompt_id") || "custom"
+        };
+        drafts.unshift(newDraft);
+        alert("이 글이 임시저장 되었습니다.");
+      }
+
+      localStorage.setItem("geulssung_draft_list", JSON.stringify(drafts));
+
+      const countEl = document.getElementById("draftCount");
+      if (countEl) countEl.textContent = drafts.length;
+
+      // 인덱스 초기화
+      localStorage.removeItem("geulssung_editing_draft_index");
+
+    } catch (error) {
+      console.error("❌ 임시저장 중 오류:", error);
+    }
+  }
+
+  function selectDraft(index) {
+    // 예: 사용자가 첫 번째 글을 선택했을 때
+    localStorage.setItem("geulssung_selected_draft", JSON.stringify(drafts[0]));
+    window.location.href = "/geulssung/write/";  // 글쓰기 페이지로 이동
+  }
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const badge = document.getElementById("draftCountBadge");
+    const drafts = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]");
+    if (badge) badge.textContent = `${drafts.length}개`;
+
+    updateDraftCount();
+  });
+
+    // 1. openDraftModal 함수 수정 (기존 함수를 완전히 교체)
+  function openDraftModal() {
+    const modal = document.getElementById("draftModal");
+    const container = document.getElementById("draftListContainer");
+    const countText = document.getElementById("draftTotal");
+    const drafts = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]");
+
+    // 총 개수 표시
+    if (countText) countText.textContent = `총 ${drafts.length}개`;
+
+    container.innerHTML = "";
+
+    if (drafts.length === 0) {
+      container.innerHTML = "<p class='text-gray-500 text-center'>저장된 글이 없습니다.</p>";
+    } else {
+      // 현재 작성중인 글감 확인
+      const currentPrompt = localStorage.getItem('geulssung_draft_prompt');
+      
+      drafts.forEach((draft, index) => {
+        const item = document.createElement("div");
+        item.className = "border-b pb-2 hover:bg-gray-100 rounded px-2 py-1 transition flex justify-between items-center";
+        
+        // 현재 작성중인 글감인지 확인
+        const isCurrentDraft = currentPrompt && draft.title === currentPrompt;
+        
+        item.innerHTML = `
+          <div class="cursor-pointer flex-1" onclick="selectDraftItem(${index})">
+            <div class="font-semibold">${draft.title}</div>
+            <div class="text-xs text-gray-500">${draft.timestamp}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            ${isCurrentDraft ? 
+              '<span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-semibold">작성중</span>' : 
+              '<button onclick="deleteDraft(' + index + ')" class="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded border border-red-300 hover:bg-red-50 transition">🗑️</button>'
+            }
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    modal.classList.remove("hidden");
+  }
+
+    // 2. 새로운 함수들 추가
+  function selectDraftItem(index) {
+    const drafts = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]");
+    const draft = drafts[index];
+    const currentPrompt = localStorage.getItem('geulssung_draft_prompt');
+    
+    // 현재 작성중인 글인지 확인
+    const isCurrentDraft = currentPrompt && draft.title === currentPrompt;
+    
+    if (isCurrentDraft) {
+      alert("현재 작성중인 글입니다.");
+      return;
+    }
+    
+    const confirmed = confirm("이 문서를 불러오면 현재 작성 중인 내용이 없어집니다. 임시저장 한 후 불러오길 권장합니다.");
+    if (confirmed) {
+      // ✅ 수정된 부분: 편집 중인 글의 인덱스를 저장
+      // 선택된 draft를 localStorage에 저장 (복원용)
+      localStorage.setItem("geulssung_editing_draft_index", index);
+      localStorage.setItem("geulssung_selected_draft_index", index);
+      
+      // draft 복원 실행
+      restoreDraftToForm(draft);
+      closeDraftModal();
+    }
+  }
+
+  function deleteDraft(index) {
+      const confirmed = confirm("🗑️ 이 글을 삭제하시겠습니까?");
+      if (confirmed) {
+          let drafts = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]");
+          drafts.splice(index, 1);
+          localStorage.setItem("geulssung_draft_list", JSON.stringify(drafts));
+          // 개수 업데이트
+          updateDraftCount();
+          // 모달 다시 열기 (목록 새로고침)
+          openDraftModal();
+      }
+  }
+
+  function closeDraftModal() {
+    document.getElementById("draftModal").classList.add("hidden");
+  }
+
+  // 1. restoreDraftToForm 함수 수정
+  function restoreDraftToForm(draft) {
+    const promptBox = document.getElementById("selectedPrompt");
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+
+    // 복원된 제목 → 글감 위치에 표시
+    if (promptBox) promptBox.value = draft.title;
+
+    // 복원된 본문 내용
+    if (finalTextarea) finalTextarea.value = draft.content;
+
+    // 🟢 글감 제목과 ID를 다시 localStorage에 저장
+    localStorage.setItem('geulssung_draft_prompt', draft.title);
+    localStorage.setItem('geulssung_draft_prompt_id', draft.promptId || 'custom');
+
+    // ✅ 장르별 step 데이터 복원 (즉시 실행)
+    const genre = draft.genre;
+    if (genre) {
+      // localStorage에 step 데이터 저장 (setupStepDrafts에서 읽을 수 있도록)
+      localStorage.setItem(`geulssung_draft_${genre}_step1`, draft.step1 || "");
+      localStorage.setItem(`geulssung_draft_${genre}_step2`, draft.step2 || "");
+      localStorage.setItem(`geulssung_draft_${genre}_step3`, draft.step3 || "");
+
+      // DOM 요소가 존재한다면 즉시 복원
+      setTimeout(() => {
+        const step1El = document.querySelector(`textarea[name="${genre}_step1"]`);
+        const step2El = document.querySelector(`textarea[name="${genre}_step2"]`);
+        const step3El = document.querySelector(`textarea[name="${genre}_step3"]`);
+
+        if (step1El) step1El.value = draft.step1 || "";
+        if (step2El) step2El.value = draft.step2 || "";
+        if (step3El) step3El.value = draft.step3 || "";
+      }, 100);
+    }
+
+    // 글감 표시 영역 업데이트
+    const displayBox = document.getElementById('selected-prompt-display');
+    const displayText = document.getElementById('selected-prompt-text');
+    const genreText = document.getElementById('selected-genre-text');
+    if (displayBox && displayText) {
+      displayText.textContent = draft.title;
+      // 형식 정보도 표시
+      if (genreText && genre) {
+        const genreMap = { essay: "에세이", poem: "시", column: "칼럼", analysis: "분석글" };
+        genreText.textContent = genreMap[genre] || genre;
+      }
+      displayBox.classList.remove('hidden');
+    }
+  }
+
+  function updateDraftCount() {
+    const count = JSON.parse(localStorage.getItem("geulssung_draft_list") || "[]").length;
+    const draftCount = document.getElementById("draftCount");
+    if (draftCount) draftCount.textContent = count;
+  }
+
+  function restoreGuideStepsFromDraft(draft) {
+    const genre = document.querySelector('input[name="genre"]')?.value || "";
+
+    const step2El = document.querySelector(`textarea[name="${genre}_step2"]`);
+    const step3El = document.querySelector(`textarea[name="${genre}_step3"]`);
+    const step4El = document.querySelector(`textarea[name="${genre}_step4"]`);
+
+    if (step2El && draft.step2 !== undefined) step2El.value = draft.step2;
+    if (step3El && draft.step3 !== undefined) step3El.value = draft.step3;
+    if (step4El && draft.step4 !== undefined) step4El.value = draft.step4;
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      const draft = JSON.parse(localStorage.getItem("geulssung_selected_draft"));
+      if (!draft) return;
+
+      const genre = document.querySelector('input[name="genre"]')?.value;
+      if (!genre) return;
+
+      const step1El = document.querySelector(`textarea[name="${genre}_step1"]`);
+      const step2El = document.querySelector(`textarea[name="${genre}_step2"]`);
+      const step3El = document.querySelector(`textarea[name="${genre}_step3"]`);
+
+      if (step1El) step1El.value = draft.step2 || "";
+      if (step2El) step2El.value = draft.step3 || "";
+      if (step3El) step3El.value = draft.step4 || "";
+    }, 300); // 렌더링 딜레이 보정
+  });
+
+  // 🟢 자동저장/불러오기 통합
+  function restoreAllDrafts() {
+    // 제목
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput && localStorage.getItem('geulssung_draft_title')) {
+      titleInput.value = localStorage.getItem('geulssung_draft_title');
+    }
+    // 본문
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+    if (finalTextarea && localStorage.getItem('geulssung_draft_final_text')) {
+      finalTextarea.value = localStorage.getItem('geulssung_draft_final_text');
+    }
+    // step drafts (모든 장르)
+    ["essay","poem","column","analysis"].forEach(genre => {
+      for (let i = 1; i <= 3; i++) {
+        const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+        const key = `geulssung_draft_${genre}_step${i}`;
+        if (textarea && localStorage.getItem(key)) {
+          textarea.value = localStorage.getItem(key);
+        }
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    restoreAllDrafts();
+    // 입력시마다 저장
+    const titleInput = document.querySelector('input[name="title"]');
+    if (titleInput) {
+      titleInput.addEventListener("input", () => {
+        localStorage.setItem('geulssung_draft_title', titleInput.value);
+      });
+    }
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+    if (finalTextarea) {
+      finalTextarea.addEventListener("input", () => {
+        localStorage.setItem('geulssung_draft_final_text', finalTextarea.value);
+      });
+    }
+    // step drafts
+    ["essay","poem","column","analysis"].forEach(genre => {
+      for (let i = 1; i <= 3; i++) {
+        const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+        const key = `geulssung_draft_${genre}_step${i}`;
+        if (textarea) {
+          textarea.addEventListener("input", () => {
+            localStorage.setItem(key, textarea.value);
+          });
+        }
+      }
+    });
+  });
+
 </script>
 
 
@@ -644,73 +1068,63 @@ function toggleChat() {
 <script src="{% static 'js/chatbot.js' %}"></script>
 
 <script>
+    function resetGuideSteps() {
+      const genre = localStorage.getItem('geulssung_draft_genre_type'); // 예: essay, column 등
+      if (!genre) {
+        alert("형식이 선택되어 있지 않아 리셋할 수 없습니다.");
+        return;
+      }
+
+      for (let i = 1; i <= 3; i++) {
+        const key = `geulssung_draft_${genre}_step${i}`;
+        const textarea = document.querySelector(`textarea[name="${genre}_step${i}"]`);
+        if (textarea) textarea.value = "";
+        localStorage.removeItem(key);
+      }
+
+      alert("가이드 작성 내용이 모두 초기화되었습니다.");
+    }
+
   document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-      const STORAGE_KEYS = {
-        title: "geulssung_draft_title",
-        final: "geulssung_draft_final_text",
-      };
-  
-      // 장르 추출
-      const genre = document.querySelector('input[name="genre"]:checked')?.value || 
-                    document.querySelector('input[name="genre"]')?.value;
-  
-      if (genre) {
-        for (let i = 1; i <= 3; i++) {
-          const key = `${genre}_step${i}`;
-          STORAGE_KEYS[`step${i}`] = `geulssung_draft_${key}`;
-        }
-      }
-  
-      const titleInput = document.querySelector('input[name="title"]');
-      const finalTextarea = document.querySelector('textarea[name="final_text"]');
-      const step1Textarea = document.querySelector(`textarea[name="${genre}_step1"]`);
-      const step2Textarea = document.querySelector(`textarea[name="${genre}_step2"]`);
-      const step3Textarea = document.querySelector(`textarea[name="${genre}_step3"]`);
-      const form = document.querySelector("form");
-  
-      function restoreDraft(input, key) {
-        if (input && localStorage.getItem(key)) {
-          input.value = localStorage.getItem(key);
-        }
-      }
-  
-      function saveDraft(input, key) {
-        if (input) {
-          input.addEventListener("input", () => {
-            localStorage.setItem(key, input.value);
-          });
-        }
-      }
-  
-      function clearDrafts() {
-        Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
-        // ★ 장르별 step drafts도 모두 삭제
-        ["essay", "poem", "column", "analysis"].forEach(genre => {
-          for (let i = 1; i <= 3; i++) {
-            localStorage.removeItem(`geulssung_draft_${genre}_step${i}`);
-          }
-        });
-      }
-  
-      restoreDraft(titleInput, STORAGE_KEYS.title);
-      restoreDraft(finalTextarea, STORAGE_KEYS.final);
-      restoreDraft(step1Textarea, STORAGE_KEYS.step1);
-      restoreDraft(step2Textarea, STORAGE_KEYS.step2);
-      restoreDraft(step3Textarea, STORAGE_KEYS.step3);
-  
-      saveDraft(titleInput, STORAGE_KEYS.title);
-      saveDraft(finalTextarea, STORAGE_KEYS.final);
-      saveDraft(step1Textarea, STORAGE_KEYS.step1);
-      saveDraft(step2Textarea, STORAGE_KEYS.step2);
-      saveDraft(step3Textarea, STORAGE_KEYS.step3);
-  
-      if (form) {
-        form.addEventListener("submit", clearDrafts);
-      }
-    }, 50);
+    const STORAGE_KEYS = {
+      title: "geulssung_draft_prompt",
+      final: "geulssung_draft_content",
+    };
+
+    const titleInput = document.querySelector('input[name="prompt"]');
+    const finalTextarea = document.querySelector('textarea[name="final_text"]');
+
+  // 복원
+  if (titleInput && localStorage.getItem(STORAGE_KEYS.title)) {
+    titleInput.value = localStorage.getItem(STORAGE_KEYS.title);
+  }
+  if (finalTextarea && localStorage.getItem(STORAGE_KEYS.final)) {
+    finalTextarea.value = localStorage.getItem(STORAGE_KEYS.final);
+  }
+
+  // 저장
+  if (titleInput) {
+    titleInput.addEventListener("input", () => {
+      localStorage.setItem(STORAGE_KEYS.title, titleInput.value);
+    });
+  }
+
+  if (finalTextarea) {
+    finalTextarea.addEventListener("input", () => {
+      localStorage.setItem(STORAGE_KEYS.final, finalTextarea.value);
+    });
+  }
+
+  // 폼 제출 시 localStorage 초기화
+  const form = document.querySelector("form");
+    if (form) {
+      form.addEventListener("submit", () => {
+        localStorage.removeItem(STORAGE_KEYS.title);
+        localStorage.removeItem(STORAGE_KEYS.final);
+      });
+    }
   });
-  </script>  
+</script>  
   
 </body>
 </html>
