@@ -99,7 +99,7 @@
   </style>
   
   <!-- 전체 래퍼 -->
-  <div class="bg-white p-4 mt-5 rounded-xl shadow-lg overflow-hidden">
+  <div class="bg-white p-4 mt-5 mb-20 rounded-xl shadow-lg overflow-hidden">
     <form method="post" action="" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="character" id="character-input" value="none">
@@ -326,10 +326,24 @@
       while (guideContent.children.length > 1) {
         guideContent.removeChild(guideContent.lastChild);
       }
+      
+      // 터치 안내 문구 추가 (가이드 템플릿 전에)
+      const touchGuide = document.createElement('div');
+      touchGuide.className = 'mb-2';
+      touchGuide.innerHTML = '<label class="block font-semibold text-[black] mb-1">💧방울들을 열어보세요.</label>';
+      guideContent.appendChild(touchGuide);
+      
       // 가이드 템플릿 삽입
       const guideDiv = document.createElement("div");
       guideDiv.innerHTML = temp.innerHTML;
       guideContent.appendChild(guideDiv);
+      
+      // 모바일에서만 한방울 닫기
+      const firstDetails = guideContent.querySelector('details');
+      if (firstDetails) {
+        firstDetails.removeAttribute('open');
+      }
+      
       // ★ 장르별 step drafts 자동 저장/복원 세팅
       setupStepDrafts(genre);
     } else {
@@ -739,7 +753,7 @@ function setupStepDrafts(genre) {
 <!-- <script src="{% static 'js/chatbot_mobile.js' %}"></script> -->
 
 <!-- ===== 하단 고정 내비게이션 바 ===== -->
-<div class="fixed bottom-2 left-1/2 z-50 -translate-x-1/2 flex justify-center items-center gap-4 bg-white/95 rounded-full shadow-xl px-6 py-2 border border-gray-200"
+<div class="fixed bottom-2 left-1/2 z-50 -translate-x-1/2 flex justify-center items-center gap-4 bg-white/95 rounded-full shadow-xl px-4 py-1 border border-gray-200"
      style="backdrop-filter: blur(10px);">
   <a href="{% url 'home' %}" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
     <span class="text-xl">🏠</span>
@@ -747,7 +761,7 @@ function setupStepDrafts(genre) {
   </a>
   {% if user.is_authenticated %}
   <a href="{% url 'public_user_posts' user.nickname %}" class="flex flex-col items-center text-[#0ea5e9] hover:text-[#2563eb] transition">
-    <span class="text-xl">📝</span>
+    <span class="text-xl">🐾</span>
     <span class="text-[10px] mt-0.5">내 글자국</span>
   </a>
   {% endif %}
