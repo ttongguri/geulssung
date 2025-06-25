@@ -4,6 +4,8 @@ from django.shortcuts import render
 from post.models import Post
 from report.models import SentimentAnalysis, PostSentiment
 import google.generativeai as genai
+from collections import defaultdict
+from datetime import datetime
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -82,10 +84,73 @@ def report_view(request):
         sentiment_labels.append(post.created_at.strftime("%Y-%m-%d"))
         sentiment_scores.append(analyze_post_sentiment(post))
 
+    # 시간대별 분석
+    time_groups = defaultdict(int)
+    f_time_groups = defaultdict(int)
+    t_time_groups = defaultdict(int)
+    
+    for post in user_posts:
+        hour = post.created_at.hour
+        
+        # 전체 시간대 분석
+        if 6 <= hour < 12:
+            time_groups["오전"] += 1
+        elif 12 <= hour < 18:
+            time_groups["오후"] += 1
+        elif 18 <= hour < 24:
+            time_groups["저녁"] += 1
+        else:
+            time_groups["새벽"] += 1
+            
+        # 감성별 시간대 분석
+        if post.category == 'emotion':
+            if 6 <= hour < 12:
+                f_time_groups["오전"] += 1
+            elif 12 <= hour < 18:
+                f_time_groups["오후"] += 1
+            elif 18 <= hour < 24:
+                f_time_groups["저녁"] += 1
+            else:
+                f_time_groups["새벽"] += 1
+        elif post.category == 'logic':
+            if 6 <= hour < 12:
+                t_time_groups["오전"] += 1
+            elif 12 <= hour < 18:
+                t_time_groups["오후"] += 1
+            elif 18 <= hour < 24:
+                t_time_groups["저녁"] += 1
+            else:
+                t_time_groups["새벽"] += 1
+    
+    # 가장 활발한 시간대 찾기
+    peak_time_group = max(time_groups.items(), key=lambda x: x[1])[0] if time_groups else None
+    f_time_group = max(f_time_groups.items(), key=lambda x: x[1])[0] if f_time_groups else None
+    t_time_group = max(t_time_groups.items(), key=lambda x: x[1])[0] if t_time_groups else None
+
+    # 글자수 통계 계산
+    char_counts = []
+    max_char_count = 0
+    max_char_post = None
+    
+    for post in user_posts:
+        if post.final_content:
+            char_count = len(post.final_content)
+            char_counts.append(char_count)
+            if char_count > max_char_count:
+                max_char_count = char_count
+                max_char_post = post
+    
+    avg_char_count = sum(char_counts) // len(char_counts) if char_counts else 0
+
     context = {
         "gemini_result": gemini_result,
         "sentiment_labels": sentiment_labels,
         "sentiment_scores": sentiment_scores,
+        "peak_time_group": peak_time_group,
+        "f_time_group": f_time_group,
+        "t_time_group": t_time_group,
+        "avg_char_count": avg_char_count,
+        "max_char_count": max_char_count,
     }
 
     return render(request, "report/report.html", context)
