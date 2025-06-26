@@ -1,6 +1,8 @@
 import os
 import re
 from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Count
 from post.models import Post
 from report.models import SentimentAnalysis, PostSentiment
 import google.generativeai as genai
@@ -68,6 +70,13 @@ def report_view(request):
     user_posts = Post.objects.filter(author=user).order_by("created_at")
     if not user_posts.exists():
         return render(request, "report/no_data.html")
+
+    # 사용자 정보 가져오기
+    nickname = user.nickname
+    date_joined = user.date_joined.astimezone(timezone.get_current_timezone()).strftime("%Y-%m-%d")
+    
+    # 발행글 수 계산 (is_public=True인 글만)
+    published_posts_count = Post.objects.filter(author=user, is_public=True).count()
 
     # 시간대 분석 추가
     f_time_group = get_peak_time_group([p for p in user_posts if p.category == 'emotion'])
@@ -165,6 +174,9 @@ def report_view(request):
     avg_char_count = sum(char_counts) // len(char_counts) if char_counts else 0
 
     context = {
+        "nickname": nickname,
+        "date_joined": date_joined,
+        "published_posts_count": published_posts_count,
         "gemini_result": gemini_result,
         "sentiment_labels": sentiment_labels,
         "sentiment_scores": sentiment_scores,

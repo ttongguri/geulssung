@@ -1,18 +1,58 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" style="font-size: 80%;">
 <head>
   <meta charset="UTF-8">
   <title>글 리포트</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap" rel="stylesheet">
+  
+  <style>
+
+    /* ======================== 폰트 크기 조정 영역 ======================== */
+    :root {
+      --content-font-size: 16px; /* 🔧 여기서 전체 콘텐츠 폰트 크기 조정 가능 */
+    }
+    
+    body {
+      font-family: 'Gowun Batang', serif;
+      background-color: #FFF9F2;
+      color: #493E3E;
+    }
+    
+    /* 🔧 메인 콘텐츠 영역 폰트 크기 */
+    .content-area {
+      font-size: var(--content-font-size);
+    }
+    
+    /* 🔧 제목(h2) 폰트 크기 - 기본 폰트의 1.8배 */
+    .content-area h2 {
+      font-size: calc(var(--content-font-size) * 1.8);
+    }
+    
+    /* 🔧 일반 텍스트(p) 폰트 크기 */
+    .content-area p {
+      font-size: var(--content-font-size);
+    }
+    
+    /* 🔧 작은 텍스트(.text-sm) 폰트 크기 - 기본 폰트의 0.875배 */
+    .content-area .text-sm {
+      font-size: calc(var(--content-font-size) * 0.875);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
 
-  <!-- 상단 제목 영역 -->
-  <header class="bg-cyan-500 text-white text-center py-6 text-3xl font-bold">
-    글 리포트
-  </header>
+<body class="bg-[#f0f9ff] min-h-screen text-[#493E3E] pt-0 px-10 pb-10" style="font-family: 'Gowun Batang', serif;">
 
-  <main class="max-w-4xl mx-auto p-6 bg-white shadow-md mt-6 rounded-lg">
+  {% include "nav_bar.html" %}
+
+  <!-- 상단 패딩 -->
+  <div class="h-20"></div>
+
+  <div class="max-w-4xl mx-auto p-6 bg-white shadow-md mt-6 rounded-3xl content-area">
+    <h2 class="bg-cyan-500 text-white text-center py-6 text-3xl font-bold -mx-6 -mt-6 mb-12 rounded-t-3xl">
+      글 리포트
+    </h2>
 
     <!-- 기본 정보 섹션 -->
     <div class="grid grid-cols-3 gap-6 mb-6">
@@ -22,26 +62,26 @@
       </div>
 
       <!-- 닉네임, 가입일 -->
-      <div class="col-span-1 flex flex-col justify-between">
+      <div class="col-span-1 flex flex-col">
         <div>
           <p class="font-semibold">닉네임</p>
-          <p class="text-sm">보리밥</p>
+          <p class="text-sm">{{ nickname }}</p>
         </div>
         <div>
-          <p class="font-semibold mt-4">가입일</p>
-          <p class="text-sm">2025.05.01</p>
+          <p class="font-semibold mt-10">가입일</p>
+          <p class="text-sm">{{ date_joined }}</p>
         </div>
       </div>
 
       <!-- 등급, 글 수 -->
-      <div class="col-span-1 flex flex-col justify-between">
+      <div class="col-span-1 flex flex-col">
         <div>
           <p class="font-semibold">글 발행등급</p>
           <p class="text-sm">고래</p>
         </div>
         <div>
-          <p class="font-semibold mt-4">발행글 수</p>
-          <p class="text-sm">50</p>
+          <p class="font-semibold mt-10">발행글 수</p>
+          <p class="text-sm">{{ published_posts_count }}</p>
         </div>
       </div>
     </div>
@@ -54,19 +94,19 @@
         <table class="w-full border text-sm">
           <tbody>
             <tr class="border-t">
-              <td class="p-2 font-medium w-1/2 bg-gray-50">주요활동시간대</td>
+              <td class="p-2 font-medium w-1/2 bg-gray-50 text-center">주요활동시간대</td>
               <td class="p-2"></td>
             </tr>
             <tr class="border-t">
-              <td class="p-2 font-medium bg-gray-50">F글/T글 시간대</td>
+              <td class="p-2 font-medium bg-gray-50 text-center">F글/T글 시간대</td>
               <td class="p-2"></td>
             </tr>
             <tr class="border-t">
-              <td class="p-2 font-medium bg-gray-50">평균/최대글자수</td>
+              <td class="p-2 font-medium bg-gray-50 text-center">평균/최대글자수</td>
               <td class="p-2"></td>
             </tr>
             <tr class="border-t">
-              <td class="p-2 font-medium bg-gray-50">평균/최고점수</td>
+              <td class="p-2 font-medium bg-gray-50 text-center">평균/최고점수</td>
               <td class="p-2"></td>
             </tr>
           </tbody>
@@ -89,7 +129,7 @@
         <!-- 의견 내용이 들어갈 영역 -->
       </div>
     </div>
-  </main>
+  </div>
 
 </body>
 </html>
