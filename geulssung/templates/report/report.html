@@ -51,7 +51,7 @@
 
   <div class="max-w-4xl mx-auto p-6 bg-white shadow-md mt-6 rounded-3xl content-area">
     <h2 class="bg-cyan-500 text-white text-center py-6 text-3xl font-bold -mx-6 -mt-6 mb-12 rounded-t-3xl">
-      글 리포트
+      글 분석 리포트
     </h2>
 
     <!-- 기본 정보 섹션 -->
@@ -130,6 +130,12 @@
       <div class="w-full h-auto bg-gray-100 p-4 rounded-md text-sm text-gray-600 whitespace-pre-line leading-relaxed my-4">
         {{ gemini_result }}
       </div>
+      <form method="post" class="flex justify-center mt-4">
+        {% csrf_token %}
+        <button type="submit" name="evaluate_report" value="1" class="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-full shadow transition-all duration-200">
+          평가 다시 받기 
+        </button>
+      </form>
     </div>
   </div>
 
