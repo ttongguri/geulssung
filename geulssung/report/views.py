@@ -62,6 +62,19 @@ def get_peak_time_group(posts):
         return group_counts.most_common(1)[0][0]
     return None
 
+def get_user_grade(published_count):
+    """발행글 수에 따라 사용자 등급을 반환"""
+    if published_count <= 2:
+        return "송사리 (3-4cm)"
+    elif published_count <= 6:
+        return "전어 (20-25cm)"
+    elif published_count <= 12:
+        return "도미 (40-60cm)"
+    elif published_count <= 20:
+        return "참치 (100-250cm)"
+    else:
+        return "고래 (15-30m)"
+
 def report_view(request):
     user = request.user
     if not user.is_authenticated:
@@ -77,6 +90,9 @@ def report_view(request):
     
     # 발행글 수 계산 (is_public=True인 글만)
     published_posts_count = Post.objects.filter(author=user, is_public=True).count()
+    
+    # 사용자 등급 계산
+    user_grade = get_user_grade(published_posts_count)
 
     # 시간대 분석 추가
     f_time_group = get_peak_time_group([p for p in user_posts if p.category == 'emotion'])
@@ -177,6 +193,7 @@ def report_view(request):
         "nickname": nickname,
         "date_joined": date_joined,
         "published_posts_count": published_posts_count,
+        "user_grade": user_grade,
         "gemini_result": gemini_result,
         "sentiment_labels": sentiment_labels,
         "sentiment_scores": sentiment_scores,
