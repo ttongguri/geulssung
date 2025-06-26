@@ -8,10 +8,12 @@ from post.models import Post, PostEvaluation
 from report.models import SentimentAnalysis, UserLevel
 import google.generativeai as genai
 from collections import Counter, defaultdict
+from customizing.models import Character, UserItem
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
+# 감성 점수 분석 코드
 # def analyze_post_sentiment(post):
 #     if hasattr(post, 'postsentiment'):
 #         return post.postsentiment.score
@@ -44,6 +46,7 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 #         print(f"[ERROR] 감성 분석 실패: {e}")
 #         return 0
 
+# 시간대 분석 코드
 def get_peak_time_group(posts):
     # 시간대 그룹: 새벽(0~5), 아침(6~11), 오후(12~17), 저녁(18~23)
     time_groups = {
@@ -64,6 +67,7 @@ def get_peak_time_group(posts):
         return group_counts.most_common(1)[0][0]
     return None
 
+# 글 분석 코드
 def report_view(request):
     user = request.user
     if not user.is_authenticated:
@@ -172,12 +176,25 @@ def report_view(request):
     avg_score = int(sum(score_list) / len(score_list)) if score_list else 0
     max_score = max(score_list) if score_list else 0
 
+    # 캐릭터 객체 조회
+    try:
+        geulssung = Character.objects.get(name="글썽이")
+    except Character.DoesNotExist:
+        geulssung = None
+    try:
+        malssung = Character.objects.get(name="말썽이")
+    except Character.DoesNotExist:
+        malssung = None
+
+    # 착용중인 아이템 쿼리
+    equipped_items = UserItem.objects.filter(user=user, equipped=True)
+
     # 시간대 분석 추가
     peak_time_group = get_peak_time_group(user_posts)
     f_time_group = get_peak_time_group([p for p in user_posts if p.category == 'emotion'])
     t_time_group = get_peak_time_group([p for p in user_posts if p.category == 'logic'])
 
-    # 사용자 글 요약 분석
+    # 글 요약 분석
     latest_summary = SentimentAnalysis.objects.filter(user=user).order_by("-analyzed_at").first()
     if latest_summary:
         gemini_result = latest_summary.result_text
@@ -241,6 +258,7 @@ def report_view(request):
 
         \"\"\"{full_text}\"\"\"
         """
+
         try:
             response = model.generate_content(prompt)
             gemini_result = response.text.strip()
