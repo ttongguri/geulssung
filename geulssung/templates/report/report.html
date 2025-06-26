@@ -97,19 +97,19 @@
           <tbody>
             <tr class="border-t">
               <td class="p-2 font-medium w-1/2 bg-gray-50 text-center">주요활동시간대</td>
-              <td class="p-2"></td>
+              <td class="p-2 text-center">{{ peak_time_group|default:'-' }}</td>
             </tr>
             <tr class="border-t">
               <td class="p-2 font-medium bg-gray-50 text-center">F글/T글 시간대</td>
-              <td class="p-2"></td>
+              <td class="p-2 text-center">{{ f_time_group|default:'쓰지않음' }} / {{ t_time_group|default:'쓰지않음' }}</td>
             </tr>
             <tr class="border-t">
               <td class="p-2 font-medium bg-gray-50 text-center">평균/최대글자수</td>
-              <td class="p-2"></td>
+              <td class="p-2 text-center">{{ avg_char_count|default:'-' }}자 / {{ max_char_count|default:'-' }}자</td>
             </tr>
             <tr class="border-t">
               <td class="p-2 font-medium bg-gray-50 text-center">평균/최고점수</td>
-              <td class="p-2"></td>
+              <td class="p-2 text-center">{{ avg_score|default:'0' }}점 / {{ max_score|default:'0' }}점</td>
             </tr>
           </tbody>
         </table>
