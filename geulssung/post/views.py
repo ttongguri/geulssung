@@ -130,10 +130,24 @@ def write_post_view(request):
 
         return redirect('post_detail', post_id=post.id)
     else:
-            # GET 요청 시 모바일 여부 확인 + 분기된 템플릿 선택
-            template_name = 'post/write_form_mobile.html' if is_mobile(request) else 'post/write_form.html'
-            
-            # 글쓰기 폼 렌더링 + 오늘 또는 어제 글감 로딩
+            # # GET 요청 시 모바일 여부 확인 + 분기된 템플릿 선택
+            # template_name = 'post/write_form_mobile.html' if is_mobile(request) else 'post/write_form.html'
+            #
+            # # 글쓰기 폼 렌더링 + 오늘 또는 어제 글감 로딩
+            # today = date.today()
+            # yesterday = today - timedelta(days=1)
+            #
+            # prompts = GeneratedPrompt.objects.filter(created_at__date=today)
+            # if not prompts.exists():
+            #     prompts = GeneratedPrompt.objects.filter(created_at__date=yesterday)
+            #
+            # equipped_items = UserItem.objects.filter(user=request.user, equipped=True)
+            #
+            # return render(request, template_name, {
+            #     'prompts': prompts,
+            #     'equipped_items': equipped_items,
+            # })
+            # 모바일 분기 주석처리: 모바일에서도 write_form.html 사용
             today = date.today()
             yesterday = today - timedelta(days=1)
 
@@ -143,7 +157,8 @@ def write_post_view(request):
 
             equipped_items = UserItem.objects.filter(user=request.user, equipped=True)
 
-            return render(request, template_name, {
+            # return render(request, template_name, {
+            return render(request, 'post/write_form.html', {
                 'prompts': prompts,
                 'equipped_items': equipped_items,
             })
