@@ -147,3 +147,4 @@ JavaScript로 textarea에 입력할 때마다 localStorage에 저장
 중복 지급 문제 해결. 유저 리워드 시스템이 신뢰를 갖추고, 실제 시연에서 "보상 지급 기준 명확해서 좋다. 보상처를 투명하게 확장하면 더 좋겠다."는 피드백 받음
 이후 추가적인 크레딧 사용처 확장 계획
 
+[글썽글썽 프로젝트 산출물 개요서.pdf](https://github.com/user-attachments/files/22086324/default.pdf)
